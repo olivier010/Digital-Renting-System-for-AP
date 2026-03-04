@@ -1,38 +1,62 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { ThemeProvider } from './contexts/ThemeContext'
+import { AuthProvider } from './contexts/AuthContext'
+import Navbar from './components/Navbar.tsx'
+import AdminLayout from './components/AdminLayout.tsx'
+import OwnerLayout from './components/OwnerLayout.tsx'
+import RenterLayout from './components/RenterLayout.tsx'
+import { Home, About, Contact, Login, Register } from './pages'
+import { Properties, PropertyDetail, Profile } from './pages/renter'
+import { Dashboard } from './pages/admin'
+import { AdminGuard, OwnerGuard, AnyUserGuard, RenterGuard } from './components/AuthGuard'
+
+// Admin route component with layout
+const AdminRoute = () => (
+  <AdminGuard>
+    <AdminLayout>
+      <Dashboard />
+    </AdminLayout>
+  </AdminGuard>
+)
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-      <div className="text-center">
-        <div className="flex justify-center space-x-4 mb-8">
-          <a href="https://vite.dev" target="_blank" className="hover:opacity-80 transition-opacity">
-            <img src={viteLogo} className="h-16 w-16" alt="Vite logo" />
-          </a>
-          <a href="https://react.dev" target="_blank" className="hover:opacity-80 transition-opacity">
-            <img src={reactLogo} className="h-16 w-16 animate-spin-slow" alt="React logo" />
-          </a>
-        </div>
-        <h1 className="text-4xl font-bold text-gray-800 mb-8">Vite + React</h1>
-        <div className="bg-white p-8 rounded-lg shadow-lg">
-          <button 
-            onClick={() => setCount((count) => count + 1)}
-            className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded transition-colors"
-          >
-            count is {count}
-          </button>
-          <p className="mt-4 text-gray-600">
-            Edit <code className="bg-gray-100 px-1 rounded">src/App.tsx</code> and save to test HMR
-          </p>
-        </div>
-        <p className="mt-8 text-gray-500">
-          Click on the Vite and React logos to learn more
-        </p>
-      </div>
-    </div>
+    <AuthProvider>
+      <ThemeProvider>
+        <Router>
+          <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
+            <Routes>
+              {/* Admin Routes - No Navbar */}
+              <Route path="/dashboard" element={<AdminRoute />} />
+              
+              {/* Public Routes - With Navbar */}
+              <Route path="/" element={<><Navbar /><main><Home /></main></>} />
+              <Route path="/properties" element={<><Navbar /><main><Properties /></main></>} />
+              <Route path="/properties/:id" element={<><Navbar /><main><PropertyDetail /></main></>} />
+              <Route path="/login" element={<><Navbar /><main><Login /></main></>} />
+              <Route path="/register" element={<><Navbar /><main><Register /></main></>} />
+              <Route path="/contact" element={<><Navbar /><main><Contact /></main></>} />
+              <Route path="/about" element={<><Navbar /><main><About /></main></>} />
+              
+              {/* Protected Routes - Any authenticated user */}
+              <Route path="/profile" element={
+                <><Navbar /><main><AnyUserGuard><Profile /></AnyUserGuard></main></>
+              } />
+              
+              {/* Owner Routes */}
+              <Route path="/owner/*" element={
+                <OwnerGuard><OwnerLayout /></OwnerGuard>
+              } />
+
+              {/* Renter Routes */}
+              <Route path="/renter/*" element={
+                <RenterGuard><RenterLayout /></RenterGuard>
+              } />
+            </Routes>
+          </div>
+        </Router>
+      </ThemeProvider>
+    </AuthProvider>
   )
 }
 
