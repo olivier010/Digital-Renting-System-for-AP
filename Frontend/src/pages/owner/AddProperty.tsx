@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Check } from 'lucide-react'
+import { CheckCircle } from 'lucide-react'
 
 const AddProperty = () => {
   const navigate = useNavigate()
@@ -485,7 +485,7 @@ const AddProperty = () => {
                     ? 'bg-primary-600 text-white' 
                     : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
                 }`}>
-                  {step < currentStep ? <Check className="w-4 h-4" /> : step}
+                  {step < currentStep ? <CheckCircle className="w-4 h-4" /> : step}
                 </div>
                 {step < totalSteps && (
                   <div className={`w-full h-1 mx-2 ${

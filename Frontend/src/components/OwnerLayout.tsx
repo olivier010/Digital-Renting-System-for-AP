@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { useState, useEffect } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { Home, Settings, LogOut, Menu, X, Building, Calendar, DollarSign, Star, Bell } from 'lucide-react'
+import { Home, Settings, LogOut, Menu, X, Building, Calendar, DollarSign, Star, Bell, Plus } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import Loading from './ui/Loading'
 import OwnerRoutes from '../pages/owner/OwnerRoutes'
@@ -68,7 +68,7 @@ const OwnerLayout: React.FC<OwnerLayoutProps> = ({ children }) => {
     {
       name: 'Add Property',
       href: '/owner/add-property',
-      icon: Home,
+      icon: Plus,
       current: currentTab === 'add-property'
     },
     {

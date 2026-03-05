@@ -5,17 +5,14 @@ import Navbar from './components/Navbar.tsx'
 import AdminLayout from './components/AdminLayout.tsx'
 import OwnerLayout from './components/OwnerLayout.tsx'
 import RenterLayout from './components/RenterLayout.tsx'
-import { Home, About, Contact, Login, Register } from './pages'
+import { Home, About, Contact, Login, Register, Faq } from './pages'
 import { Properties, PropertyDetail, Profile } from './pages/renter'
-import { Dashboard } from './pages/admin'
 import { AdminGuard, OwnerGuard, AnyUserGuard, RenterGuard } from './components/AuthGuard'
 
 // Admin route component with layout
 const AdminRoute = () => (
   <AdminGuard>
-    <AdminLayout>
-      <Dashboard />
-    </AdminLayout>
+    <AdminLayout />
   </AdminGuard>
 )
 
@@ -27,7 +24,8 @@ function App() {
           <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
             <Routes>
               {/* Admin Routes - No Navbar */}
-              <Route path="/dashboard" element={<AdminRoute />} />
+              <Route path="/admin/*" element={<AdminRoute />} />
+              <Route path="/dashboard" element={<AdminRoute />} /> {/* Legacy redirect */}
               
               {/* Public Routes - With Navbar */}
               <Route path="/" element={<><Navbar /><main><Home /></main></>} />
@@ -37,6 +35,7 @@ function App() {
               <Route path="/register" element={<><Navbar /><main><Register /></main></>} />
               <Route path="/contact" element={<><Navbar /><main><Contact /></main></>} />
               <Route path="/about" element={<><Navbar /><main><About /></main></>} />
+              <Route path="/faq" element={<><Navbar /><main><Faq /></main></>} />
               
               {/* Protected Routes - Any authenticated user */}
               <Route path="/profile" element={

@@ -1,12 +1,13 @@
 import type { ReactNode } from 'react'
 import { useState, useEffect } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { Shield, Settings, LogOut, Menu, X, Home, Users, Building, FileText, BarChart } from 'lucide-react'
+import { Shield, Settings as SettingsIcon, LogOut, Menu, X, Home, Users, Building, FileText, BarChart } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import Loading from './ui/Loading'
+import AdminRoutes from '../pages/admin/AdminRoutes'
 
 interface AdminLayoutProps {
-  children: ReactNode
+  children?: ReactNode
 }
 
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
@@ -44,45 +45,42 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     }
   }
 
-  // Get current tab from URL search params
-  const currentTab = new URLSearchParams(location.search).get('tab') || 'overview'
-
-  const adminNavItems = [
+  const navigation = [
     {
       name: 'Dashboard',
-      href: '/dashboard',
+      href: '/admin',
       icon: Home,
-      current: location.pathname === '/dashboard' && !currentTab || currentTab === 'overview'
+      current: location.pathname === '/admin' || location.pathname === '/admin/dashboard'
     },
     {
       name: 'Users',
-      href: '/dashboard?tab=users',
+      href: '/admin/users',
       icon: Users,
-      current: currentTab === 'users'
+      current: location.pathname === '/admin/users'
     },
     {
       name: 'Properties',
-      href: '/dashboard?tab=properties',
+      href: '/admin/properties',
       icon: Building,
-      current: currentTab === 'properties'
+      current: location.pathname === '/admin/properties'
     },
     {
       name: 'Bookings',
-      href: '/dashboard?tab=bookings',
+      href: '/admin/bookings',
       icon: FileText,
-      current: currentTab === 'bookings'
+      current: location.pathname === '/admin/bookings'
     },
     {
       name: 'Reports',
-      href: '/dashboard?tab=reports',
+      href: '/admin/reports',
       icon: BarChart,
-      current: currentTab === 'reports'
+      current: location.pathname === '/admin/reports'
     },
     {
       name: 'Settings',
-      href: '/dashboard?tab=settings',
-      icon: Settings,
-      current: currentTab === 'settings'
+      href: '/admin/settings',
+      icon: SettingsIcon,
+      current: location.pathname === '/admin/settings'
     }
   ]
 
@@ -127,7 +125,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 
         <nav className="flex-1 mt-6 px-3 overflow-y-auto">
           <div className="space-y-1">
-            {adminNavItems.map((item) => {
+            {navigation.map((item) => {
               const Icon = item.icon
               return (
                 <Link
@@ -216,7 +214,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 
         {/* Page content - Scrollable */}
         <main className="flex-1 bg-gray-50 dark:bg-gray-900 overflow-y-auto">
-          {children}
+          {children || <AdminRoutes />}
         </main>
       </div>
     </div>

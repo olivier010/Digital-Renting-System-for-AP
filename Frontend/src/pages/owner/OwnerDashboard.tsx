@@ -20,11 +20,14 @@ const OwnerDashboard = () => {
     totalProperties: 12,
     activeListings: 8,
     totalBookings: 156,
-    monthlyRevenue: 24500,
+    totalRevenue: 125000,
     occupancyRate: 85,
-    pendingRequests: 3,
-    totalGuests: 89,
-    averageRating: 4.8
+    averageRating: 4.8,
+    pendingBookings: 3,
+    monthlyRevenue: 24500,
+    totalReviews: 156,
+    responseRate: 95,
+    totalGuests: 89
   })
 
   const [revenueData] = useState([

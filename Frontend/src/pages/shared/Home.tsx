@@ -1,10 +1,75 @@
 import { Link } from 'react-router-dom'
 import { useState } from 'react'
-import { Search, Home as HomeIcon, Calendar, Star, Shield, ChevronRight, Facebook, Twitter, Linkedin } from 'lucide-react'
+import { Search, Home as HomeIcon, Calendar, Star, Shield, ChevronRight, Facebook, Twitter, Linkedin, MapPin, Bed, Bath } from 'lucide-react'
 
 const Home = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const [isExpanded, setIsExpanded] = useState(false)
+
+  // Mock featured properties data
+  const featuredProperties = [
+    {
+      id: 1,
+      title: 'Luxury Downtown Apartment',
+      location: 'New York, NY',
+      price: 250,
+      image: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400',
+      bedrooms: 2,
+      bathrooms: 2,
+      rating: 4.8,
+      reviews: 24
+    },
+    {
+      id: 2,
+      title: 'Modern Beach House',
+      location: 'Miami, FL',
+      price: 350,
+      image: 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=400',
+      bedrooms: 3,
+      bathrooms: 2,
+      rating: 4.9,
+      reviews: 18
+    },
+    {
+      id: 3,
+      title: 'Cozy Mountain Cabin',
+      location: 'Denver, CO',
+      price: 180,
+      image: 'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=400',
+      bedrooms: 2,
+      bathrooms: 1,
+      rating: 4.7,
+      reviews: 31
+    }
+  ]
+
+  // Mock testimonials data
+  const testimonials = [
+    {
+      id: 1,
+      name: 'Sarah Johnson',
+      role: 'Renter',
+      content: 'RentWise made finding my dream apartment so easy! The search filters are amazing and the booking process is seamless.',
+      rating: 5,
+      avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100'
+    },
+    {
+      id: 2,
+      name: 'Michael Chen',
+      role: 'Property Owner',
+      content: 'As a property owner, RentWise has helped me find quality tenants quickly. The platform is professional and reliable.',
+      rating: 5,
+      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100'
+    },
+    {
+      id: 3,
+      name: 'Emily Rodriguez',
+      role: 'Renter',
+      content: 'I love the detailed property listings and high-quality photos. It feels like you\'re actually there when you browse!',
+      rating: 5,
+      avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100'
+    }
+  ]
 
   const handleSearch = () => {
     if (searchQuery.trim()) {
@@ -162,62 +227,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Featured Properties */}
-      <section className="py-20 bg-white dark:bg-gray-800">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 dark:text-white mb-4">Featured Properties</h2>
-            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">Hand-picked premium properties for your perfect stay</p>
-          </div>
-          
-          {/* Placeholder for featured properties - will be populated with real data */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="bg-gray-50 dark:bg-gray-900 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden group border border-gray-100 dark:border-gray-700">
-                <div className="h-48 bg-gradient-to-br from-primary-400 to-primary-600 relative">
-                  <div className="absolute inset-0 bg-black opacity-20"></div>
-                  <div className="absolute top-4 left-4">
-                    <span className="bg-accent-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
-                      Featured
-                    </span>
-                  </div>
-                  <div className="absolute bottom-4 left-4 text-white">
-                    <h3 className="text-xl font-bold">Premium Property {i}</h3>
-                    <p className="text-primary-100">Location {i}</p>
-                  </div>
-                </div>
-                <div className="p-6 bg-white dark:bg-gray-800">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center text-yellow-500">
-                      {[...Array(5)].map((_, index) => (
-                        <Star key={index} className="w-4 h-4 fill-current" />
-                      ))}
-                      <span className="ml-2 text-gray-600 dark:text-gray-300 text-sm">(4.8)</span>
-                    </div>
-                    <div className="text-2xl font-bold text-primary-600 dark:text-primary-400">
-                      ${(100 * i)}/day
-                    </div>
-                  </div>
-                  <Link to={`/properties/${i}`} className="block w-full">
-                    <button className="w-full bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors font-medium group-hover:bg-primary-700 dark:group-hover:bg-primary-600">
-                      View Details
-                    </button>
-                  </Link>
-                </div>
-              </div>
-            ))}
-          </div>
-          
-          <div className="text-center mt-12">
-            <Link to="/properties">
-              <button className="bg-white dark:bg-gray-800 border-2 border-primary-600 text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-gray-700 px-8 py-3 rounded-xl font-medium transition-colors">
-                View All Properties
-              </button>
-            </Link>
-          </div>
-        </div>
-      </section>
-
       {/* How It Works */}
       <section className="py-20 bg-gray-50 dark:bg-gray-900">
         <div className="container mx-auto px-4">
@@ -248,36 +257,130 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Testimonials */}
+      {/* Featured Properties Section */}
+      <section className="py-16 bg-white dark:bg-gray-800">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+              Featured Properties
+            </h2>
+            <p className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+              Discover our handpicked selection of premium properties available for rent
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {featuredProperties.map((property) => (
+              <div key={property.id} className="bg-white dark:bg-gray-700 rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                <div className="relative">
+                  <img 
+                    src={property.image} 
+                    alt={property.title}
+                    className="w-full h-48 object-cover"
+                  />
+                  <div className="absolute top-4 right-4 bg-white dark:bg-gray-800 px-3 py-1 rounded-full shadow-md">
+                    <span className="text-sm font-bold text-primary-600 dark:text-primary-400">
+                      ${property.price}/night
+                    </span>
+                  </div>
+                </div>
+                
+                <div className="p-6">
+                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                    {property.title}
+                  </h3>
+                  
+                  <div className="flex items-center text-gray-600 dark:text-gray-300 mb-4">
+                    <MapPin className="w-4 h-4 mr-1" />
+                    <span className="text-sm">{property.location}</span>
+                  </div>
+
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-300">
+                      <div className="flex items-center">
+                        <Bed className="w-4 h-4 mr-1" />
+                        <span>{property.bedrooms}</span>
+                      </div>
+                      <div className="flex items-center">
+                        <Bath className="w-4 h-4 mr-1" />
+                        <span>{property.bathrooms}</span>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center">
+                      <Star className="w-4 h-4 text-yellow-500 mr-1" />
+                      <span className="text-sm font-medium text-gray-900 dark:text-white">
+                        {property.rating}
+                      </span>
+                      <span className="text-sm text-gray-500 dark:text-gray-400 ml-1">
+                        ({property.reviews})
+                      </span>
+                    </div>
+                  </div>
+
+                  <Link 
+                    to={`/properties/${property.id}`}
+                    className="block w-full bg-primary-600 hover:bg-primary-700 text-white text-center py-2 px-4 rounded-lg transition-colors duration-200"
+                  >
+                    View Details
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="text-center mt-12">
+            <Link 
+              to="/properties"
+              className="inline-flex items-center bg-primary-600 hover:bg-primary-700 text-white px-8 py-3 rounded-lg font-medium transition-colors duration-200"
+            >
+              View All Properties
+              <ChevronRight className="w-5 h-5 ml-2" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials Section */}
       <section className="py-16 bg-gray-50 dark:bg-gray-900">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 dark:text-white mb-4">What Our Users Say</h2>
-            <p className="text-lg text-gray-600 dark:text-gray-300">Trusted by thousands of renters and owners</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+              What Our Users Say
+            </h2>
+            <p className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+              Join thousands of satisfied renters and property owners who trust RentWise
+            </p>
           </div>
-          
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              { name: 'John Doe', role: 'Property Renter', comment: 'Amazing platform! Found my dream apartment in just 2 days.', rating: 5 },
-              { name: 'Sarah Smith', role: 'Car Owner', comment: 'Great experience renting out my car. Extra income made easy!', rating: 5 },
-              { name: 'Mike Johnson', role: 'Equipment Renter', comment: 'Professional tools available when I need them. Highly recommended!', rating: 5 }
-            ].map((testimonial, index) => (
-              <div key={index} className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8">
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {testimonials.map((testimonial) => (
+              <div key={testimonial.id} className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg">
                 <div className="flex items-center mb-4">
-                  <div className="w-12 h-12 bg-primary-100 dark:bg-primary-900 rounded-full flex items-center justify-center text-primary-600 dark:text-primary-300 font-bold mr-4">
-                    {testimonial.name.split(' ').map(n => n[0]).join('')}
-                  </div>
+                  <img 
+                    src={testimonial.avatar} 
+                    alt={testimonial.name}
+                    className="w-12 h-12 rounded-full mr-4"
+                  />
                   <div>
-                    <h4 className="font-bold text-gray-800 dark:text-white">{testimonial.name}</h4>
-                    <p className="text-gray-600 dark:text-gray-300 text-sm">{testimonial.role}</p>
+                    <h4 className="font-semibold text-gray-900 dark:text-white">
+                      {testimonial.name}
+                    </h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">
+                      {testimonial.role}
+                    </p>
                   </div>
                 </div>
-                <div className="flex text-yellow-500 mb-4">
-                  {[...Array(testimonial.rating)].map((_, index) => (
-                    <Star key={index} className="w-4 h-4 fill-current" />
+
+                <div className="flex mb-4">
+                  {[...Array(testimonial.rating)].map((_, i) => (
+                    <Star key={i} className="w-4 h-4 text-yellow-500 fill-current" />
                   ))}
                 </div>
-                <p className="text-gray-700 dark:text-gray-300 italic">"{testimonial.comment}"</p>
+
+                <p className="text-gray-700 dark:text-gray-300 italic">
+                  "{testimonial.content}"
+                </p>
               </div>
             ))}
           </div>
@@ -360,7 +463,7 @@ const Home = () => {
           </div>
           
           <div className="border-t border-gray-800 dark:border-gray-700 pt-8 text-center text-gray-400">
-            <p>&copy; 2024 RentWise. All rights reserved.</p>
+            <p>&copy; 2026 RentWise. All rights reserved.</p>
           </div>
         </div>
       </footer>
