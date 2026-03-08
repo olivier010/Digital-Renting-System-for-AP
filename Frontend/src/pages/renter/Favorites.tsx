@@ -1,5 +1,14 @@
 import { useState } from 'react'
-import { Heart, MapPin, Star, Bed, Bath, Square, DollarSign, Search, Filter, X } from 'lucide-react'
+import { Heart, MapPin, Star, Phone, DollarSign, Search, Filter, X, Home, Building2, Car, Landmark, Store, Package } from 'lucide-react'
+
+const categoryIcons: Record<string, typeof Home> = {
+  house: Home,
+  apartment: Building2,
+  car: Car,
+  land: Landmark,
+  commercial: Store,
+  other: Package,
+}
 
 const Favorites = () => {
   const [searchTerm, setSearchTerm] = useState('')
@@ -8,103 +17,83 @@ const Favorites = () => {
   const [favoriteProperties] = useState([
     {
       id: 1,
-      title: 'Modern City Loft',
-      location: 'San Francisco, CA',
-      price: 2800,
+      title: 'Modern Apartment Kigali',
+      location: 'Kigali, Nyarugenge',
+      price: 500,
       rating: 4.8,
-      reviews: 124,
-      image: '🏙️',
-      beds: 2,
-      baths: 1,
-      sqft: 850,
-      amenities: ['WiFi', 'Kitchen', 'Parking', 'Gym', 'Workspace'],
+      reviews: 24,
+      image: '🏢',
+      category: 'apartment',
+      bookings: 12,
       savedDate: '2024-03-01',
       availability: 'Available Mar 15-30',
-      host: 'Emily Chen',
-      hostImage: 'EC',
+      owner: { name: 'Jean Mugabo', phone: '+250 788 123 456' },
       lastViewed: '2024-03-10',
-      priceChange: 0,
-      propertyType: 'apartment'
+      priceChange: 0
     },
     {
       id: 2,
-      title: 'Cozy Beach Cottage',
-      location: 'San Diego, CA',
-      price: 2200,
+      title: 'Family House Kimironko',
+      location: 'Kigali, Gasabo',
+      price: 800,
       rating: 4.6,
-      reviews: 89,
-      image: '🏖️',
-      beds: 1,
-      baths: 1,
-      sqft: 600,
-      amenities: ['WiFi', 'Beach Access', 'Parking', 'Patio'],
+      reviews: 15,
+      image: '🏠',
+      category: 'house',
+      bookings: 8,
       savedDate: '2024-02-28',
       availability: 'Available Apr 1-15',
-      host: 'Robert Martinez',
-      hostImage: 'RM',
+      owner: { name: 'Marie Uwase', phone: '+250 788 234 567' },
       lastViewed: '2024-03-05',
-      priceChange: -200,
-      propertyType: 'house'
+      priceChange: -50
     },
     {
       id: 3,
-      title: 'Luxury Penthouse',
-      location: 'New York, NY',
-      price: 4500,
+      title: 'Toyota RAV4 2022',
+      location: 'Kigali, Kicukiro',
+      price: 200,
       rating: 4.9,
-      reviews: 67,
-      image: '🏢',
-      beds: 3,
-      baths: 2,
-      sqft: 1500,
-      amenities: ['WiFi', 'Gym', 'Concierge', 'Pool', 'City View'],
+      reviews: 32,
+      image: '🚗',
+      category: 'car',
+      bookings: 20,
       savedDate: '2024-02-15',
       availability: 'Available May 1-31',
-      host: 'James Wilson',
-      hostImage: 'JW',
+      owner: { name: 'Patrick Habimana', phone: '+250 788 345 678' },
       lastViewed: '2024-03-01',
-      priceChange: 500,
-      propertyType: 'penthouse'
+      priceChange: 0
     },
     {
       id: 4,
-      title: 'Mountain Retreat Cabin',
-      location: 'Aspen, CO',
-      price: 3200,
-      rating: 4.7,
-      reviews: 45,
-      image: '🏔️',
-      beds: 2,
-      baths: 2,
-      sqft: 1100,
-      amenities: ['WiFi', 'Fireplace', 'Hot Tub', 'Ski Access'],
+      title: 'Land Plot Nyamirambo',
+      location: 'Kigali, Nyarugenge',
+      price: 300,
+      rating: 4.3,
+      reviews: 5,
+      image: '🏞️',
+      category: 'land',
+      bookings: 2,
       savedDate: '2024-02-10',
-      availability: 'Available Dec 15 - Jan 15',
-      host: 'Lisa Anderson',
-      hostImage: 'LA',
+      availability: 'Available Now',
+      owner: { name: 'Emmanuel Nshuti', phone: '+250 788 567 890' },
       lastViewed: '2024-02-28',
-      priceChange: 0,
-      propertyType: 'cabin'
+      priceChange: 0
     },
     {
       id: 5,
-      title: 'Urban Studio Apartment',
-      location: 'Seattle, WA',
-      price: 1800,
+      title: 'Commercial Space Remera',
+      location: 'Kigali, Gasabo',
+      price: 1200,
       rating: 4.5,
-      reviews: 92,
-      image: '🏙️',
-      beds: 1,
-      baths: 1,
-      sqft: 500,
-      amenities: ['WiFi', 'Kitchen', 'Gym', 'Laundry'],
+      reviews: 8,
+      image: '🏪',
+      category: 'commercial',
+      bookings: 3,
       savedDate: '2024-01-25',
       availability: 'Available Mar 20-31',
-      host: 'Michael Brown',
-      hostImage: 'MB',
+      owner: { name: 'Alice Mutesi', phone: '+250 788 456 789' },
       lastViewed: '2024-02-20',
-      priceChange: -100,
-      propertyType: 'studio'
+      priceChange: -100
     }
   ])
 
@@ -286,7 +275,9 @@ const Favorites = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredAndSortedProperties.map((property) => (
+          {filteredAndSortedProperties.map((property) => {
+            const CategoryIcon = categoryIcons[property.category] || Package
+            return (
             <div key={property.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-md transition-shadow">
               {/* Property Image */}
               <div className="relative h-48 bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-6xl">
@@ -307,8 +298,16 @@ const Favorites = () => {
                   <X className="w-4 h-4 text-gray-600 dark:text-gray-400" />
                 </button>
                 
-                {/* Availability Badge */}
+                {/* Category Badge */}
                 <div className="absolute bottom-3 left-3">
+                  <span className="inline-flex items-center px-2 py-1 bg-white dark:bg-gray-800 text-xs font-medium rounded-full shadow-sm capitalize">
+                    <CategoryIcon className="w-3 h-3 mr-1" />
+                    {property.category}
+                  </span>
+                </div>
+                
+                {/* Availability Badge */}
+                <div className="absolute bottom-3 right-3">
                   <span className="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs rounded-full">
                     {property.availability}
                   </span>
@@ -351,50 +350,22 @@ const Favorites = () => {
                       ({property.reviews} reviews)
                     </span>
                   </div>
+                  <span className="text-sm text-gray-500 dark:text-gray-400 ml-3">
+                    {property.bookings} bookings
+                  </span>
                 </div>
 
-                {/* Property Details */}
-                <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-400 mb-3">
-                  <div className="flex items-center">
-                    <Bed className="w-4 h-4 mr-1" />
-                    {property.beds} beds
-                  </div>
-                  <div className="flex items-center">
-                    <Bath className="w-4 h-4 mr-1" />
-                    {property.baths} baths
-                  </div>
-                  <div className="flex items-center">
-                    <Square className="w-4 h-4 mr-1" />
-                    {property.sqft} sqft
-                  </div>
+                {/* Contact */}
+                <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 mb-3">
+                  <Phone className="w-4 h-4 mr-1" />
+                  {property.owner.phone}
                 </div>
 
-                {/* Amenities */}
-                <div className="flex flex-wrap gap-1 mb-3">
-                  {property.amenities.slice(0, 3).map((amenity: string, index: number) => (
-                    <span key={index} className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-xs text-gray-600 dark:text-gray-400 rounded">
-                      {amenity}
-                    </span>
-                  ))}
-                  {property.amenities.length > 3 && (
-                    <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-xs text-gray-600 dark:text-gray-400 rounded">
-                      +{property.amenities.length - 3} more
-                    </span>
-                  )}
-                </div>
-
-                {/* Host and Saved Date */}
+                {/* Owner and Saved Date */}
                 <div className="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-gray-700">
-                  <div className="flex items-center">
-                    <div className="w-6 h-6 bg-primary-100 dark:bg-primary-900 rounded-full flex items-center justify-center">
-                      <span className="text-xs font-medium text-primary-600 dark:text-primary-300">
-                        {property.hostImage}
-                      </span>
-                    </div>
-                    <span className="text-xs text-gray-600 dark:text-gray-400 ml-2">
-                      {property.host}
-                    </span>
-                  </div>
+                  <span className="text-xs text-gray-600 dark:text-gray-400">
+                    {property.owner.name}
+                  </span>
                   <div className="text-right">
                     <p className="text-xs text-gray-500 dark:text-gray-400">
                       Saved {property.savedDate}
@@ -416,7 +387,8 @@ const Favorites = () => {
                 </div>
               </div>
             </div>
-          ))}
+            )
+          })}
         </div>
       )}
     </div>

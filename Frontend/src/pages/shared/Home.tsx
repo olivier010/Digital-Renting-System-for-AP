@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useState } from 'react'
-import { Search, Home as HomeIcon, Calendar, Star, Shield, ChevronRight, Facebook, Twitter, Linkedin, MapPin, Bed, Bath } from 'lucide-react'
+import { Search, Home as HomeIcon, Calendar, Star, Shield, ChevronRight, Facebook, Twitter, Linkedin, MapPin, Car } from 'lucide-react'
 
 const Home = () => {
   const [searchQuery, setSearchQuery] = useState('')
@@ -10,36 +10,33 @@ const Home = () => {
   const featuredProperties = [
     {
       id: 1,
-      title: 'Luxury Downtown Apartment',
-      location: 'New York, NY',
-      price: 250,
+      title: 'Modern Apartment Kigali',
+      location: 'Kigali, Nyarugenge',
+      price: 500,
       image: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400',
-      bedrooms: 2,
-      bathrooms: 2,
+      category: 'apartment',
       rating: 4.8,
       reviews: 24
     },
     {
       id: 2,
-      title: 'Modern Beach House',
-      location: 'Miami, FL',
-      price: 350,
+      title: 'Family House Kimironko',
+      location: 'Kigali, Gasabo',
+      price: 800,
       image: 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=400',
-      bedrooms: 3,
-      bathrooms: 2,
-      rating: 4.9,
-      reviews: 18
+      category: 'house',
+      rating: 4.6,
+      reviews: 15
     },
     {
       id: 3,
-      title: 'Cozy Mountain Cabin',
-      location: 'Denver, CO',
-      price: 180,
+      title: 'Toyota RAV4 2022',
+      location: 'Kigali, Kicukiro',
+      price: 200,
       image: 'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=400',
-      bedrooms: 2,
-      bathrooms: 1,
-      rating: 4.7,
-      reviews: 31
+      category: 'car',
+      rating: 4.9,
+      reviews: 32
     }
   ]
 
@@ -199,11 +196,12 @@ const Home = () => {
             <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">Choose from our wide range of rental properties designed to meet your needs</p>
           </div>
           
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+          <div className="grid md:grid-cols-4 gap-8 max-w-5xl mx-auto">
             {[
-              { name: 'Apartments', icon: <HomeIcon className="w-8 h-8" />, description: 'Modern apartments in prime locations', color: 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300' },
               { name: 'Houses', icon: <HomeIcon className="w-8 h-8" />, description: 'Spacious homes for families and individuals', color: 'bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-300' },
-              { name: 'Luxury', icon: <Star className="w-8 h-8" />, description: 'Premium properties with exclusive amenities', color: 'bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300' }
+              { name: 'Apartments', icon: <HomeIcon className="w-8 h-8" />, description: 'Modern apartments in prime locations', color: 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300' },
+              { name: 'Cars', icon: <Car className="w-8 h-8" />, description: 'Reliable vehicles for daily or monthly rental', color: 'bg-yellow-100 dark:bg-yellow-900 text-yellow-600 dark:text-yellow-300' },
+              { name: 'Commercial', icon: <Star className="w-8 h-8" />, description: 'Office and retail spaces for your business', color: 'bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300' }
             ].map((category) => (
               <Link 
                 key={category.name}
@@ -280,7 +278,7 @@ const Home = () => {
                   />
                   <div className="absolute top-4 right-4 bg-white dark:bg-gray-800 px-3 py-1 rounded-full shadow-md">
                     <span className="text-sm font-bold text-primary-600 dark:text-primary-400">
-                      ${property.price}/night
+                      ${property.price}/mo
                     </span>
                   </div>
                 </div>
@@ -297,14 +295,9 @@ const Home = () => {
 
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-300">
-                      <div className="flex items-center">
-                        <Bed className="w-4 h-4 mr-1" />
-                        <span>{property.bedrooms}</span>
-                      </div>
-                      <div className="flex items-center">
-                        <Bath className="w-4 h-4 mr-1" />
-                        <span>{property.bathrooms}</span>
-                      </div>
+                      <span className="px-2 py-1 bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300 text-xs font-medium rounded-full capitalize">
+                        {property.category}
+                      </span>
                     </div>
                     
                     <div className="flex items-center">

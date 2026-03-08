@@ -1,17 +1,22 @@
 import { useState } from 'react'
-import { Search, MapPin, Star, Heart, Bed, Bath, Square, Filter, Grid, List, ChevronDown } from 'lucide-react'
+import { Search, MapPin, Star, Heart, Phone, Home, Building2, Car, Landmark, Store, Package, Filter, Grid, List, ChevronDown } from 'lucide-react'
+
+const categoryIcons: Record<string, typeof Home> = {
+  house: Home,
+  apartment: Building2,
+  car: Car,
+  land: Landmark,
+  commercial: Store,
+  other: Package,
+}
 
 const SearchProperties = () => {
   const [searchFilters, setSearchFilters] = useState({
     location: '',
     checkIn: '',
     checkOut: '',
-    guests: 1,
     priceRange: [0, 5000],
-    propertyType: 'all',
-    amenities: [],
-    bedrooms: 'any',
-    bathrooms: 'any',
+    category: 'all',
     sortBy: 'recommended'
   })
 
@@ -21,58 +26,46 @@ const SearchProperties = () => {
   const [properties] = useState([
     {
       id: 1,
-      title: 'Luxury Downtown Apartment',
-      location: 'New York, NY',
-      price: 2500,
+      title: 'Modern Apartment Kigali',
+      location: 'Kigali, Nyarugenge',
+      price: 500,
       rating: 4.8,
-      reviews: 124,
-      image: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400',
-      beds: 2,
-      baths: 1,
-      sqft: 850,
-      amenities: ['WiFi', 'Kitchen', 'Parking', 'Gym'],
+      reviews: 24,
+      image: '🏢',
+      category: 'apartment',
       available: true,
-      host: 'John Smith',
-      hostImage: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100',
-      type: 'apartment',
+      bookings: 12,
+      owner: { name: 'Jean Mugabo', phone: '+250 788 123 456' },
       featured: true,
       instantBook: true
     },
     {
       id: 2,
-      title: 'Beach House Paradise',
-      location: 'Miami, FL',
-      price: 3500,
-      rating: 4.9,
-      reviews: 89,
-      image: 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=400',
-      beds: 3,
-      baths: 2,
-      sqft: 1200,
-      amenities: ['WiFi', 'Kitchen', 'Parking', 'Pool', 'Beach Access'],
+      title: 'Family House Kimironko',
+      location: 'Kigali, Gasabo',
+      price: 800,
+      rating: 4.6,
+      reviews: 15,
+      image: '🏠',
+      category: 'house',
       available: true,
-      host: 'Maria Garcia',
-      hostImage: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100',
-      type: 'house',
+      bookings: 8,
+      owner: { name: 'Marie Uwase', phone: '+250 788 234 567' },
       featured: false,
       instantBook: false
     },
     {
       id: 3,
-      title: 'Mountain View Cabin',
-      location: 'Aspen, CO',
-      price: 1800,
-      rating: 4.7,
-      reviews: 156,
-      image: 'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=400',
-      beds: 2,
-      baths: 1,
-      sqft: 750,
-      amenities: ['WiFi', 'Kitchen', 'Fireplace', 'Mountain View'],
+      title: 'Toyota RAV4 2022',
+      location: 'Kigali, Kicukiro',
+      price: 200,
+      rating: 4.9,
+      reviews: 32,
+      image: '🚗',
+      category: 'car',
       available: true,
-      host: 'Michael Brown',
-      hostImage: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100',
-      type: 'cabin',
+      bookings: 20,
+      owner: { name: 'Patrick Habimana', phone: '+250 788 345 678' },
       featured: false,
       instantBook: true
     }
@@ -192,39 +185,25 @@ const SearchProperties = () => {
           
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Guests
+              Category
             </label>
             <select
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-              value={searchFilters.guests}
-              onChange={(e) => setSearchFilters({...searchFilters, guests: parseInt(e.target.value)})}
+              value={searchFilters.category}
+              onChange={(e) => setSearchFilters({...searchFilters, category: e.target.value})}
             >
-              <option value={1}>1 Guest</option>
-              <option value={2}>2 Guests</option>
-              <option value={3}>3 Guests</option>
-              <option value={4}>4+ Guests</option>
+              <option value="all">All Categories</option>
+              <option value="house">House</option>
+              <option value="apartment">Apartment</option>
+              <option value="car">Car</option>
+              <option value="land">Land</option>
+              <option value="commercial">Commercial</option>
+              <option value="other">Other</option>
             </select>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Property Type
-            </label>
-            <select
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-              value={searchFilters.propertyType}
-              onChange={(e) => setSearchFilters({...searchFilters, propertyType: e.target.value})}
-            >
-              <option value="all">All Types</option>
-              <option value="apartment">Apartment</option>
-              <option value="house">House</option>
-              <option value="condo">Condo</option>
-              <option value="studio">Studio</option>
-            </select>
-          </div>
-          
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Price Range
@@ -279,7 +258,9 @@ const SearchProperties = () => {
 
       {/* Property Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {properties.map((property) => (
+        {properties.map((property) => {
+          const CategoryIcon = categoryIcons[property.category] || Package
+          return (
           <div key={property.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-md transition-shadow">
             {/* Property Image */}
             <div className="relative h-48 bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-6xl">
@@ -295,6 +276,13 @@ const SearchProperties = () => {
               >
                 <Heart className={`w-4 h-4 ${savedProperties.includes(property.id) ? 'fill-red-500 text-red-500' : 'text-gray-600 dark:text-gray-400'}`} />
               </button>
+              {/* Category Badge */}
+              <div className="absolute top-3 left-3">
+                <span className="inline-flex items-center px-2 py-1 bg-white dark:bg-gray-800 text-xs font-medium rounded-full shadow-sm capitalize">
+                  <CategoryIcon className="w-3 h-3 mr-1" />
+                  {property.category}
+                </span>
+              </div>
             </div>
 
             {/* Property Info */}
@@ -328,50 +316,22 @@ const SearchProperties = () => {
                     ({property.reviews} reviews)
                   </span>
                 </div>
+                <span className="text-sm text-gray-500 dark:text-gray-400 ml-3">
+                  {property.bookings} bookings
+                </span>
               </div>
 
-              {/* Property Details */}
-              <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-400 mb-3">
-                <div className="flex items-center">
-                  <Bed className="w-4 h-4 mr-1" />
-                  {property.beds} beds
-                </div>
-                <div className="flex items-center">
-                  <Bath className="w-4 h-4 mr-1" />
-                  {property.baths} baths
-                </div>
-                <div className="flex items-center">
-                  <Square className="w-4 h-4 mr-1" />
-                  {property.sqft} sqft
-                </div>
+              {/* Contact Info */}
+              <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 mb-3">
+                <Phone className="w-4 h-4 mr-1" />
+                {property.owner.phone}
               </div>
 
-              {/* Amenities */}
-              <div className="flex flex-wrap gap-1 mb-3">
-                {property.amenities.slice(0, 3).map((amenity: string, index: number) => (
-                  <span key={index} className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-xs text-gray-600 dark:text-gray-400 rounded">
-                    {amenity}
-                  </span>
-                ))}
-                {property.amenities.length > 3 && (
-                  <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-xs text-gray-600 dark:text-gray-400 rounded">
-                    +{property.amenities.length - 3} more
-                  </span>
-                )}
-              </div>
-
-              {/* Host Info */}
+              {/* Owner and Book */}
               <div className="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-gray-700">
-                <div className="flex items-center">
-                  <div className="w-8 h-8 bg-primary-100 dark:bg-primary-900 rounded-full flex items-center justify-center">
-                    <span className="text-xs font-medium text-primary-600 dark:text-primary-300">
-                      {property.hostImage}
-                    </span>
-                  </div>
-                  <span className="text-sm text-gray-600 dark:text-gray-400 ml-2">
-                    {property.host}
-                  </span>
-                </div>
+                <span className="text-sm text-gray-600 dark:text-gray-400">
+                  {property.owner.name}
+                </span>
                 <button 
                   className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                     property.available 
@@ -385,7 +345,8 @@ const SearchProperties = () => {
               </div>
             </div>
           </div>
-        ))}
+          )
+        })}
       </div>
 
       {/* No Results Message */}

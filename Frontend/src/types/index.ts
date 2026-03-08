@@ -4,13 +4,13 @@ export interface Property {
   description: string;
   price: number;
   location: string;
-  bedrooms: number;
-  bathrooms: number;
-  area: number;
-  type: 'apartment' | 'house' | 'condo' | 'studio';
+  category: 'house' | 'apartment' | 'car' | 'land' | 'commercial' | 'other';
   images: string[];
-  amenities: string[];
   available: boolean;
+  bookings: number;
+  rating: number;
+  reviews: number;
+  status: 'active' | 'inactive';
   owner: {
     id: string;
     name: string;

@@ -27,7 +27,7 @@ const Bookings = () => {
     {
       id: 1,
       property: 'Luxury Downtown Apartment',
-      location: 'New York, NY',
+      location: 'Kigali, Nyarugenge',
       image: '🏢',
       guest: 'John Smith',
       guestEmail: 'john.smith@email.com',
@@ -54,7 +54,7 @@ const Bookings = () => {
     {
       id: 2,
       property: 'Beach House Paradise',
-      location: 'Miami, FL',
+      location: 'Gisenyi, Rubavu',
       image: '🏖️',
       guest: 'Sarah Johnson',
       guestEmail: 'sarah.j@email.com',
@@ -80,9 +80,9 @@ const Bookings = () => {
     },
     {
       id: 3,
-      property: 'Mountain View Cabin',
-      location: 'Aspen, CO',
-      image: '🏔️',
+      property: 'Toyota RAV4 2022',
+      location: 'Kigali, Kicukiro',
+      image: '🚗',
       guest: 'Michael Brown',
       guestEmail: 'michael.b@email.com',
       guestPhone: '+1 (555) 456-7890',
@@ -107,8 +107,8 @@ const Bookings = () => {
     },
     {
       id: 4,
-      property: 'Urban Studio Loft',
-      location: 'Chicago, IL',
+      property: 'Modern Studio Loft',
+      location: 'Kigali, Gasabo',
       image: '🏙️',
       guest: 'Emily Davis',
       guestEmail: 'emily.d@email.com',

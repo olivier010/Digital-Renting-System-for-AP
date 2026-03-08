@@ -8,156 +8,120 @@ import {
   Eye, 
   Star, 
   MapPin, 
-  Bed, 
-  Bath, 
-  Square, 
-  Calendar, 
-  DollarSign, 
-  BarChart3, 
   Search, 
   Filter, 
-  MoreVertical,
+  Phone,
   ToggleLeft,
   ToggleRight,
-  CheckCircle
+  CheckCircle,
+  Building2,
+  Car,
+  Landmark,
+  Store,
+  Package
 } from 'lucide-react'
+
+const categoryIcons: Record<string, typeof Home> = {
+  house: Home,
+  apartment: Building2,
+  car: Car,
+  land: Landmark,
+  commercial: Store,
+  other: Package,
+}
 
 const Properties = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [filterStatus, setFilterStatus] = useState('all')
+  const [filterCategory, setFilterCategory] = useState('all')
   const [sortBy, setSortBy] = useState('name')
 
-  const [properties] = useState([
+  const [properties, setProperties] = useState([
     {
       id: 1,
       title: 'Luxury Downtown Apartment',
-      location: 'New York, NY',
-      image: '🏢',
+      category: 'apartment',
+      location: 'Kigali, Nyarugenge',
       price: 2500,
+      description: 'Spacious 2-bedroom apartment in the heart of downtown. Fully furnished with modern amenities.',
       rating: 4.8,
       reviews: 24,
-      occupancy: 85,
       status: 'active',
       bookings: 8,
-      revenue: 20000,
-      beds: 2,
-      baths: 1,
-      sqft: 850,
-      amenities: ['WiFi', 'Kitchen', 'Parking', 'Gym', 'Workspace'],
-      lastBooking: '2024-03-01',
-      nextBooking: '2024-03-15',
+      contact: '+250 788 123 456',
+      image: '🏢',
       createdAt: '2023-06-15',
-      views: 1245,
-      saves: 89
     },
     {
       id: 2,
       title: 'Beach House Paradise',
-      location: 'Miami, FL',
-      image: '🏖️',
+      category: 'house',
+      location: 'Gisenyi, Rubavu',
       price: 3500,
+      description: 'Beautiful lakefront house with 4 bedrooms and stunning views.',
       rating: 4.9,
       reviews: 18,
-      occupancy: 92,
       status: 'active',
       bookings: 12,
-      revenue: 42000,
-      beds: 3,
-      baths: 2,
-      sqft: 1200,
-      amenities: ['WiFi', 'Beach Access', 'Parking', 'Patio', 'BBQ'],
-      lastBooking: '2024-02-28',
-      nextBooking: '2024-03-20',
+      contact: '+250 788 234 567',
+      image: '🏖️',
       createdAt: '2023-08-20',
-      views: 987,
-      saves: 76
     },
     {
       id: 3,
-      title: 'Mountain View Cabin',
-      location: 'Aspen, CO',
-      image: '🏔️',
+      title: 'Toyota RAV4 2022',
+      category: 'car',
+      location: 'Kigali, Kicukiro',
       price: 1800,
+      description: 'Well-maintained Toyota RAV4, automatic transmission, AC, GPS included.',
       rating: 4.7,
       reviews: 15,
-      occupancy: 65,
       status: 'inactive',
       bookings: 5,
-      revenue: 9000,
-      beds: 1,
-      baths: 1,
-      sqft: 600,
-      amenities: ['WiFi', 'Fireplace', 'Hot Tub', 'Ski Access'],
-      lastBooking: '2024-01-15',
-      nextBooking: null,
+      contact: '+250 788 345 678',
+      image: '🚗',
       createdAt: '2023-10-10',
-      views: 654,
-      saves: 43
     },
     {
       id: 4,
-      title: 'Urban Studio Loft',
-      location: 'Chicago, IL',
-      image: '🏙️',
+      title: 'Modern Studio Loft',
+      category: 'apartment',
+      location: 'Kigali, Gasabo',
       price: 1500,
+      description: 'Cozy studio loft perfect for professionals. WiFi, parking, gym access.',
       rating: 4.5,
       reviews: 32,
-      occupancy: 78,
       status: 'active',
       bookings: 15,
-      revenue: 22500,
-      beds: 1,
-      baths: 1,
-      sqft: 500,
-      amenities: ['WiFi', 'Kitchen', 'Gym', 'Laundry'],
-      lastBooking: '2024-03-05',
-      nextBooking: '2024-03-18',
+      contact: '+250 788 456 789',
+      image: '🏙️',
       createdAt: '2023-05-01',
-      views: 1567,
-      saves: 112
     },
     {
       id: 5,
-      title: 'Cozy Suburban Home',
-      location: 'Austin, TX',
-      image: '🏡',
+      title: 'Family Home with Garden',
+      category: 'house',
+      location: 'Musanze, Muhoza',
       price: 2200,
+      description: 'Spacious family home with a large garden, 3 bedrooms, pet friendly.',
       rating: 4.6,
       reviews: 21,
-      occupancy: 88,
       status: 'active',
       bookings: 10,
-      revenue: 22000,
-      beds: 2,
-      baths: 2,
-      sqft: 1100,
-      amenities: ['WiFi', 'Kitchen', 'Parking', 'Garden', 'Pet Friendly'],
-      lastBooking: '2024-03-02',
-      nextBooking: '2024-03-22',
+      contact: '+250 788 567 890',
+      image: '🏡',
       createdAt: '2023-09-05',
-      views: 823,
-      saves: 67
     }
   ])
 
-  const [selectedProperties, setSelectedProperties] = useState<number[]>([])
-
-  const togglePropertySelection = (propertyId: number) => {
-    setSelectedProperties(prev => 
-      prev.includes(propertyId) 
-        ? prev.filter(id => id !== propertyId)
-        : [...prev, propertyId]
-    )
-  }
-
   const togglePropertyStatus = (propertyId: number) => {
-    // In a real app, this would call an API to update the property status
-    console.log('Toggling status for property:', propertyId)
+    setProperties(prev => prev.map(p => 
+      p.id === propertyId ? { ...p, status: p.status === 'active' ? 'inactive' : 'active' } : p
+    ))
   }
 
   const deleteProperty = (propertyId: number) => {
-    // In a real app, this would call an API to delete the property
-    console.log('Deleting property:', propertyId)
+    setProperties(prev => prev.filter(p => p.id !== propertyId))
   }
 
   const filteredAndSortedProperties = properties
@@ -165,27 +129,18 @@ const Properties = () => {
       const matchesSearch = searchTerm === '' || 
         property.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         property.location.toLowerCase().includes(searchTerm.toLowerCase())
-      
-      const matchesFilter = filterStatus === 'all' || property.status === filterStatus
-      
-      return matchesSearch && matchesFilter
+      const matchesStatus = filterStatus === 'all' || property.status === filterStatus
+      const matchesCategory = filterCategory === 'all' || property.category === filterCategory
+      return matchesSearch && matchesStatus && matchesCategory
     })
     .sort((a, b) => {
       switch (sortBy) {
-        case 'name':
-          return a.title.localeCompare(b.title)
-        case 'price_low':
-          return a.price - b.price
-        case 'price_high':
-          return b.price - a.price
-        case 'occupancy':
-          return b.occupancy - a.occupancy
-        case 'revenue':
-          return b.revenue - a.revenue
-        case 'rating':
-          return b.rating - a.rating
-        default:
-          return 0
+        case 'name': return a.title.localeCompare(b.title)
+        case 'price_low': return a.price - b.price
+        case 'price_high': return b.price - a.price
+        case 'rating': return b.rating - a.rating
+        case 'bookings': return b.bookings - a.bookings
+        default: return 0
       }
     })
 
@@ -193,23 +148,14 @@ const Properties = () => {
     switch (status) {
       case 'active': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
       case 'inactive': return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
-      case 'maintenance': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
       default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
     }
-  }
-
-  const getOccupancyColor = (occupancy: number) => {
-    if (occupancy >= 80) return 'text-green-600 dark:text-green-400'
-    if (occupancy >= 60) return 'text-yellow-600 dark:text-yellow-400'
-    return 'text-red-600 dark:text-red-400'
   }
 
   const stats = {
     total: properties.length,
     active: properties.filter(p => p.status === 'active').length,
     inactive: properties.filter(p => p.status === 'inactive').length,
-    totalRevenue: properties.reduce((sum, p) => sum + p.revenue, 0),
-    avgOccupancy: Math.round(properties.reduce((sum, p) => sum + p.occupancy, 0) / properties.length),
     avgRating: (properties.reduce((sum, p) => sum + p.rating, 0) / properties.length).toFixed(1)
   }
 
@@ -223,7 +169,7 @@ const Properties = () => {
               My Properties
             </h1>
             <p className="text-gray-600 dark:text-gray-400">
-              Manage your rental properties and track their performance
+              Manage your rental properties and assets
             </p>
           </div>
           <Link
@@ -237,7 +183,7 @@ const Properties = () => {
       </div>
 
       {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
         <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
@@ -257,26 +203,14 @@ const Properties = () => {
             <CheckCircle className="w-8 h-8 text-green-500" />
           </div>
         </div>
-        
+
         <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Total Revenue</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                ${(stats.totalRevenue / 1000).toFixed(0)}k
-              </p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Inactive</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.inactive}</p>
             </div>
-            <DollarSign className="w-8 h-8 text-green-500" />
-          </div>
-        </div>
-        
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Avg Occupancy</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.avgOccupancy}%</p>
-            </div>
-            <BarChart3 className="w-8 h-8 text-purple-500" />
+            <ToggleLeft className="w-8 h-8 text-gray-400" />
           </div>
         </div>
         
@@ -307,6 +241,20 @@ const Properties = () => {
           
           <div className="flex items-center space-x-3">
             <select
+              value={filterCategory}
+              onChange={(e) => setFilterCategory(e.target.value)}
+              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+            >
+              <option value="all">All Categories</option>
+              <option value="house">House</option>
+              <option value="apartment">Apartment</option>
+              <option value="car">Car</option>
+              <option value="land">Land</option>
+              <option value="commercial">Commercial</option>
+              <option value="other">Other</option>
+            </select>
+
+            <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
               className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
@@ -314,7 +262,6 @@ const Properties = () => {
               <option value="all">All Status</option>
               <option value="active">Active</option>
               <option value="inactive">Inactive</option>
-              <option value="maintenance">Maintenance</option>
             </select>
             
             <select
@@ -325,43 +272,12 @@ const Properties = () => {
               <option value="name">Sort by: Name</option>
               <option value="price_low">Price: Low to High</option>
               <option value="price_high">Price: High to Low</option>
-              <option value="occupancy">Occupancy Rate</option>
-              <option value="revenue">Revenue</option>
+              <option value="bookings">Most Bookings</option>
               <option value="rating">Rating</option>
             </select>
-            
-            <button className="flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm">
-              <Filter className="w-4 h-4 mr-2" />
-              More Filters
-            </button>
           </div>
         </div>
       </div>
-
-      {/* Bulk Actions */}
-      {selectedProperties.length > 0 && (
-        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-blue-800 dark:text-blue-200">
-              {selectedProperties.length} properties selected
-            </span>
-            <div className="flex items-center space-x-3">
-              <button className="px-3 py-1 bg-white dark:bg-gray-800 text-blue-600 dark:text-blue-400 border border-blue-300 dark:border-blue-600 rounded text-sm hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors">
-                Bulk Edit
-              </button>
-              <button className="px-3 py-1 bg-white dark:bg-gray-800 text-red-600 dark:text-red-400 border border-red-300 dark:border-red-600 rounded text-sm hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors">
-                Bulk Delete
-              </button>
-              <button 
-                onClick={() => setSelectedProperties([])}
-                className="px-3 py-1 text-blue-600 dark:text-blue-400 text-sm hover:underline"
-              >
-                Clear Selection
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Properties Grid */}
       {filteredAndSortedProperties.length === 0 ? (
@@ -385,162 +301,121 @@ const Properties = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-          {filteredAndSortedProperties.map((property) => (
-            <div key={property.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-md transition-shadow">
-              {/* Property Image */}
-              <div className="relative h-48 bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-6xl">
-                {property.image}
-                
-                {/* Selection Checkbox */}
-                <div className="absolute top-3 left-3">
-                  <input
-                    type="checkbox"
-                    checked={selectedProperties.includes(property.id)}
-                    onChange={() => togglePropertySelection(property.id)}
-                    className="w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
-                  />
+          {filteredAndSortedProperties.map((property) => {
+            const CategoryIcon = categoryIcons[property.category] || Package
+            return (
+              <div key={property.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-md transition-shadow">
+                {/* Property Image */}
+                <div className="relative h-48 bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-6xl">
+                  {property.image}
+                  
+                  {/* Category Badge */}
+                  <div className="absolute top-3 left-3">
+                    <span className="flex items-center gap-1 bg-blue-600 text-white px-2 py-1 rounded-full text-xs font-medium capitalize">
+                      <CategoryIcon className="w-3 h-3" />
+                      {property.category}
+                    </span>
+                  </div>
+                  
+                  {/* Status Badge */}
+                  <div className="absolute top-3 right-3">
+                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(property.status)}`}>
+                      {property.status}
+                    </span>
+                  </div>
+                  
+                  {/* Quick Actions */}
+                  <div className="absolute bottom-3 right-3 flex space-x-2">
+                    <Link to={`/owner/properties/${property.id}`} className="p-2 bg-white dark:bg-gray-800 rounded-full shadow-md hover:shadow-lg transition-shadow">
+                      <Eye className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                    </Link>
+                    <Link to={`/owner/properties/${property.id}/edit`} className="p-2 bg-white dark:bg-gray-800 rounded-full shadow-md hover:shadow-lg transition-shadow">
+                      <Edit className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                    </Link>
+                  </div>
                 </div>
-                
-                {/* Status Badge */}
-                <div className="absolute top-3 right-3">
-                  <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(property.status)}`}>
-                    {property.status}
-                  </span>
-                </div>
-                
-                {/* Quick Actions */}
-                <div className="absolute bottom-3 right-3 flex space-x-2">
-                  <button className="p-2 bg-white dark:bg-gray-800 rounded-full shadow-md hover:shadow-lg transition-shadow">
-                    <Eye className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                  </button>
-                  <button className="p-2 bg-white dark:bg-gray-800 rounded-full shadow-md hover:shadow-lg transition-shadow">
-                    <Edit className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                  </button>
-                </div>
-              </div>
 
-              {/* Property Info */}
-              <div className="p-4">
-                <div className="flex justify-between items-start mb-2">
-                  <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                {/* Property Info */}
+                <div className="p-4">
+                  {/* Name & Price */}
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex-1 mr-2">
                       {property.title}
                     </h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center">
-                      <MapPin className="w-3 h-3 mr-1" />
-                      {property.location}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-xl font-bold text-gray-900 dark:text-white">
-                      ${property.price}
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">per month</p>
-                  </div>
-                </div>
-
-                {/* Rating and Reviews */}
-                <div className="flex items-center mb-3">
-                  <div className="flex items-center">
-                    <Star className="w-4 h-4 text-yellow-500 fill-current" />
-                    <span className="text-sm font-medium text-gray-900 dark:text-white ml-1">
-                      {property.rating}
-                    </span>
-                    <span className="text-sm text-gray-500 dark:text-gray-400 ml-1">
-                      ({property.reviews} reviews)
-                    </span>
-                  </div>
-                </div>
-
-                {/* Property Details */}
-                <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-400 mb-3">
-                  <div className="flex items-center">
-                    <Bed className="w-4 h-4 mr-1" />
-                    {property.beds} beds
-                  </div>
-                  <div className="flex items-center">
-                    <Bath className="w-4 h-4 mr-1" />
-                    {property.baths} baths
-                  </div>
-                  <div className="flex items-center">
-                    <Square className="w-4 h-4 mr-1" />
-                    {property.sqft} sqft
-                  </div>
-                </div>
-
-                {/* Performance Metrics */}
-                <div className="grid grid-cols-2 gap-3 mb-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                  <div className="text-center">
-                    <p className="text-xs text-gray-500 dark:text-gray-400">Occupancy</p>
-                    <p className={`text-lg font-bold ${getOccupancyColor(property.occupancy)}`}>
-                      {property.occupancy}%
-                    </p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-xs text-gray-500 dark:text-gray-400">Revenue</p>
-                    <p className="text-lg font-bold text-gray-900 dark:text-white">
-                      ${(property.revenue / 1000).toFixed(0)}k
-                    </p>
-                  </div>
-                </div>
-
-                {/* Booking Info */}
-                <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-3">
-                  <div className="flex items-center">
-                    <Calendar className="w-3 h-3 mr-1" />
-                    Last: {property.lastBooking}
-                  </div>
-                  {property.nextBooking && (
-                    <div className="flex items-center">
-                      <Calendar className="w-3 h-3 mr-1" />
-                      Next: {property.nextBooking}
+                    <div className="text-right shrink-0">
+                      <p className="text-xl font-bold text-primary-600 dark:text-primary-400">
+                        ${property.price}
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">per month</p>
                     </div>
-                  )}
-                </div>
-
-                {/* Stats */}
-                <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-4">
-                  <div className="flex items-center space-x-3">
-                    <span>{property.bookings} bookings</span>
-                    <span>{property.views} views</span>
-                    <span>{property.saves} saves</span>
                   </div>
-                </div>
 
-                {/* Action Buttons */}
-                <div className="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-gray-700">
-                  <button
-                    onClick={() => togglePropertyStatus(property.id)}
-                    className="flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-                  >
-                    {property.status === 'active' ? (
-                      <>
-                        <ToggleRight className="w-5 h-5 mr-1 text-green-500" />
-                        Active
-                      </>
-                    ) : (
-                      <>
-                        <ToggleLeft className="w-5 h-5 mr-1 text-gray-400" />
-                        Inactive
-                      </>
-                    )}
-                  </button>
-                  
-                  <div className="flex items-center space-x-2">
-                    <button className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
-                      <MoreVertical className="w-4 h-4" />
-                    </button>
-                    <button 
-                      onClick={() => deleteProperty(property.id)}
-                      className="p-1 text-red-400 hover:text-red-600 dark:hover:text-red-300"
+                  {/* Location */}
+                  <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center mb-3">
+                    <MapPin className="w-4 h-4 mr-1 shrink-0" />
+                    {property.location}
+                  </p>
+
+                  {/* Contact */}
+                  <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center mb-3">
+                    <Phone className="w-4 h-4 mr-1 shrink-0" />
+                    {property.contact}
+                  </p>
+
+                  {/* Bookings & Reviews */}
+                  <div className="flex items-center justify-between mb-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                    <div className="text-center">
+                      <p className="text-lg font-bold text-gray-900 dark:text-white">{property.bookings}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">Bookings</p>
+                    </div>
+                    <div className="text-center">
+                      <div className="flex items-center justify-center">
+                        <Star className="w-4 h-4 text-yellow-500 fill-current mr-1" />
+                        <span className="text-lg font-bold text-gray-900 dark:text-white">{property.rating}</span>
+                      </div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">{property.reviews} reviews</p>
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-gray-700">
+                    <button
+                      onClick={() => togglePropertyStatus(property.id)}
+                      className="flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      {property.status === 'active' ? (
+                        <>
+                          <ToggleRight className="w-5 h-5 mr-1 text-green-500" />
+                          Active
+                        </>
+                      ) : (
+                        <>
+                          <ToggleLeft className="w-5 h-5 mr-1 text-gray-400" />
+                          Inactive
+                        </>
+                      )}
                     </button>
+                    
+                    <div className="flex items-center space-x-2">
+                      <Link to={`/owner/properties/${property.id}`} className="p-1 text-blue-500 hover:text-blue-700 dark:hover:text-blue-300" title="View">
+                        <Eye className="w-4 h-4" />
+                      </Link>
+                      <Link to={`/owner/properties/${property.id}/edit`} className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" title="Edit">
+                        <Edit className="w-4 h-4" />
+                      </Link>
+                      <button 
+                        onClick={() => deleteProperty(property.id)}
+                        className="p-1 text-red-400 hover:text-red-600 dark:hover:text-red-300"
+                        title="Delete"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       )}
     </div>

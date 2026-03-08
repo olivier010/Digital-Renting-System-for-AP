@@ -21,7 +21,6 @@ const OwnerDashboard = () => {
     activeListings: 8,
     totalBookings: 156,
     totalRevenue: 125000,
-    occupancyRate: 85,
     averageRating: 4.8,
     pendingBookings: 3,
     monthlyRevenue: 24500,
@@ -79,35 +78,41 @@ const OwnerDashboard = () => {
     {
       id: 1,
       title: 'Luxury Downtown Apartment',
-      location: 'New York, NY',
+      category: 'apartment',
+      location: 'Kigali, Nyarugenge',
       price: 2500,
       status: 'active',
       bookings: 45,
       rating: 4.8,
-      occupancy: 92,
+      reviews: 24,
+      contact: '+250 788 123 456',
       image: '🏢'
     },
     {
       id: 2,
       title: 'Beach House Paradise',
-      location: 'Miami, FL',
+      category: 'house',
+      location: 'Gisenyi, Rubavu',
       price: 3500,
       status: 'active',
       bookings: 32,
       rating: 4.9,
-      occupancy: 88,
+      reviews: 18,
+      contact: '+250 788 234 567',
       image: '🏖️'
     },
     {
       id: 3,
-      title: 'Mountain View Cabin',
-      location: 'Aspen, CO',
+      title: 'Toyota RAV4 2022',
+      category: 'car',
+      location: 'Kigali, Kicukiro',
       price: 1800,
-      status: 'maintenance',
+      status: 'inactive',
       bookings: 28,
       rating: 4.7,
-      occupancy: 0,
-      image: '🏔️'
+      reviews: 15,
+      contact: '+250 788 345 678',
+      image: '🚗'
     }
   ])
 
@@ -214,15 +219,15 @@ const OwnerDashboard = () => {
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Occupancy Rate</p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{stats.occupancyRate}%</p>
-                <p className="text-sm text-yellow-600 dark:text-yellow-400 mt-2 flex items-center">
-                  <ArrowDownRight className="w-4 h-4 mr-1" />
-                  -3% from last month
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Average Rating</p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{stats.averageRating}</p>
+                <p className="text-sm text-green-600 dark:text-green-400 mt-2 flex items-center">
+                  <ArrowUpRight className="w-4 h-4 mr-1" />
+                  {stats.totalReviews} reviews
                 </p>
               </div>
-              <div className="p-3 bg-purple-100 dark:bg-purple-900 rounded-lg">
-                <TrendingUp className="w-6 h-6 text-purple-600 dark:text-purple-300" />
+              <div className="p-3 bg-yellow-100 dark:bg-yellow-900 rounded-lg">
+                <Star className="w-6 h-6 text-yellow-600 dark:text-yellow-300" />
               </div>
             </div>
           </div>
@@ -374,10 +379,10 @@ const OwnerDashboard = () => {
                         <div className="flex items-center mt-1 space-x-3">
                           <div className="flex items-center">
                             <Star className="w-3 h-3 text-yellow-500 fill-current" />
-                            <span className="text-xs text-gray-600 dark:text-gray-400 ml-1">{property.rating}</span>
+                            <span className="text-xs text-gray-600 dark:text-gray-400 ml-1">{property.rating} ({property.reviews})</span>
                           </div>
                           <span className="text-xs text-gray-500 dark:text-gray-400">• {property.bookings} bookings</span>
-                          <span className="text-xs text-gray-500 dark:text-gray-400">• {property.occupancy}% occupied</span>
+                          <span className="text-xs text-gray-500 dark:text-gray-400 capitalize">• {property.category}</span>
                         </div>
                       </div>
                     </div>

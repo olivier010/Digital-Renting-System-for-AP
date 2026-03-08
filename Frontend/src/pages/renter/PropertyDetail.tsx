@@ -2,25 +2,30 @@ import { useParams, Link } from 'react-router-dom'
 import { useState } from 'react'
 import { 
   MapPin, 
-  Bed, 
-  Bath, 
-  Square, 
   Star, 
   Heart, 
   Share2, 
   Shield, 
-  Wifi, 
-  Car, 
-  Dumbbell, 
+  Phone,
   Home,
-  Wind,
-  Tv,
-  Coffee,
+  Building2,
+  Car,
+  Landmark,
+  Store,
+  Package,
   ChevronLeft,
   ChevronRight,
-  Check,
   X
 } from 'lucide-react'
+
+const categoryIcons: Record<string, typeof Home> = {
+  house: Home,
+  apartment: Building2,
+  car: Car,
+  land: Landmark,
+  commercial: Store,
+  other: Package,
+}
 
 const PropertyDetail = () => {
   const { id } = useParams()
@@ -28,45 +33,31 @@ const PropertyDetail = () => {
   const [saved, setSaved] = useState(false)
   const [checkIn, setCheckIn] = useState('')
   const [checkOut, setCheckOut] = useState('')
-  const [guests, setGuests] = useState(1)
 
   // Mock property data - in real app, this would come from API
   const property = {
     id: parseInt(id || '1'),
-    title: 'Luxury Downtown Apartment with City Views',
-    location: 'Manhattan, New York',
-    price: 250,
+    title: 'Modern Apartment Kigali',
+    location: 'Kigali, Nyarugenge',
+    price: 500,
     rating: 4.8,
-    reviews: 124,
+    reviews: 24,
+    bookings: 12,
+    category: 'apartment' as const,
     images: [
       'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800',
       'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800',
       'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=800',
-      'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800',
-      'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800'
     ],
-    bedrooms: 2,
-    bathrooms: 2,
-    sqft: 1200,
-    type: 'Apartment',
-    host: {
-      name: 'Sarah Johnson',
-      image: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100',
+    owner: {
+      name: 'Jean Mugabo',
+      phone: '+250 788 123 456',
+      email: 'jean@example.com',
       verified: true,
       responseTime: 'Within 1 hour',
       memberSince: '2023'
     },
-    description: 'Experience luxury living in this stunning downtown apartment with breathtaking city views. This modern space features floor-to-ceiling windows, high-end appliances, and premium finishes throughout. Located in the heart of Manhattan, you\'ll be steps away from world-class dining, shopping, and entertainment.',
-    amenities: [
-      { name: 'High-Speed WiFi', icon: Wifi, included: true },
-      { name: 'Parking', icon: Car, included: true },
-      { name: 'Fitness Center', icon: Dumbbell, included: true },
-      { name: 'Swimming Pool', icon: Home, included: true },
-      { name: 'Full Kitchen', icon: Coffee, included: true },
-      { name: 'Air Conditioning', icon: Wind, included: true },
-      { name: 'Smart TV', icon: Tv, included: true },
-      { name: 'Coffee Maker', icon: Coffee, included: true }
-    ],
+    description: 'Beautiful modern apartment in the heart of Kigali with stunning city views and comfortable living spaces. This property features well-maintained interiors, natural lighting, and easy access to shops, restaurants, and public transport.',
     rules: [
       'No smoking',
       'No parties',
@@ -76,8 +67,8 @@ const PropertyDetail = () => {
     availability: {
       checkIn: '3:00 PM',
       checkOut: '11:00 AM',
-      minStay: 2,
-      maxStay: 30
+      minStay: 1,
+      maxStay: 12
     }
   }
 
@@ -97,9 +88,11 @@ const PropertyDetail = () => {
     if (!checkIn || !checkOut) return 0
     const checkInDate = new Date(checkIn)
     const checkOutDate = new Date(checkOut)
-    const nights = Math.ceil((checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24))
-    return nights * property.price
+    const months = Math.ceil((checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24 * 30))
+    return months * property.price
   }
+
+  const CategoryIcon = categoryIcons[property.category] || Package
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -186,7 +179,7 @@ const PropertyDetail = () => {
                   <p className="text-2xl font-bold text-primary-600 dark:text-primary-400">
                     ${property.price}
                   </p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">per night</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">per month</p>
                 </div>
               </div>
 
@@ -200,46 +193,29 @@ const PropertyDetail = () => {
                     ({property.reviews} reviews)
                   </span>
                 </div>
-                <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-300">
-                  <div className="flex items-center">
-                    <Bed className="w-4 h-4 mr-1" />
-                    <span>{property.bedrooms} beds</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Bath className="w-4 h-4 mr-1" />
-                    <span>{property.bathrooms} baths</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Square className="w-4 h-4 mr-1" />
-                    <span>{property.sqft} sqft</span>
-                  </div>
-                </div>
+                <span className="inline-flex items-center px-3 py-1 bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300 text-sm font-medium rounded-full capitalize">
+                  <CategoryIcon className="w-4 h-4 mr-1" />
+                  {property.category}
+                </span>
+                <span className="text-sm text-gray-600 dark:text-gray-400">
+                  {property.bookings} bookings
+                </span>
               </div>
 
               <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">About this place</h3>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">About this property</h3>
                 <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
                   {property.description}
                 </p>
               </div>
-            </div>
 
-            {/* Amenities */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Amenities</h3>
-              <div className="grid grid-cols-2 gap-4">
-                {property.amenities.map((amenity, index) => {
-                  const Icon = amenity.icon
-                  return (
-                    <div key={index} className="flex items-center">
-                      <Icon className={`w-5 h-5 mr-3 ${amenity.included ? 'text-green-600' : 'text-gray-400'}`} />
-                      <span className={`text-sm ${amenity.included ? 'text-gray-900 dark:text-white' : 'text-gray-400 line-through'}`}>
-                        {amenity.name}
-                      </span>
-                      {amenity.included && <Check className="w-4 h-4 text-green-600 ml-auto" />}
-                    </div>
-                  )
-                })}
+              {/* Contact Info */}
+              <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Contact</h3>
+                <div className="flex items-center text-gray-600 dark:text-gray-300">
+                  <Phone className="w-4 h-4 mr-2" />
+                  <span>{property.owner.phone}</span>
+                </div>
               </div>
             </div>
 
@@ -265,7 +241,7 @@ const PropertyDetail = () => {
                   <p className="text-2xl font-bold text-gray-900 dark:text-white">
                     ${property.price}
                   </p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">per night</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">per month</p>
                 </div>
                 <div className="flex items-center">
                   <Star className="w-5 h-5 text-yellow-500 mr-1" />
@@ -277,7 +253,7 @@ const PropertyDetail = () => {
               <div className="space-y-4 mb-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Check-in
+                    Start Date
                   </label>
                   <input
                     type="date"
@@ -288,7 +264,7 @@ const PropertyDetail = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Check-out
+                    End Date
                   </label>
                   <input
                     type="date"
@@ -297,44 +273,21 @@ const PropertyDetail = () => {
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Guests
-                  </label>
-                  <select
-                    value={guests}
-                    onChange={(e) => setGuests(parseInt(e.target.value))}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                  >
-                    <option value={1}>1 Guest</option>
-                    <option value={2}>2 Guests</option>
-                    <option value={3}>3 Guests</option>
-                    <option value={4}>4+ Guests</option>
-                  </select>
-                </div>
               </div>
 
               {/* Price Breakdown */}
               <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mb-6">
                 <div className="flex justify-between text-sm mb-2">
                   <span className="text-gray-600 dark:text-gray-300">
-                    ${property.price} x {checkIn && checkOut ? Math.ceil((new Date(checkOut).getTime() - new Date(checkIn).getTime()) / (1000 * 60 * 60 * 24)) : 0} nights
+                    ${property.price} x {checkIn && checkOut ? Math.ceil((new Date(checkOut).getTime() - new Date(checkIn).getTime()) / (1000 * 60 * 60 * 24 * 30)) : 0} months
                   </span>
                   <span className="text-gray-900 dark:text-white">
                     ${calculateTotal()}
                   </span>
                 </div>
-                <div className="flex justify-between text-sm mb-2">
-                  <span className="text-gray-600 dark:text-gray-300">Cleaning fee</span>
-                  <span className="text-gray-900 dark:text-white">$50</span>
-                </div>
-                <div className="flex justify-between text-sm mb-2">
-                  <span className="text-gray-600 dark:text-gray-300">Service fee</span>
-                  <span className="text-gray-900 dark:text-white">$25</span>
-                </div>
                 <div className="flex justify-between font-semibold pt-2 border-t border-gray-200 dark:border-gray-700">
                   <span>Total</span>
-                  <span>${calculateTotal() + 75}</span>
+                  <span>${calculateTotal()}</span>
                 </div>
               </div>
 
@@ -348,33 +301,36 @@ const PropertyDetail = () => {
               </p>
             </div>
 
-            {/* Host Info */}
+            {/* Owner Info */}
             <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm mt-6">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Hosted by {property.host.name}</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Owner: {property.owner.name}</h3>
               <div className="flex items-center mb-4">
-                <img 
-                  src={property.host.image} 
-                  alt={property.host.name}
-                  className="w-12 h-12 rounded-full mr-3"
-                />
+                <div className="w-12 h-12 bg-primary-100 dark:bg-primary-900 rounded-full flex items-center justify-center mr-3">
+                  <span className="text-lg font-medium text-primary-600 dark:text-primary-300">
+                    {property.owner.name.split(' ').map(n => n[0]).join('')}
+                  </span>
+                </div>
                 <div>
                   <div className="flex items-center">
-                    <p className="font-medium text-gray-900 dark:text-white">{property.host.name}</p>
-                    {property.host.verified && (
+                    <p className="font-medium text-gray-900 dark:text-white">{property.owner.name}</p>
+                    {property.owner.verified && (
                       <Shield className="w-4 h-4 text-blue-600 ml-2" />
                     )}
                   </div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Member since {property.host.memberSince}
+                    Member since {property.owner.memberSince}
                   </p>
                 </div>
               </div>
               <div className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
-                <p>Response time: {property.host.responseTime}</p>
-                <p>Response rate: 100%</p>
+                <p className="flex items-center">
+                  <Phone className="w-4 h-4 mr-2" />
+                  {property.owner.phone}
+                </p>
+                <p>Response time: {property.owner.responseTime}</p>
               </div>
               <button className="w-full mt-4 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 py-2 px-4 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                Contact Host
+                Contact Owner
               </button>
             </div>
           </div>

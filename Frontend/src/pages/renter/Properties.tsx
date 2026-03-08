@@ -4,180 +4,180 @@ import type { Property } from '../../types'
 import Loading from '../../components/ui/Loading'
 import { Star } from 'lucide-react'
 
-// Enhanced mock data with more realistic properties
+// Enhanced mock data with categories
 const mockProperties: Property[] = [
   {
     id: '1',
-    title: 'Luxury Downtown Apartment',
-    description: 'Experience urban living at its finest in this stunning modern apartment with floor-to-ceiling windows and breathtaking city views.',
-    price: 2500,
-    location: 'Manhattan, New York',
-    bedrooms: 2,
-    bathrooms: 2,
-    area: 1200,
-    type: 'apartment',
+    title: 'Modern Apartment Kigali',
+    description: 'Beautiful modern apartment in the heart of Kigali with stunning city views and comfortable living spaces.',
+    price: 500,
+    location: 'Kigali, Nyarugenge',
+    category: 'apartment',
     images: [],
-    amenities: ['WiFi', 'Gym', 'Parking', 'Pool', 'Concierge', 'Rooftop Terrace'],
     available: true,
+    bookings: 12,
+    rating: 4.8,
+    reviews: 24,
+    status: 'active',
     owner: {
       id: 'owner1',
-      name: 'John Smith',
-      email: 'john@example.com',
-      phone: '+1 234-567-8900'
+      name: 'Jean Mugabo',
+      email: 'jean@example.com',
+      phone: '+250 788 123 456'
     },
     createdAt: '2024-01-15T10:00:00Z',
     updatedAt: '2024-01-15T10:00:00Z'
   },
   {
     id: '2',
-    title: 'Charming Suburban Family Home',
-    description: 'Perfect family retreat with spacious rooms, beautiful garden, and excellent school district. Your dream home awaits.',
-    price: 3200,
-    location: 'Westchester, New York',
-    bedrooms: 3,
-    bathrooms: 2,
-    area: 1800,
-    type: 'house',
+    title: 'Family House Kimironko',
+    description: 'Spacious family house with a beautiful garden, located in a quiet neighborhood with easy access to schools.',
+    price: 800,
+    location: 'Kigali, Gasabo',
+    category: 'house',
     images: [],
-    amenities: ['WiFi', 'Parking', 'Garden', 'Storage', 'Garage', 'Patio'],
     available: true,
+    bookings: 8,
+    rating: 4.6,
+    reviews: 15,
+    status: 'active',
     owner: {
       id: 'owner2',
-      name: 'Sarah Johnson',
-      email: 'sarah@example.com',
-      phone: '+1 234-567-8901'
+      name: 'Marie Uwase',
+      email: 'marie@example.com',
+      phone: '+250 788 234 567'
     },
     createdAt: '2024-01-14T15:30:00Z',
     updatedAt: '2024-01-14T15:30:00Z'
   },
   {
     id: '3',
-    title: 'Ultra-Modern Penthouse Suite',
-    description: 'Indulge in luxury with this penthouse featuring panoramic views, premium finishes, and exclusive building amenities.',
-    price: 5000,
-    location: 'Upper East Side, New York',
-    bedrooms: 3,
-    bathrooms: 3,
-    area: 2500,
-    type: 'apartment',
+    title: 'Toyota RAV4 2022',
+    description: 'Well-maintained Toyota RAV4 2022 model, perfect for city driving and long trips. Full insurance included.',
+    price: 200,
+    location: 'Kigali, Kicukiro',
+    category: 'car',
     images: [],
-    amenities: ['WiFi', 'Gym', 'Parking', 'Pool', 'Concierge', 'Rooftop', 'Wine Cellar', 'Smart Home'],
     available: true,
+    bookings: 20,
+    rating: 4.9,
+    reviews: 32,
+    status: 'active',
     owner: {
       id: 'owner3',
-      name: 'Michael Chen',
-      email: 'michael@example.com',
-      phone: '+1 234-567-8902'
+      name: 'Patrick Habimana',
+      email: 'patrick@example.com',
+      phone: '+250 788 345 678'
     },
     createdAt: '2024-01-13T09:15:00Z',
     updatedAt: '2024-01-13T09:15:00Z'
   },
   {
     id: '4',
-    title: 'Oceanfront Beach Villa',
-    description: 'Wake up to ocean views in this stunning beachfront property with private beach access and luxury amenities.',
-    price: 4500,
-    location: 'Miami Beach, Florida',
-    bedrooms: 4,
-    bathrooms: 3,
-    area: 3000,
-    type: 'house',
+    title: 'Commercial Space Remera',
+    description: 'Prime commercial space ideal for offices or retail business, located on a busy street with high foot traffic.',
+    price: 1200,
+    location: 'Kigali, Gasabo',
+    category: 'commercial',
     images: [],
-    amenities: ['WiFi', 'Parking', 'Pool', 'Beach Access', 'Outdoor Kitchen', 'Hot Tub', 'Guest House'],
     available: true,
+    bookings: 3,
+    rating: 4.5,
+    reviews: 8,
+    status: 'active',
     owner: {
       id: 'owner4',
-      name: 'Maria Rodriguez',
-      email: 'maria@example.com',
-      phone: '+1 234-567-8903'
+      name: 'Alice Mutesi',
+      email: 'alice@example.com',
+      phone: '+250 788 456 789'
     },
     createdAt: '2024-01-12T14:20:00Z',
     updatedAt: '2024-01-12T14:20:00Z'
   },
   {
     id: '5',
-    title: 'Trendy Brooklyn Studio Loft',
-    description: 'Perfect for young professionals, this industrial-chic studio combines style, functionality, and prime location.',
-    price: 1800,
-    location: 'Williamsburg, Brooklyn',
-    bedrooms: 1,
-    bathrooms: 1,
-    area: 800,
-    type: 'studio',
+    title: 'Land Plot Nyamirambo',
+    description: 'Large plot of land suitable for residential construction with clear title deed and all utilities available.',
+    price: 300,
+    location: 'Kigali, Nyarugenge',
+    category: 'land',
     images: [],
-    amenities: ['WiFi', 'Gym', 'Laundry', 'Rooftop Access', 'Bike Storage', 'Co-working Space'],
     available: true,
+    bookings: 2,
+    rating: 4.3,
+    reviews: 5,
+    status: 'active',
     owner: {
       id: 'owner5',
-      name: 'David Kim',
-      email: 'david@example.com',
-      phone: '+1 234-567-8904'
+      name: 'Emmanuel Nshuti',
+      email: 'emmanuel@example.com',
+      phone: '+250 788 567 890'
     },
     createdAt: '2024-01-11T11:45:00Z',
     updatedAt: '2024-01-11T11:45:00Z'
   },
   {
     id: '6',
-    title: 'Luxury Mountain Retreat',
-    description: 'Escape to this sophisticated mountain cabin featuring modern amenities, stunning views, and ultimate privacy.',
-    price: 2200,
-    location: 'Aspen, Colorado',
-    bedrooms: 2,
-    bathrooms: 2,
-    area: 1500,
-    type: 'house',
+    title: 'Apartment Gisenyi Lakeside',
+    description: 'Beautiful lakeside apartment in Gisenyi with stunning views of Lake Kivu. Perfect for peaceful living.',
+    price: 450,
+    location: 'Gisenyi, Rubavu',
+    category: 'apartment',
     images: [],
-    amenities: ['WiFi', 'Parking', 'Fireplace', 'Hot Tub', 'Mountain Views', 'Ski Storage', 'Smart Home'],
     available: true,
+    bookings: 15,
+    rating: 4.7,
+    reviews: 19,
+    status: 'active',
     owner: {
       id: 'owner6',
-      name: 'Lisa Thompson',
-      email: 'lisa@example.com',
-      phone: '+1 234-567-8905'
+      name: 'Grace Ingabire',
+      email: 'grace@example.com',
+      phone: '+250 788 678 901'
     },
     createdAt: '2024-01-10T16:30:00Z',
     updatedAt: '2024-01-10T16:30:00Z'
   },
   {
     id: '7',
-    title: 'Historic Brownstone Townhouse',
-    description: 'Step into history with this beautifully restored brownstone featuring original details and modern conveniences.',
-    price: 3800,
-    location: 'Park Slope, Brooklyn',
-    bedrooms: 4,
-    bathrooms: 3,
-    area: 2200,
-    type: 'house',
+    title: 'Honda CR-V 2023',
+    description: 'Brand new Honda CR-V 2023, fully loaded with all features. Available for monthly rental with insurance.',
+    price: 250,
+    location: 'Musanze',
+    category: 'car',
     images: [],
-    amenities: ['WiFi', 'Parking', 'Garden', 'Storage', 'Original Details', 'Modern Kitchen'],
     available: true,
+    bookings: 10,
+    rating: 4.8,
+    reviews: 14,
+    status: 'active',
     owner: {
       id: 'owner7',
-      name: 'Robert Williams',
-      email: 'robert@example.com',
-      phone: '+1 234-567-8906'
+      name: 'David Niyonzima',
+      email: 'david@example.com',
+      phone: '+250 788 789 012'
     },
     createdAt: '2024-01-09T10:00:00Z',
     updatedAt: '2024-01-09T10:00:00Z'
   },
   {
     id: '8',
-    title: 'Waterfront Condo with Marina Access',
-    description: 'Luxury waterfront living with private marina access, stunning water views, and resort-style amenities.',
-    price: 4200,
-    location: 'Newport, Rhode Island',
-    bedrooms: 2,
-    bathrooms: 2,
-    area: 1400,
-    type: 'apartment',
+    title: 'Villa Nyarutarama',
+    description: 'Luxury villa in the prestigious Nyarutarama area with modern finishes, spacious rooms and beautiful garden.',
+    price: 1500,
+    location: 'Kigali, Gasabo',
+    category: 'house',
     images: [],
-    amenities: ['WiFi', 'Gym', 'Parking', 'Pool', 'Marina Access', 'Concierge', 'Wine Storage'],
     available: true,
+    bookings: 6,
+    rating: 4.9,
+    reviews: 22,
+    status: 'active',
     owner: {
       id: 'owner8',
-      name: 'Jennifer Davis',
-      email: 'jennifer@example.com',
-      phone: '+1 234-567-8907'
+      name: 'Diane Umutoni',
+      email: 'diane@example.com',
+      phone: '+250 788 890 123'
     },
     createdAt: '2024-01-08T14:30:00Z',
     updatedAt: '2024-01-08T14:30:00Z'
@@ -215,8 +215,8 @@ const Properties = () => {
         } else if (sortBy === 'newest') {
           return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         } else if (sortBy === 'popular') {
-          // Simulate popularity based on price and features
-          return (b.price * b.amenities.length) - (a.price * a.amenities.length)
+          // Simulate popularity based on bookings and rating
+          return (b.bookings * b.rating) - (a.bookings * a.rating)
         }
         return 0
       })

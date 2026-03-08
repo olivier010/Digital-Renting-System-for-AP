@@ -31,68 +31,66 @@ const RenterDashboard = () => {
   const [recentBookings] = useState([
     {
       id: 1,
-      property: 'Luxury Downtown Apartment',
-      location: 'New York, NY',
+      property: 'Modern Apartment Kigali',
+      location: 'Kigali, Nyarugenge',
       image: '🏢',
       checkIn: '2024-03-15',
       checkOut: '2024-03-18',
-      amount: 750,
+      amount: 500,
       status: 'confirmed',
       rating: null,
-      host: 'John Smith',
-      hostImage: 'JS'
+      host: 'Jean Mugabo',
+      hostImage: 'JM'
     },
     {
       id: 2,
-      property: 'Beach House Paradise',
-      location: 'Miami, FL',
-      image: '🏖️',
+      property: 'Family House Kimironko',
+      location: 'Kigali, Gasabo',
+      image: '🏠',
       checkIn: '2024-03-20',
       checkOut: '2024-03-25',
-      amount: 1250,
+      amount: 800,
       status: 'confirmed',
       rating: null,
-      host: 'Sarah Johnson',
-      hostImage: 'SJ'
+      host: 'Marie Uwase',
+      hostImage: 'MU'
     },
     {
       id: 3,
-      property: 'Mountain View Cabin',
-      location: 'Aspen, CO',
-      image: '🏔️',
+      property: 'Toyota RAV4 2022',
+      location: 'Kigali, Kicukiro',
+      image: '🚗',
       checkIn: '2024-02-10',
       checkOut: '2024-02-12',
-      amount: 450,
+      amount: 200,
       status: 'completed',
       rating: 5,
-      host: 'Michael Brown',
-      hostImage: 'MB'
+      host: 'Patrick Habimana',
+      hostImage: 'PH'
     }
   ])
 
   const [favoriteProperties] = useState([
     {
       id: 1,
-      title: 'Modern City Loft',
-      location: 'San Francisco, CA',
-      price: 2800,
-      image: '🏙️',
+      title: 'Modern Apartment Kigali',
+      location: 'Kigali, Nyarugenge',
+      price: 500,
+      image: '🏢',
       rating: 4.8,
       savedDate: '2024-03-01',
-      beds: 2,
-      baths: 1,
+      category: 'apartment',
       availability: 'Available Mar 15-30'
     },
     {
       id: 2,
-      title: 'Cozy Beach Cottage',
-      location: 'San Diego, CA',
-      price: 2200,
-      image: '🏖️',
+      title: 'Family House Kimironko',
+      location: 'Kigali, Gasabo',
+      price: 800,
+      image: '🏠',
       rating: 4.6,
       savedDate: '2024-02-28',
-      beds: 1,
-      baths: 1,
+      category: 'house',
       availability: 'Available Apr 1-15'
     }
   ])
@@ -100,8 +98,8 @@ const RenterDashboard = () => {
   const [upcomingTrips] = useState([
     {
       id: 1,
-      property: 'Luxury Downtown Apartment',
-      location: 'New York, NY',
+      property: 'Modern Apartment Kigali',
+      location: 'Kigali, Nyarugenge',
       image: '🏢',
       checkIn: '2024-03-15',
       daysUntil: 3,
@@ -109,9 +107,9 @@ const RenterDashboard = () => {
     },
     {
       id: 2,
-      property: 'Beach House Paradise',
-      location: 'Miami, FL',
-      image: '🏖️',
+      property: 'Family House Kimironko',
+      location: 'Kigali, Gasabo',
+      image: '🏠',
       checkIn: '2024-03-20',
       daysUntil: 8,
       status: 'confirmed'
@@ -122,21 +120,21 @@ const RenterDashboard = () => {
     {
       id: 1,
       type: 'booking_confirmed',
-      message: 'Your booking for Beach House Paradise has been confirmed',
+      message: 'Your booking for Family House Kimironko has been confirmed',
       time: '2 hours ago',
       read: false
     },
     {
       id: 2,
       type: 'checkin_reminder',
-      message: 'Check-in reminder for Luxury Downtown Apartment in 3 days',
+      message: 'Check-in reminder for Modern Apartment Kigali in 3 days',
       time: '5 hours ago',
       read: false
     },
     {
       id: 3,
       type: 'review_request',
-      message: 'Please rate your stay at Mountain View Cabin',
+      message: 'Please rate your experience with Toyota RAV4 2022',
       time: '2 days ago',
       read: true
     }
@@ -435,8 +433,8 @@ const RenterDashboard = () => {
                         <p className="text-sm font-medium text-gray-900 dark:text-white">{property.title}</p>
                         <p className="text-xs text-gray-600 dark:text-gray-400">{property.location}</p>
                         <div className="flex items-center mt-1 space-x-2">
-                          <span className="text-xs text-gray-500 dark:text-gray-400">
-                            {property.beds} beds • {property.baths} baths
+                          <span className="text-xs text-gray-500 dark:text-gray-400 capitalize">
+                            {property.category}
                           </span>
                         </div>
                       </div>
