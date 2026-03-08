@@ -1,0 +1,50 @@
+package com.backend.controller;
+
+import com.backend.dto.response.ApiResponse;
+import com.backend.dto.response.DashboardResponse;
+import com.backend.dto.response.PageResponse;
+import com.backend.dto.response.PaymentResponse;
+import com.backend.security.CurrentUser;
+import com.backend.service.DashboardService;
+import com.backend.service.PaymentService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/api/owner")
+@RequiredArgsConstructor
+@PreAuthorize("hasRole('OWNER')")
+public class OwnerController {
+
+    private final DashboardService dashboardService;
+    private final PaymentService paymentService;
+    private final CurrentUser currentUser;
+
+    @GetMapping("/dashboard")
+    public ResponseEntity<ApiResponse<DashboardResponse>> getDashboard() {
+        DashboardResponse response = dashboardService.getOwnerDashboard();
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @GetMapping("/earnings")
+    public ResponseEntity<ApiResponse<DashboardResponse>> getEarnings() {
+        DashboardResponse response = dashboardService.getOwnerDashboard();
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @GetMapping("/earnings/transactions")
+    public ResponseEntity<ApiResponse<PageResponse<PaymentResponse>>> getTransactions(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Long ownerId = currentUser.getUserId();
+        PageResponse<PaymentResponse> response = paymentService.getOwnerPayments(ownerId, page, size);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+}
+
