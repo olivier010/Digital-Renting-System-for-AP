@@ -7,6 +7,7 @@ const Register = () => {
     firstName: '',
     lastName: '',
     email: '',
+    phone: '',
     password: '',
     confirmPassword: '',
     userType: 'renter', // renter or owner
@@ -46,6 +47,11 @@ const Register = () => {
         newErrors.email = 'Email is required'
       } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
         newErrors.email = 'Email is invalid'
+      }
+      if (!formData.phone) {
+        newErrors.phone = 'Phone number is required'
+      } else if (!/^\+?\d{7,15}$/.test(formData.phone)) {
+        newErrors.phone = 'Phone number is invalid'
       }
     }
     
@@ -193,7 +199,6 @@ const Register = () => {
                       <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.firstName}</p>
                     )}
                   </div>
-                  
                   <div>
                     <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Last Name *
@@ -214,7 +219,6 @@ const Register = () => {
                     )}
                   </div>
                 </div>
-
                 <div>
                   <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Email Address *
@@ -234,7 +238,25 @@ const Register = () => {
                     <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.email}</p>
                   )}
                 </div>
-
+                <div>
+                  <label htmlFor="phone" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Phone Number *
+                  </label>
+                  <input
+                    id="phone"
+                    name="phone"
+                    type="tel"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    className={`block w-full px-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                      errors.phone ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+                    }`}
+                    placeholder="+1234567890"
+                  />
+                  {errors.phone && (
+                    <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.phone}</p>
+                  )}
+                </div>
                 <button
                   type="button"
                   onClick={nextStep}
@@ -368,14 +390,13 @@ const Register = () => {
                     onChange={handleChange}
                     className="block w-full px-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                   >
-                    <option value="renter">I'm looking to rent properties</option>
-                    <option value="owner">I want to list my properties</option>
-                    <option value="both">Both renting and listing</option>
+                    <option value="renter">RENTER</option>
+                    <option value="owner">OWNER</option>
                   </select>
                 </div>
 
                 <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-                  <h3 className="font-medium text-gray-900 dark:text-white mb-2">Why choose {formData.userType === 'renter' ? 'renting' : formData.userType === 'owner' ? 'listing' : 'both'}?</h3>
+                  <h3 className="font-medium text-gray-900 dark:text-white mb-2">Why choose {formData.userType === 'renter' ? 'RENTER' : 'OWNER'}?</h3>
                   <ul className="text-sm text-gray-600 dark:text-gray-300 space-y-1">
                     {formData.userType === 'renter' && (
                       <>
@@ -389,13 +410,6 @@ const Register = () => {
                         <li>• List unlimited properties</li>
                         <li>• Reach thousands of potential renters</li>
                         <li>• Easy property management tools</li>
-                      </>
-                    )}
-                    {formData.userType === 'both' && (
-                      <>
-                        <li>• All renter and owner benefits</li>
-                        <li>• Unified dashboard management</li>
-                        <li>• Special membership discounts</li>
                       </>
                     )}
                   </ul>

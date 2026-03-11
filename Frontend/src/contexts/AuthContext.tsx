@@ -39,6 +39,7 @@ export interface RegisterData {
   userType: UserType
   agreeToTerms: boolean
   type: UserType
+  phone?: string
 }
 
 interface AuthContextType extends AuthState {
@@ -49,112 +50,7 @@ interface AuthContextType extends AuthState {
   clearError: () => void
 }
 
-// Mock user database
-const MOCK_USERS: User[] = [
-  // Admin users
-  {
-    id: 'admin-1',
-    email: 'admin@rentwise.com',
-    firstName: 'System',
-    lastName: 'Administrator',
-    type: 'admin',
-    joinedAt: '2024-01-01',
-    lastLogin: new Date().toISOString(),
-    isActive: true
-  },
-  {
-    id: 'admin-2',
-    email: 'superadmin@rentwise.com',
-    firstName: 'Super',
-    lastName: 'Admin',
-    type: 'admin',
-    joinedAt: '2024-01-01',
-    lastLogin: new Date().toISOString(),
-    isActive: true
-  },
-  
-  // Owner users
-  {
-    id: 'owner-1',
-    email: 'owner@rentwise.com',
-    firstName: 'John',
-    lastName: 'Property',
-    type: 'owner',
-    phone: '+1-555-0101',
-    joinedAt: '2024-01-15',
-    lastLogin: new Date().toISOString(),
-    isActive: true
-  },
-  {
-    id: 'owner-2',
-    email: 'sarah.johnson@rentwise.com',
-    firstName: 'Sarah',
-    lastName: 'Johnson',
-    type: 'owner',
-    phone: '+1-555-0102',
-    joinedAt: '2024-01-14',
-    lastLogin: '2024-01-16T10:30:00Z',
-    isActive: true
-  },
-  {
-    id: 'owner-3',
-    email: 'mike.chen@rentwise.com',
-    firstName: 'Mike',
-    lastName: 'Chen',
-    type: 'owner',
-    phone: '+1-555-0103',
-    joinedAt: '2024-01-13',
-    lastLogin: '2024-01-15T14:20:00Z',
-    isActive: true
-  },
-  
-  // Renter users
-  {
-    id: 'renter-1',
-    email: 'renter@rentwise.com',
-    firstName: 'Jane',
-    lastName: 'Doe',
-    type: 'renter',
-    phone: '+1-555-0201',
-    joinedAt: '2024-01-20',
-    lastLogin: new Date().toISOString(),
-    isActive: true
-  },
-  {
-    id: 'renter-2',
-    email: 'james.wilson@rentwise.com',
-    firstName: 'James',
-    lastName: 'Wilson',
-    type: 'renter',
-    phone: '+1-555-0202',
-    joinedAt: '2024-01-11',
-    lastLogin: '2024-01-16T09:15:00Z',
-    isActive: true
-  },
-  {
-    id: 'renter-3',
-    email: 'emily.davis@rentwise.com',
-    firstName: 'Emily',
-    lastName: 'Davis',
-    type: 'renter',
-    phone: '+1-555-0203',
-    joinedAt: '2024-01-12',
-    lastLogin: '2024-01-15T16:45:00Z',
-    isActive: true
-  }
-]
-
-// Mock passwords (in real app, these would be hashed)
-const MOCK_PASSWORDS: Record<string, string> = {
-  'admin@rentwise.com': 'admin123',
-  'superadmin@rentwise.com': 'superadmin123',
-  'owner@rentwise.com': 'owner123',
-  'sarah.johnson@rentwise.com': 'password123',
-  'mike.chen@rentwise.com': 'password123',
-  'renter@rentwise.com': 'renter123',
-  'james.wilson@rentwise.com': 'password123',
-  'emily.davis@rentwise.com': 'password123'
-}
+// ...existing code...
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
@@ -213,54 +109,45 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return () => clearTimeout(timer)
   }, [])
 
+  // Implement login with backend API
   const login = useCallback(async (credentials: LoginCredentials) => {
     setAuthState(prev => ({ ...prev, isLoading: true, error: null }))
-    
     try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1500))
-      
-      // Find user in mock database
-      const user = MOCK_USERS.find(u => u.email === credentials.email)
-      
-      if (!user) {
-        throw new Error('User not found')
+      const response = await fetch('http://localhost:8080/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: credentials.email,
+          password: credentials.password
+        })
+      })
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.message || 'Login failed')
       }
-      
-      if (!user.isActive) {
-        throw new Error('Account is deactivated')
-      }
-      
-      const expectedPassword = MOCK_PASSWORDS[credentials.email]
-      if (credentials.password !== expectedPassword) {
-        throw new Error('Invalid password')
-      }
-      
-      // Update last login
-      const updatedUser = {
+      const result = await response.json()
+      // Backend wraps token and user in data property
+      const { token, user } = result.data || {}
+      if (!token || !user) throw new Error('Invalid response from server')
+      // Normalize user type/role to lowercase for frontend compatibility
+      const normalizedUser = {
         ...user,
-        lastLogin: new Date().toISOString()
+        type: (user.type || user.role || '').toLowerCase(),
+        role: undefined // Optionally remove role if not needed
       }
-      
-      // Generate mock token
-      const token = `mock_token_${Date.now()}_${user.id}`
-      
-      // Save to localStorage
       if (credentials.rememberMe) {
-        localStorage.setItem('rentwise_user', JSON.stringify(updatedUser))
+        localStorage.setItem('rentwise_user', JSON.stringify(normalizedUser))
         localStorage.setItem('rentwise_token', token)
       } else {
-        sessionStorage.setItem('rentwise_user', JSON.stringify(updatedUser))
+        sessionStorage.setItem('rentwise_user', JSON.stringify(normalizedUser))
         sessionStorage.setItem('rentwise_token', token)
       }
-      
       setAuthState({
-        user: updatedUser,
+        user: normalizedUser,
         isAuthenticated: true,
         isLoading: false,
         error: null
       })
-      
     } catch (error) {
       setAuthState({
         user: null,
@@ -271,54 +158,28 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }, [])
 
+  // Implement register with backend API
   const register = useCallback(async (data: RegisterData) => {
     setAuthState(prev => ({ ...prev, isLoading: true, error: null }))
-    
     try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 2000))
-      
-      // Check if user already exists
-      const existingUser = MOCK_USERS.find(u => u.email === data.email)
-      if (existingUser) {
-        throw new Error('User with this email already exists')
-      }
-      
-      // Validate passwords match
-      if (data.password !== data.confirmPassword) {
-        throw new Error('Passwords do not match')
-      }
-      
-      // Create new user
-      const newUser: User = {
-        id: `${data.type}-${Date.now()}`,
-        email: data.email,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        type: data.userType,
-        joinedAt: new Date().toISOString(),
-        lastLogin: new Date().toISOString(),
-        isActive: true
-      }
-      
-      // Add to mock database (in real app, this would be done by backend)
-      MOCK_USERS.push(newUser)
-      MOCK_PASSWORDS[data.email] = data.password
-      
-      // Generate mock token
-      const token = `mock_token_${Date.now()}_${newUser.id}`
-      
-      // Save to localStorage
-      localStorage.setItem('rentwise_user', JSON.stringify(newUser))
-      localStorage.setItem('rentwise_token', token)
-      
-      setAuthState({
-        user: newUser,
-        isAuthenticated: true,
-        isLoading: false,
-        error: null
+      const response = await fetch('http://localhost:8080/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          firstName: data.firstName,
+          lastName: data.lastName,
+          email: data.email,
+          password: data.password,
+          phone: data.phone || '',
+          role: (data.userType || data.type || 'RENTER').toUpperCase()
+        })
       })
-      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.message || 'Registration failed')
+      }
+      // Registration success, auto-login
+      await login({ email: data.email, password: data.password, rememberMe: true })
     } catch (error) {
       setAuthState({
         user: null,
@@ -327,7 +188,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         error: error instanceof Error ? error.message : 'Registration failed'
       })
     }
-  }, [])
+  }, [login])
 
   const logout = useCallback(() => {
     // Clear all storage thoroughly

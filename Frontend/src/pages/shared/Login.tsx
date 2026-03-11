@@ -96,12 +96,7 @@ const Login = () => {
     }
   }
 
-  // Mock credentials for demo
-  const mockCredentials = [
-    { email: 'admin@rentwise.com', password: 'admin123', type: 'Admin' },
-    { email: 'owner@rentwise.com', password: 'owner123', type: 'Owner' },
-    { email: 'renter@rentwise.com', password: 'renter123', type: 'Renter' }
-  ]
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
@@ -123,17 +118,7 @@ const Login = () => {
           </p>
         </div>
 
-        {/* Demo Credentials */}
-        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-          <h3 className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-2">Demo Credentials:</h3>
-          <div className="space-y-1 text-xs text-blue-700 dark:text-blue-300">
-            {mockCredentials.map((cred, index) => (
-              <div key={index} className="font-mono">
-                {cred.type}: {cred.email} / {cred.password}
-              </div>
-            ))}
-          </div>
-        </div>
+
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           {/* Auth Error */}
