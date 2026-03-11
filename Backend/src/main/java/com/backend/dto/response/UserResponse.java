@@ -18,11 +18,6 @@ public class UserResponse {
     private String email;
     private String phone;
     private String role;
-    private String avatar;
-    private String bio;
-    private String location;
-    private String companyName;
-    private String taxId;
     private Boolean isActive;
     private Boolean isVerified;
     private LocalDateTime joinedAt;

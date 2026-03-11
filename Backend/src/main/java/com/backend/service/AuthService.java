@@ -110,11 +110,6 @@ public class AuthService {
         if (request.getFirstName() != null) user.setFirstName(request.getFirstName());
         if (request.getLastName() != null) user.setLastName(request.getLastName());
         if (request.getPhone() != null) user.setPhone(request.getPhone());
-        if (request.getBio() != null) user.setBio(request.getBio());
-        if (request.getLocation() != null) user.setLocation(request.getLocation());
-        if (request.getCompanyName() != null) user.setCompanyName(request.getCompanyName());
-        if (request.getTaxId() != null) user.setTaxId(request.getTaxId());
-        if (request.getAvatar() != null) user.setAvatar(request.getAvatar());
 
         user = userRepository.save(user);
         return userMapper.toResponse(user);

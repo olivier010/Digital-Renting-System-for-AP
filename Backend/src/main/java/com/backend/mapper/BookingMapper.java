@@ -51,8 +51,6 @@ public class BookingMapper {
                 .name(booking.getRenter().getFullName())
                 .email(booking.getRenter().getEmail())
                 .phone(booking.getRenter().getPhone())
-                .avatar(booking.getRenter().getAvatar())
                 .build();
     }
 }
-

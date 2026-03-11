@@ -39,8 +39,6 @@ public class ReviewMapper {
         return ReviewResponse.ReviewerInfo.builder()
                 .id(review.getReviewer().getId())
                 .name(review.getReviewer().getFullName())
-                .avatar(review.getReviewer().getAvatar())
                 .build();
     }
 }
-

@@ -45,7 +45,6 @@ public class DataInitializer implements CommandLineRunner {
                     .role(Role.OWNER)
                     .isActive(true)
                     .isVerified(true)
-                    .companyName("RentWise Properties")
                     .build();
             userRepository.save(owner);
             log.info("Owner user created: owner@rentwise.com / owner123");
@@ -70,4 +69,3 @@ public class DataInitializer implements CommandLineRunner {
         log.info("Data initialization completed!");
     }
 }
-

@@ -42,21 +42,6 @@ public class User {
     @Column(nullable = false)
     private Role role;
 
-    @Column(length = 500)
-    private String avatar;
-
-    @Column(columnDefinition = "TEXT")
-    private String bio;
-
-    @Column(length = 255)
-    private String location;
-
-    @Column(name = "company_name", length = 255)
-    private String companyName;
-
-    @Column(name = "tax_id", length = 50)
-    private String taxId;
-
     @Column(name = "is_active", nullable = false)
     @Builder.Default
     private Boolean isActive = true;
@@ -105,4 +90,3 @@ public class User {
         return firstName + " " + lastName;
     }
 }
-

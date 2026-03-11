@@ -42,7 +42,6 @@ public class PropertyMapper {
                 .name(property.getOwner().getFullName())
                 .email(property.getOwner().getEmail())
                 .phone(property.getOwner().getPhone())
-                .avatar(property.getOwner().getAvatar())
                 .build();
     }
 }

@@ -17,11 +17,6 @@ public class UserMapper {
                 .email(user.getEmail())
                 .phone(user.getPhone())
                 .role(user.getRole().name())
-                .avatar(user.getAvatar())
-                .bio(user.getBio())
-                .location(user.getLocation())
-                .companyName(user.getCompanyName())
-                .taxId(user.getTaxId())
                 .isActive(user.getIsActive())
                 .isVerified(user.getIsVerified())
                 .joinedAt(user.getJoinedAt())
@@ -29,4 +24,3 @@ public class UserMapper {
                 .build();
     }
 }
-
