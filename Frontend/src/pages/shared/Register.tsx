@@ -5,7 +5,16 @@ import { Link } from 'react-router-dom'
 import { Check } from 'lucide-react'
 
 const Register = () => {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+    password: string;
+    confirmPassword: string;
+    userType: 'renter' | 'owner' | 'admin';
+    agreeToTerms: boolean;
+  }>({
     firstName: '',
     lastName: '',
     email: '',
@@ -103,7 +112,7 @@ const Register = () => {
     try {
       await register({
         ...formData,
-        type: formData.userType,
+        type: formData.userType as 'renter' | 'owner' | 'admin',
       })
       setSuccess(true)
       setTimeout(() => {
