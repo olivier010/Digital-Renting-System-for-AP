@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { 
   Home, 
@@ -30,98 +30,141 @@ const categoryIcons: Record<string, typeof Home> = {
   other: Package,
 }
 
+type Property = {
+  id: number
+  title: string
+  category: string
+  location: string
+  price: number
+  description: string
+  rating: number
+  reviews: number
+  status: string
+  bookings: number
+  contact: string
+  image: string
+  createdAt: string
+}
+
+const API_BASE_URL = 'http://localhost:8080/api';
+
 const Properties = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [filterStatus, setFilterStatus] = useState('all')
   const [filterCategory, setFilterCategory] = useState('all')
   const [sortBy, setSortBy] = useState('name')
+  const [properties, setProperties] = useState<Property[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  const [properties, setProperties] = useState([
-    {
-      id: 1,
-      title: 'Luxury Downtown Apartment',
-      category: 'apartment',
-      location: 'Kigali, Nyarugenge',
-      price: 2500,
-      description: 'Spacious 2-bedroom apartment in the heart of downtown. Fully furnished with modern amenities.',
-      rating: 4.8,
-      reviews: 24,
-      status: 'active',
-      bookings: 8,
-      contact: '+250 788 123 456',
-      image: '🏢',
-      createdAt: '2023-06-15',
-    },
-    {
-      id: 2,
-      title: 'Beach House Paradise',
-      category: 'house',
-      location: 'Gisenyi, Rubavu',
-      price: 3500,
-      description: 'Beautiful lakefront house with 4 bedrooms and stunning views.',
-      rating: 4.9,
-      reviews: 18,
-      status: 'active',
-      bookings: 12,
-      contact: '+250 788 234 567',
-      image: '🏖️',
-      createdAt: '2023-08-20',
-    },
-    {
-      id: 3,
-      title: 'Toyota RAV4 2022',
-      category: 'car',
-      location: 'Kigali, Kicukiro',
-      price: 1800,
-      description: 'Well-maintained Toyota RAV4, automatic transmission, AC, GPS included.',
-      rating: 4.7,
-      reviews: 15,
-      status: 'inactive',
-      bookings: 5,
-      contact: '+250 788 345 678',
-      image: '🚗',
-      createdAt: '2023-10-10',
-    },
-    {
-      id: 4,
-      title: 'Modern Studio Loft',
-      category: 'apartment',
-      location: 'Kigali, Gasabo',
-      price: 1500,
-      description: 'Cozy studio loft perfect for professionals. WiFi, parking, gym access.',
-      rating: 4.5,
-      reviews: 32,
-      status: 'active',
-      bookings: 15,
-      contact: '+250 788 456 789',
-      image: '🏙️',
-      createdAt: '2023-05-01',
-    },
-    {
-      id: 5,
-      title: 'Family Home with Garden',
-      category: 'house',
-      location: 'Musanze, Muhoza',
-      price: 2200,
-      description: 'Spacious family home with a large garden, 3 bedrooms, pet friendly.',
-      rating: 4.6,
-      reviews: 21,
-      status: 'active',
-      bookings: 10,
-      contact: '+250 788 567 890',
-      image: '🏡',
-      createdAt: '2023-09-05',
+  useEffect(() => {
+    const fetchProperties = async () => {
+      setLoading(true)
+      setError(null)
+      try {
+        const token = localStorage.getItem('rentwise_token')
+        if (!token) {
+          setError('You must be logged in as an owner.')
+          setLoading(false)
+          return
+        }
+        const res = await fetch(`${API_BASE_URL}/owner/properties`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        })
+        const data = await res.json()
+        if (!res.ok) {
+          setError(data.message || 'Failed to fetch properties.')
+          setLoading(false)
+          return
+        }
+        // API returns { success, data: { content: [...] } }
+        const apiProperties = data.data?.content || []
+        // Map API response to UI Property type
+        setProperties(apiProperties.map((p: any) => ({
+          id: p.id,
+          title: p.title,
+          category: p.category?.toLowerCase() || 'other',
+          location: p.location,
+          price: Number(p.price),
+          description: p.description,
+          rating: Number(p.rating) || 0,
+          reviews: p.reviewsCount || 0,
+          status: p.status?.toLowerCase() || 'active',
+          bookings: p.bookingsCount || 0,
+          contact: p.owner?.phone || '',
+          image: p.images && p.images.length > 0 ? p.images[0] : '',
+          createdAt: p.createdAt,
+        })))
+        setLoading(false)
+      } catch (err) {
+        setError('An unexpected error occurred.')
+        setLoading(false)
+      }
     }
-  ])
+    fetchProperties()
+  }, [])
 
-  const togglePropertyStatus = (propertyId: number) => {
-    setProperties(prev => prev.map(p => 
-      p.id === propertyId ? { ...p, status: p.status === 'active' ? 'inactive' : 'active' } : p
-    ))
+  // Real API call to delete property
+  const deleteProperty = async (propertyId: number) => {
+    if (!window.confirm('Are you sure you want to delete this property?')) return
+    const token = localStorage.getItem('rentwise_token')
+    if (!token) {
+      setError('You must be logged in as an owner.')
+      return
+    }
+    try {
+      const res = await fetch(`${API_BASE_URL}/properties/${propertyId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      })
+      if (!res.ok) {
+        const data = await res.json()
+        setError(data.message || 'Failed to delete property.')
+        return
+      }
+      setProperties(prev => prev.filter(p => p.id !== propertyId))
+    } catch (err) {
+      setError('An unexpected error occurred while deleting.')
+    }
   }
 
-  const deleteProperty = (propertyId: number) => {
-    setProperties(prev => prev.filter(p => p.id !== propertyId))
+  // Real API call to update property status (active/inactive)
+  const togglePropertyStatus = async (propertyId: number) => {
+    const property = properties.find(p => p.id === propertyId)
+    if (!property) return
+    const token = localStorage.getItem('rentwise_token')
+    if (!token) {
+      setError('You must be logged in as an owner.')
+      return
+    }
+    // Prepare update payload
+    const newStatus = property.status === 'active' ? 'INACTIVE' : 'ACTIVE'
+    try {
+      const res = await fetch(`${API_BASE_URL}/properties/${propertyId}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: newStatus }),
+      })
+      if (!res.ok) {
+        const data = await res.json()
+        setError(data.message || 'Failed to update property status.')
+        return
+      }
+      // Update local state
+      setProperties(prev => prev.map(p =>
+        p.id === propertyId ? { ...p, status: newStatus.toLowerCase() } : p
+      ))
+    } catch (err) {
+      setError('An unexpected error occurred while updating status.')
+    }
   }
 
   const filteredAndSortedProperties = properties
@@ -157,6 +200,23 @@ const Properties = () => {
     active: properties.filter(p => p.status === 'active').length,
     inactive: properties.filter(p => p.status === 'inactive').length,
     avgRating: (properties.reduce((sum, p) => sum + p.rating, 0) / properties.length).toFixed(1)
+  }
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-[40vh]">
+        <span className="text-lg text-gray-600 dark:text-gray-300">Loading properties...</span>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col justify-center items-center min-h-[40vh]">
+        <span className="text-lg text-red-600 dark:text-red-400 mb-4">{error}</span>
+        <Link to="/owner/add-property" className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-colors">Add Property</Link>
+      </div>
+    )
   }
 
   return (
@@ -307,7 +367,15 @@ const Properties = () => {
               <div key={property.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-md transition-shadow">
                 {/* Property Image */}
                 <div className="relative h-48 bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-6xl">
-                  {property.image}
+                  {property.image ? (
+                    <img
+                      src={property.image}
+                      alt={property.title}
+                      className="object-cover w-full h-full"
+                    />
+                  ) : (
+                    <CategoryIcon className="w-16 h-16 text-gray-400" />
+                  )}
                   
                   {/* Category Badge */}
                   <div className="absolute top-3 left-3">
