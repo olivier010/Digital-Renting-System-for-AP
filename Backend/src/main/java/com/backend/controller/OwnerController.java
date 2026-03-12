@@ -4,9 +4,11 @@ import com.backend.dto.response.ApiResponse;
 import com.backend.dto.response.DashboardResponse;
 import com.backend.dto.response.PageResponse;
 import com.backend.dto.response.PaymentResponse;
+import com.backend.dto.response.PropertyResponse;
 import com.backend.security.CurrentUser;
 import com.backend.service.DashboardService;
 import com.backend.service.PaymentService;
+import com.backend.service.PropertyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,6 +25,7 @@ public class OwnerController {
 
     private final DashboardService dashboardService;
     private final PaymentService paymentService;
+    private final PropertyService propertyService;
     private final CurrentUser currentUser;
 
     @GetMapping("/dashboard")
@@ -46,5 +49,13 @@ public class OwnerController {
         PageResponse<PaymentResponse> response = paymentService.getOwnerPayments(ownerId, page, size);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
-}
 
+    @GetMapping("/properties")
+    public ResponseEntity<ApiResponse<PageResponse<PropertyResponse>>> getOwnerProperties(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Long ownerId = currentUser.getUserId();
+        PageResponse<PropertyResponse> response = propertyService.getOwnerProperties(ownerId, page, size);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+}

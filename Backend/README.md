@@ -165,6 +165,7 @@ src/main/java/com/backend/
 | DELETE | `/api/properties/{id}` | Owner | Delete property |
 | GET | `/api/properties/featured` | Public | Get featured properties |
 | GET | `/api/properties/categories` | Public | Get property categories |
+| GET | `/api/properties/owner` | Owner | List all properties for the current owner |
 
 ### Bookings
 
@@ -758,8 +759,4 @@ These are IDE indexing issues, not actual errors:
 ## License
 
 This project is for educational purposes - Asia Pacific University.
-
-
-
-
 

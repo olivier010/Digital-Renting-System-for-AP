@@ -68,9 +68,6 @@ public class Property {
     @Builder.Default
     private List<String> images = new ArrayList<>();
 
-    @Column(columnDefinition = "TEXT")
-    private String rules;
-
     @Column(name = "bookings_count", nullable = false)
     @Builder.Default
     private Integer bookingsCount = 0;

@@ -25,7 +25,6 @@ public class PropertyResponse {
     private Boolean isVerified;
     private String status;
     private List<String> images;
-    private String rules;
     private Integer bookingsCount;
     private BigDecimal rating;
     private Integer reviewsCount;
@@ -47,4 +46,3 @@ public class PropertyResponse {
         private String avatar;
     }
 }
-

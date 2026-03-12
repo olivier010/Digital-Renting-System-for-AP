@@ -34,7 +34,4 @@ public class UpdatePropertyRequest {
     private String status;
 
     private List<String> images;
-
-    private String rules;
 }
-

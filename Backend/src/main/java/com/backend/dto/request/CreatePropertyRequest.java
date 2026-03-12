@@ -37,7 +37,4 @@ public class CreatePropertyRequest {
     private BigDecimal price;
 
     private List<String> images;
-
-    private String rules;
 }
-

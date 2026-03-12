@@ -22,7 +22,6 @@ public class PropertyMapper {
                 .isVerified(property.getIsVerified())
                 .status(property.getStatus().name())
                 .images(property.getImages())
-                .rules(property.getRules())
                 .bookingsCount(property.getBookingsCount())
                 .rating(property.getRating())
                 .reviewsCount(property.getReviewsCount())

@@ -101,7 +101,6 @@ public class PropertyService {
                 .location(request.getLocation())
                 .price(request.getPrice())
                 .images(request.getImages() != null ? request.getImages() : java.util.Collections.emptyList())
-                .rules(request.getRules())
                 .status(PropertyStatus.ACTIVE)
                 .isAvailable(true)
                 .build();
@@ -154,9 +153,6 @@ public class PropertyService {
         }
         if (request.getImages() != null) {
             property.setImages(request.getImages());
-        }
-        if (request.getRules() != null) {
-            property.setRules(request.getRules());
         }
 
         property = propertyRepository.save(property);
