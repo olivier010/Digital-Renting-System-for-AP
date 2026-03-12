@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../../contexts/AuthContext'
 import { Link } from 'react-router-dom'
 import { Check } from 'lucide-react'
 
@@ -14,6 +16,9 @@ const Register = () => {
     agreeToTerms: false
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [success, setSuccess] = useState(false)
+  const navigate = useNavigate()
+  const { register, isLoading, error } = useAuth()
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -91,19 +96,24 @@ const Register = () => {
     setStep(step - 1)
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
     if (!validateStep()) return
-    
     setIsSubmitting(true)
-    
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      await register({
+        ...formData,
+        type: formData.userType,
+      })
+      setSuccess(true)
+      setTimeout(() => {
+        navigate('/login')
+      }, 2000)
+    } catch (err) {
+      // Error is handled by AuthContext
+    } finally {
       setIsSubmitting(false)
-      // In a real app, this would handle registration and redirect
-      console.log('Registration successful:', formData)
-    }, 2000)
+    }
   }
 
   const getPasswordStrength = (password: string) => {
@@ -147,38 +157,49 @@ const Register = () => {
           </p>
         </div>
 
-        {/* Progress Bar */}
+        {/* Progress Bar or Success Message */}
         <div className="bg-white dark:bg-gray-800 shadow-xl rounded-2xl p-8">
-          <div className="mb-8">
-            <div className="flex items-center justify-between mb-2">
-              {[1, 2, 3].map((stepNum) => (
-                <div key={stepNum} className="flex items-center">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                    stepNum <= step 
-                      ? 'bg-primary-600 text-white' 
-                      : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
-                  }`}>
-                    {stepNum < step ? <Check className="w-4 h-4" /> : stepNum}
-                  </div>
-                  {stepNum < 3 && (
-                    <div className={`w-full h-1 mx-2 ${
-                      stepNum < step ? 'bg-primary-600' : 'bg-gray-200 dark:bg-gray-700'
-                    }`} />
-                  )}
+          {success ? (
+            <div className="flex flex-col items-center justify-center min-h-[300px]">
+              <svg className="w-16 h-16 text-green-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              <h3 className="text-2xl font-bold text-green-600 mb-2">Registration Successful!</h3>
+              <p className="text-gray-700 dark:text-gray-200 mb-2 text-center">You will be redirected to the login page shortly.</p>
+              <p className="text-gray-500 text-sm">If not redirected, <Link to="/login" className="text-primary-600 hover:underline">click here</Link>.</p>
+            </div>
+          ) : (
+            <>
+              <div className="mb-8">
+                <div className="flex items-center justify-between mb-2">
+                  {[1, 2, 3].map((stepNum) => (
+                    <div key={stepNum} className="flex items-center">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+                        stepNum <= step 
+                          ? 'bg-primary-600 text-white' 
+                          : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
+                      }`}>
+                        {stepNum < step ? <Check className="w-4 h-4" /> : stepNum}
+                      </div>
+                      {stepNum < 3 && (
+                        <div className={`w-full h-1 mx-2 ${
+                          stepNum < step ? 'bg-primary-600' : 'bg-gray-200 dark:bg-gray-700'
+                        }`} />
+                      )}
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-            <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400">
-              <span>Personal Info</span>
-              <span>Security</span>
-              <span>Account Type</span>
-            </div>
-          </div>
+                <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400">
+                  <span>Personal Info</span>
+                  <span>Security</span>
+                  <span>Account Type</span>
+                </div>
+              </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Step 1: Personal Information */}
-            {step === 1 && (
-              <div className="space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Step 1: Personal Information */}
+                {step === 1 && (
+                  <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -451,10 +472,10 @@ const Register = () => {
                   </button>
                   <button
                     type="submit"
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || isLoading}
                     className="flex-1 bg-primary-600 hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed text-white py-3 rounded-lg font-medium transition-colors duration-200"
                   >
-                    {isSubmitting ? (
+                    {(isSubmitting || isLoading) ? (
                       <>
                         <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -467,17 +488,22 @@ const Register = () => {
                     )}
                   </button>
                 </div>
+                {error && (
+                  <p className="mt-4 text-center text-sm text-red-600 dark:text-red-400">{error}</p>
+                )}
               </div>
             )}
-          </form>
+              </form>
 
-          {/* Sign In Link */}
-          <p className="mt-8 text-center text-sm text-gray-600 dark:text-gray-400">
-            Already have an account?{' '}
-            <Link to="/login" className="font-medium text-primary-600 hover:text-primary-500 dark:text-primary-400">
-              Sign in
-            </Link>
-          </p>
+              {/* Sign In Link */}
+              <p className="mt-8 text-center text-sm text-gray-600 dark:text-gray-400">
+                Already have an account?{' '}
+                <Link to="/login" className="font-medium text-primary-600 hover:text-primary-500 dark:text-primary-400">
+                  Sign in
+                </Link>
+              </p>
+            </>
+          )}
         </div>
       </div>
     </div>
