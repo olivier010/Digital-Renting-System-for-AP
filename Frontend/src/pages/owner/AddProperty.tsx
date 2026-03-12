@@ -1,4 +1,6 @@
 import { useState } from 'react'
+// Add useEffect for error clearing
+// Add API_BASE_URL
 import { useNavigate } from 'react-router-dom'
 import { Home, Building2, Car, Landmark, Store, Package } from 'lucide-react'
 
@@ -48,20 +50,70 @@ const AddProperty = () => {
     if (!formData.location.trim()) newErrors.location = 'Location is required'
     if (!formData.price || Number(formData.price) <= 0) newErrors.price = 'Valid price is required'
     if (!formData.description.trim()) newErrors.description = 'Description is required'
+    // rules is optional
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
+
+  const API_BASE_URL = 'http://localhost:8080/api';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!validate()) return
 
     setIsSubmitting(true)
-    // Simulate API call
-    setTimeout(() => {
-      setIsSubmitting(false)
+    setErrors({})
+    try {
+      // 1. Upload images if any (for now, skip and use empty array or mock URLs)
+      // TODO: Integrate real upload if backend supports
+      let imageUrls: string[] = []
+      if (formData.photos.length > 0) {
+        // For now, just skip upload and use empty array
+        // Optionally, you could upload to /api/upload/images and get URLs
+        // imageUrls = await uploadImages(formData.photos)
+      }
+
+      // 2. Prepare payload
+      const payload = {
+        title: formData.title,
+        description: formData.description,
+        category: formData.category.toUpperCase(),
+        location: formData.location,
+        price: Number(formData.price),
+        images: imageUrls, // [] for now
+      }
+
+      // 3. Get JWT token
+      const token = localStorage.getItem('rentwise_token')
+      if (!token) {
+        setErrors({ global: 'You must be logged in as an owner.' })
+        setIsSubmitting(false)
+        return
+      }
+
+      // 4. Send POST request
+      const res = await fetch(`${API_BASE_URL}/properties`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      })
+
+      const data = await res.json()
+      if (!res.ok) {
+        setErrors({ global: data.message || 'Failed to create property.' })
+        setIsSubmitting(false)
+        return
+      }
+
+      // Success: redirect
       navigate('/owner/properties')
-    }, 2000)
+    } catch (err) {
+      setErrors({ global: 'An unexpected error occurred.' })
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -165,7 +217,7 @@ const AddProperty = () => {
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Description *</label>
             <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
-              Describe your property in detail — features, condition, nearby amenities, rules, etc.
+              Describe your property in detail — features, condition, nearby amenities, etc.
             </p>
             <textarea
               name="description"
@@ -175,10 +227,12 @@ const AddProperty = () => {
               className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
                 errors.description ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
               }`}
-              placeholder="Describe your property clearly. Include details like number of rooms, parking, furnishing, condition, special features, and any rules..."
+              placeholder="Describe your property clearly. Include details like number of rooms, parking, furnishing, condition, special features, etc."
             />
             {errors.description && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.description}</p>}
           </div>
+
+
 
           {/* Photos */}
           <div>
@@ -222,6 +276,9 @@ const AddProperty = () => {
           </div>
 
           {/* Submit */}
+          {errors.global && (
+            <div className="mb-4 text-red-600 dark:text-red-400 text-center font-medium">{errors.global}</div>
+          )}
           <div className="flex justify-end gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
             <button
               type="button"
