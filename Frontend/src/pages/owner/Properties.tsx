@@ -9,7 +9,6 @@ import {
   Star, 
   MapPin, 
   Search, 
-  Filter, 
   Phone,
   ToggleLeft,
   ToggleRight,
@@ -42,7 +41,7 @@ type Property = {
   status: string
   bookings: number
   contact: string
-  image: string
+  images: string[]
   createdAt: string
 }
 
@@ -95,7 +94,9 @@ const Properties = () => {
           status: p.status?.toLowerCase() || 'active',
           bookings: p.bookingsCount || 0,
           contact: p.owner?.phone || '',
-          image: p.images && p.images.length > 0 ? p.images[0] : '',
+          images: Array.isArray(p.images)
+            ? p.images.map((img: string) => img.startsWith('http') ? img : `http://localhost:8080${img}`)
+            : [],
           createdAt: p.createdAt,
         })))
         setLoading(false)
@@ -367,9 +368,9 @@ const Properties = () => {
               <div key={property.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-md transition-shadow">
                 {/* Property Image */}
                 <div className="relative h-48 bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-6xl">
-                  {property.image ? (
+                  {property.images && property.images.length > 0 ? (
                     <img
-                      src={property.image}
+                      src={property.images[0]}
                       alt={property.title}
                       className="object-cover w-full h-full"
                     />

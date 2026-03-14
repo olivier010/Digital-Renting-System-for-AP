@@ -48,7 +48,9 @@ const OwnerDashboard = () => {
           rating: p.rating || 0,
           reviews: p.reviewsCount || 0,
           contact: p.ownerName || '',
-          image: p.image || '',
+          images: Array.isArray(p.images)
+            ? p.images.map((img: string) => img.startsWith('http') ? img : `http://localhost:8080${img}`)
+            : [],
         })) : [];
         setProperties(apiProperties)
         // Bookings
@@ -316,8 +318,16 @@ const OwnerDashboard = () => {
                 ) : properties.map((property) => (
                   <div key={property.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
                     <div className="flex items-center space-x-3">
-                      <div className="w-12 h-12 bg-gray-200 dark:bg-gray-600 rounded-lg flex items-center justify-center text-2xl">
-                        {property.image}
+                      <div className="w-12 h-12 bg-gray-200 dark:bg-gray-600 rounded-lg flex items-center justify-center text-2xl overflow-hidden">
+                        {property.images && property.images.length > 0 ? (
+                          <img
+                            src={property.images[0]}
+                            alt={property.title}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <span className="text-gray-400">No Image</span>
+                        )}
                       </div>
                       <div>
                         <p className="font-medium text-gray-900 dark:text-white">{property.title}</p>

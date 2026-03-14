@@ -95,39 +95,41 @@ const AddProperty = () => {
     setIsSubmitting(true)
     setErrors({})
     try {
-      let imageUrls: string[] = []
-      if (formData.photos.length > 0) {
-        // handle image upload if needed
-      }
-      const payload = {
+      const token = localStorage.getItem('rentwise_token')
+      if (!token) return
+
+      // Prepare multipart form data with 'property' as JSON string
+      const form = new FormData()
+      const propertyPayload = {
         title: formData.title,
         description: formData.description,
         category: formData.category.toUpperCase(),
         location: formData.location,
-        price: Number(formData.price),
-        images: imageUrls,
+        price: formData.price
       }
-      const token = localStorage.getItem('rentwise_token')
-      if (!token) return
+      form.append('property', JSON.stringify(propertyPayload))
+      formData.photos.forEach((file) => {
+        form.append('images', file)
+      })
 
       let res
       if (id) {
         res = await fetch(`http://localhost:8080/api/properties/${id}`, {
           method: 'PUT',
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
+            'Authorization': `Bearer ${token}`
+            // Do NOT set 'Content-Type' here
           },
-          body: JSON.stringify(payload),
+          body: form,
         })
       } else {
         res = await fetch(`http://localhost:8080/api/properties`, {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
+            'Authorization': `Bearer ${token}`
+            // Do NOT set 'Content-Type' here
           },
-          body: JSON.stringify(payload),
+          body: form,
         })
       }
       const data = await res.json()

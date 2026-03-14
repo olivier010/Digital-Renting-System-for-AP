@@ -8,6 +8,7 @@ type OwnerBooking = import('../../types').Booking & {
   propertyName?: string;
   propertyStatus?: string;
   propertyLocation?: string;
+  propertyImages?: string[];
   tenantName?: string;
   tenantEmail?: string;
   tenantPhone?: string;
@@ -55,6 +56,9 @@ const Bookings = () => {
           propertyName: b.property?.title || '',
           propertyStatus: b.property?.status || '',
           propertyLocation: b.property?.location || '',
+          propertyImages: Array.isArray(b.property?.images)
+            ? b.property.images.map((img: string) => img.startsWith('http') ? img : `http://localhost:8080${img}`)
+            : [],
           tenantId: b.renter?.id?.toString() || b.tenantId,
           tenantName: b.renter?.name || '',
           tenantEmail: b.renter?.email || '',
@@ -235,8 +239,16 @@ const Bookings = () => {
                 <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
                   {/* Property Info */}
                   <div className="flex items-start space-x-4">
-                    <div className="w-20 h-20 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center text-3xl flex-shrink-0">
-                      <span className="text-xl font-bold">🏠</span>
+                    <div className="w-20 h-20 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center text-3xl flex-shrink-0 overflow-hidden">
+                      {booking.propertyImages && booking.propertyImages.length > 0 ? (
+                        <img
+                          src={booking.propertyImages[0]}
+                          alt={booking.propertyName || `Property #${booking.propertyId}`}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <span className="text-xl font-bold">🏠</span>
+                      )}
                     </div>
                     <div className="flex-1">
                       <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
