@@ -220,6 +220,74 @@ src/main/java/com/backend/
 | GET | `/api/owner/properties` | Owner | Get owner's properties |
 | GET | `/api/owner/bookings` | Owner | Get owner's bookings |
 
+#### Get Owner's Bookings
+
+```http
+GET /api/owner/bookings
+Authorization: Bearer <owner_token>
+
+# Optional query params:
+#   status: Booking status (PENDING, CONFIRMED, CANCELLED, COMPLETED)
+#   startDate: Filter bookings from this date (YYYY-MM-DD)
+#   endDate: Filter bookings up to this date (YYYY-MM-DD)
+
+# Example:
+GET /api/owner/bookings?status=CONFIRMED&page=0&size=10
+```
+
+**Description:**
+Returns a paginated list of bookings for the currently authenticated owner. Supports filtering by status and date range.
+
+**Response Example:**
+```json
+{
+  "status": 200,
+  "message": "Success",
+  "data": {
+    "content": [
+      {
+        "id": 1,
+        "property": {
+          "id": 10,
+          "title": "Modern 2-Bedroom Apartment",
+          "location": "123 Main Street, New York, NY 10001",
+          "category": "APARTMENT",
+          "price": 2500.00,
+          "image": "https://example.com/image1.jpg",
+          "ownerId": 2,
+          "ownerName": "Alice Smith"
+        },
+        "renter": {
+          "id": 5,
+          "name": "John Doe",
+          "email": "john.doe@example.com",
+          "phone": "+1234567890"
+        },
+        "startDate": "2026-04-01",
+        "endDate": "2026-04-30",
+        "guests": 2,
+        "totalPrice": 2500.00,
+        "status": "CONFIRMED",
+        "paymentStatus": "PAID",
+        "specialRequests": "Early check-in if possible.",
+        "cancellationReason": null,
+        "cancellationPolicy": null,
+        "createdAt": "2026-03-13T10:00:00",
+        "updatedAt": "2026-03-13T10:00:00"
+      }
+    ],
+    "pageable": {
+      "pageNumber": 0,
+      "pageSize": 10
+    },
+    "totalElements": 1,
+    "totalPages": 1
+  },
+  "timestamp": "2026-03-13T10:00:00",
+  "errors": null
+}
+```
+
 ### Renter
 
 | Method | Endpoint | Auth | Description |

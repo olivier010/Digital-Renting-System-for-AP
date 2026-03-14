@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { 
   Star, 
   MapPin, 
@@ -21,134 +21,105 @@ const Reviews = () => {
   const [filterRating, setFilterRating] = useState('all')
   const [filterProperty, setFilterProperty] = useState('all')
 
-  const [reviews] = useState([
-    {
-      id: 1,
-      property: 'Luxury Downtown Apartment',
-      location: 'New York, NY',
-      image: '🏢',
-      guest: 'John Smith',
-      guestImage: 'JS',
-      rating: 5,
-      review: 'Absolutely stunning property! The host was incredibly responsive and the place was exactly as described. Clean, well-equipped, and the location was perfect. Would definitely stay here again!',
-      date: '2024-03-15',
-      checkIn: '2024-03-10',
-      checkOut: '2024-03-15',
-      hostResponse: 'Thank you so much for your wonderful review! We\'re thrilled you enjoyed your stay. You\'re always welcome back!',
-      hostResponseDate: '2024-03-16',
-      helpful: 12,
-      notHelpful: 1,
-      wouldRecommend: true,
-      cleanliness: 5,
-      communication: 5,
-      checkInRating: 5,
-      accuracy: 5,
-      locationRating: 5,
-      value: 4,
-      bookingId: 'BK001',
-      verified: true
-    },
-    {
-      id: 2,
-      property: 'Beach House Paradise',
-      location: 'Miami, FL',
-      image: '🏖️',
-      guest: 'Sarah Johnson',
-      guestImage: 'SJ',
-      rating: 4,
-      review: 'Great location and very clean property. The host was helpful and check-in was smooth. Only minor issue was that the WiFi was a bit slow, but everything else was perfect. Good value for money.',
-      date: '2024-03-14',
-      checkIn: '2024-03-08',
-      checkOut: '2024-03-14',
-      hostResponse: null,
-      helpful: 8,
-      notHelpful: 2,
-      wouldRecommend: true,
-      cleanliness: 5,
-      communication: 4,
-      checkInRating: 5,
-      accuracy: 4,
-      locationRating: 5,
-      value: 4,
-      bookingId: 'BK002',
-      verified: true
-    },
-    {
-      id: 3,
-      property: 'Mountain View Cabin',
-      location: 'Aspen, CO',
-      image: '🏔️',
-      guest: 'Michael Brown',
-      guestImage: 'MB',
-      rating: 3,
-      review: 'The cabin was nice and cozy, but there were some maintenance issues that weren\'t mentioned in the listing. The location was beautiful though. Host was responsive to our concerns.',
-      date: '2024-03-12',
-      checkIn: '2024-03-05',
-      checkOut: '2024-03-12',
-      hostResponse: 'We appreciate your feedback and apologize for the maintenance issues. We\'ve addressed them and hope you\'ll give us another chance in the future.',
-      hostResponseDate: '2024-03-13',
-      helpful: 5,
-      notHelpful: 3,
-      wouldRecommend: false,
-      cleanliness: 3,
-      communication: 4,
-      checkInRating: 4,
-      accuracy: 3,
-      locationRating: 5,
-      value: 3,
-      bookingId: 'BK003',
-      verified: true
-    },
-    {
-      id: 4,
-      property: 'Urban Studio Loft',
-      location: 'Chicago, IL',
-      image: '🏙️',
-      guest: 'Emily Davis',
-      guestImage: 'ED',
-      rating: 5,
-      review: 'Perfect place for a city getaway! The loft was exactly as pictured, clean, and had everything we needed. The location was great for exploring the city. Highly recommend!',
-      date: '2024-03-10',
-      checkIn: '2024-03-05',
-      checkOut: '2024-03-10',
-      hostResponse: null,
-      helpful: 15,
-      notHelpful: 0,
-      wouldRecommend: true,
-      cleanliness: 5,
-      communication: 5,
-      checkInRating: 5,
-      accuracy: 5,
-      locationRating: 5,
-      value: 5,
-      bookingId: 'BK004',
-      verified: true
-    }
-  ])
+  type Review = {
+    id: number;
+    property: string;
+    location: string;
+    image: string;
+    guest: string;
+    guestImage: string;
+    rating: number;
+    review: string;
+    date: string;
+    checkIn: string;
+    checkOut: string;
+    hostResponse: string | null;
+    hostResponseDate?: string;
+    helpful: number;
+    notHelpful: number;
+    wouldRecommend: boolean | null;
+    cleanliness: number;
+    communication: number;
+    checkInRating: number;
+    accuracy: number;
+    locationRating: number;
+    value: number;
+    bookingId: string;
+    verified: boolean;
+  };
+  type ReviewToWrite = {
+    id: number;
+    guest: string;
+    guestImage: string;
+    property: string;
+    location: string;
+    image: string;
+    checkIn: string;
+    checkOut: string;
+    bookingId: string;
+    daysSinceCheckout: number;
+    rating: number;
+    review: string;
+    wouldRecommend: boolean | null;
+    cleanliness: number;
+    communication: number;
+    checkInRating: number;
+    accuracy: number;
+    locationRating: number;
+    value: number;
+  };
+  const [reviews, setReviews] = useState<Review[]>([])
 
-  const [reviewsToWrite] = useState([
-    {
-      id: 1,
-      guest: 'David Wilson',
-      guestImage: 'DW',
-      property: 'Cozy Suburban Home',
-      location: 'Austin, TX',
-      image: '🏡',
-      checkIn: '2024-03-20',
-      checkOut: '2024-03-25',
-      bookingId: 'BK005',
-      daysSinceCheckout: 2,
-      rating: 0,
-      review: '',
-      wouldRecommend: null,
-      cleanliness: 0,
-      communication: 0,
-      checkInRating: 0,
-      accuracy: 0,
-      locationRating: 0,
-      value: 0
-    }
-  ])
+  // Fetch reviews from API on mount
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const token = localStorage.getItem('rentwise_token');
+        if (!token) return;
+        const res = await fetch('http://localhost:8080/api/owner/reviews', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        // Map API data to Review[]
+        const apiReviews = (data.data || []).map((r: any) => ({
+          id: r.id,
+          property: r.property?.title || '',
+          location: r.property?.location || '',
+          image: r.property?.image || '',
+          guest: r.renter?.name || '',
+          guestImage: r.renter?.avatar || '',
+          rating: r.rating || 0,
+          review: r.review || '',
+          date: r.date || '',
+          checkIn: r.checkIn || '',
+          checkOut: r.checkOut || '',
+          hostResponse: r.hostResponse || null,
+          hostResponseDate: r.hostResponseDate || '',
+          helpful: r.helpful || 0,
+          notHelpful: r.notHelpful || 0,
+          wouldRecommend: r.wouldRecommend ?? null,
+          cleanliness: r.cleanliness || 0,
+          communication: r.communication || 0,
+          checkInRating: r.checkInRating || 0,
+          accuracy: r.accuracy || 0,
+          locationRating: r.locationRating || 0,
+          value: r.value || 0,
+          bookingId: r.bookingId || '',
+          verified: r.verified || false,
+        }));
+        setReviews(apiReviews);
+      } catch (err) {
+        // Optionally handle error
+      }
+    };
+    fetchReviews();
+  }, []);
+
+  const [reviewsToWrite] = useState<ReviewToWrite[]>([])
 
   const [reviewForm, setReviewForm] = useState({
     rating: 0,
@@ -160,7 +131,7 @@ const Reviews = () => {
     accuracy: 0,
     locationRating: 0,
     value: 0
-  })
+  }) // No mock data, just empty initial state
 
   const tabs = [
     { id: 'received', label: 'Received Reviews', count: reviews.length },
@@ -340,10 +311,10 @@ const Reviews = () => {
               className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
             >
               <option value="all">All Properties</option>
-              <option value="Luxury Downtown Apartment">Luxury Downtown Apartment</option>
-              <option value="Beach House Paradise">Beach House Paradise</option>
-              <option value="Mountain View Cabin">Mountain View Cabin</option>
-              <option value="Urban Studio Loft">Urban Studio Loft</option>
+              {/* Dynamically generate property options from reviews if available */}
+              {/* {Array.from(new Set(reviews.map(r => r.property))).map(property => (
+                <option key={property} value={property}>{property}</option>
+              ))} */}
             </select>
             
             <button className="flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm">

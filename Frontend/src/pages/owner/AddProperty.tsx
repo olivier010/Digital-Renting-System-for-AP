@@ -1,7 +1,5 @@
-import { useState } from 'react'
-// Add useEffect for error clearing
-// Add API_BASE_URL
-import { useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 import { Home, Building2, Car, Landmark, Store, Package } from 'lucide-react'
 
 const categories = [
@@ -15,9 +13,10 @@ const categories = [
 
 const AddProperty = () => {
   const navigate = useNavigate()
+  const { id } = useParams()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
-
+  const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
     title: '',
     category: 'house',
@@ -26,6 +25,38 @@ const AddProperty = () => {
     description: '',
     photos: [] as File[],
   })
+
+  // Fetch property data if editing
+  useEffect(() => {
+    if (!id) return
+    setLoading(true)
+    const fetchProperty = async () => {
+      const token = localStorage.getItem('rentwise_token')
+      if (!token) {
+        setLoading(false)
+        return
+      }
+      const res = await fetch(`http://localhost:8080/api/properties/${id}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      })
+      const data = await res.json()
+      if (res.ok) {
+        setFormData({
+          title: data.title || '',
+          category: (data.category || 'house').toLowerCase(),
+          location: data.location || '',
+          price: data.price ? String(data.price) : '',
+          description: data.description || '',
+          photos: [],
+        })
+      }
+      setLoading(false)
+    }
+    fetchProperty()
+  }, [id])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
@@ -55,7 +86,7 @@ const AddProperty = () => {
     return Object.keys(newErrors).length === 0
   }
 
-  const API_BASE_URL = 'http://localhost:8080/api';
+  // API_BASE_URL is not used, so removed to avoid unused variable warning
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -64,56 +95,60 @@ const AddProperty = () => {
     setIsSubmitting(true)
     setErrors({})
     try {
-      // 1. Upload images if any (for now, skip and use empty array or mock URLs)
-      // TODO: Integrate real upload if backend supports
       let imageUrls: string[] = []
       if (formData.photos.length > 0) {
-        // For now, just skip upload and use empty array
-        // Optionally, you could upload to /api/upload/images and get URLs
-        // imageUrls = await uploadImages(formData.photos)
+        // handle image upload if needed
       }
-
-      // 2. Prepare payload
       const payload = {
         title: formData.title,
         description: formData.description,
         category: formData.category.toUpperCase(),
         location: formData.location,
         price: Number(formData.price),
-        images: imageUrls, // [] for now
+        images: imageUrls,
       }
-
-      // 3. Get JWT token
       const token = localStorage.getItem('rentwise_token')
-      if (!token) {
-        setErrors({ global: 'You must be logged in as an owner.' })
-        setIsSubmitting(false)
-        return
+      if (!token) return
+
+      let res
+      if (id) {
+        res = await fetch(`http://localhost:8080/api/properties/${id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload),
+        })
+      } else {
+        res = await fetch(`http://localhost:8080/api/properties`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload),
+        })
       }
-
-      // 4. Send POST request
-      const res = await fetch(`${API_BASE_URL}/properties`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify(payload),
-      })
-
       const data = await res.json()
       if (!res.ok) {
-        setErrors({ global: data.message || 'Failed to create property.' })
+        setErrors({ global: data.message || (id ? 'Failed to update property.' : 'Failed to create property.') })
         setIsSubmitting(false)
         return
       }
-
-      // Success: redirect
       navigate('/owner/properties')
     } catch (err) {
       setErrors({ global: 'An unexpected error occurred.' })
       setIsSubmitting(false)
     }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-[40vh]">
+        <span className="text-lg text-gray-600 dark:text-gray-300">Loading property...</span>
+      </div>
+    )
   }
 
   return (
@@ -123,8 +158,8 @@ const AddProperty = () => {
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Add New Property</h1>
-              <p className="text-gray-600 dark:text-gray-400">List your property or asset for rent</p>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{id ? 'Edit Property' : 'Add New Property'}</h1>
+              <p className="text-gray-600 dark:text-gray-400">{id ? 'Update your property details' : 'List your property or asset for rent'}</p>
             </div>
             <button
               onClick={() => navigate('/owner/properties')}
@@ -155,8 +190,9 @@ const AddProperty = () => {
                         ? 'border-primary-600 bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300'
                         : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500 text-gray-600 dark:text-gray-400'
                     }`}
+                    aria-label={cat.label}
                   >
-                    <Icon className="w-6 h-6 mb-1" />
+                    <Icon className="w-6 h-6 mb-1" aria-hidden="true" />
                     <span className="text-xs font-medium">{cat.label}</span>
                   </button>
                 )
@@ -264,8 +300,9 @@ const AddProperty = () => {
                       type="button"
                       onClick={() => removePhoto(index)}
                       className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                      aria-label={`Remove photo ${index + 1}`}
                     >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                       </svg>
                     </button>

@@ -108,3 +108,5 @@ public class Property {
     @Builder.Default
     private List<Favorite> favorites = new ArrayList<>();
 }
+
+
