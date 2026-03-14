@@ -31,13 +31,18 @@ public class BookingMapper {
     private BookingResponse.PropertyInfo toPropertyInfo(Booking booking) {
         if (booking.getProperty() == null) return null;
 
+        String imageUrl = null;
+        if (booking.getProperty().getPropertyImages() != null && !booking.getProperty().getPropertyImages().isEmpty()) {
+            imageUrl = booking.getProperty().getPropertyImages().get(0).getImageUrl();
+        }
+
         return BookingResponse.PropertyInfo.builder()
                 .id(booking.getProperty().getId())
                 .title(booking.getProperty().getTitle())
                 .location(booking.getProperty().getLocation())
                 .category(booking.getProperty().getCategory().name())
                 .price(booking.getProperty().getPrice())
-                .image(booking.getProperty().getImages().isEmpty() ? null : booking.getProperty().getImages().get(0))
+                .image(imageUrl)
                 .ownerId(booking.getProperty().getOwner().getId())
                 .ownerName(booking.getProperty().getOwner().getFullName())
                 .build();

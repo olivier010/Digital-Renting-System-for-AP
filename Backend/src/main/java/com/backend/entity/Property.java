@@ -62,11 +62,9 @@ public class Property {
     @Builder.Default
     private PropertyStatus status = PropertyStatus.ACTIVE;
 
-    @ElementCollection
-    @CollectionTable(name = "property_images", joinColumns = @JoinColumn(name = "property_id"))
-    @Column(name = "image_url")
+    @OneToMany(mappedBy = "property", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @Builder.Default
-    private List<String> images = new ArrayList<>();
+    private List<PropertyImage> propertyImages = new ArrayList<>();
 
     @Column(name = "bookings_count", nullable = false)
     @Builder.Default
@@ -108,5 +106,3 @@ public class Property {
     @Builder.Default
     private List<Favorite> favorites = new ArrayList<>();
 }
-
-

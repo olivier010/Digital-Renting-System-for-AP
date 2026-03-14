@@ -5,6 +5,7 @@ import com.backend.dto.request.UpdatePropertyRequest;
 import com.backend.dto.response.PageResponse;
 import com.backend.dto.response.PropertyResponse;
 import com.backend.entity.Property;
+import com.backend.entity.PropertyImage;
 import com.backend.entity.User;
 import com.backend.enums.PropertyCategory;
 import com.backend.enums.PropertyStatus;
@@ -12,6 +13,7 @@ import com.backend.exception.BadRequestException;
 import com.backend.exception.ResourceNotFoundException;
 import com.backend.exception.UnauthorizedException;
 import com.backend.mapper.PropertyMapper;
+import com.backend.repository.PropertyImageRepository;
 import com.backend.repository.PropertyRepository;
 import com.backend.security.CurrentUser;
 import lombok.RequiredArgsConstructor;
@@ -21,8 +23,16 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +41,7 @@ public class PropertyService {
     private final PropertyRepository propertyRepository;
     private final PropertyMapper propertyMapper;
     private final CurrentUser currentUser;
+    private final PropertyImageRepository propertyImageRepository;
 
     @Transactional(readOnly = true)
     public PageResponse<PropertyResponse> getAllProperties(PropertyCategory category, BigDecimal minPrice,
@@ -100,12 +111,94 @@ public class PropertyService {
                 .category(category)
                 .location(request.getLocation())
                 .price(request.getPrice())
-                .images(request.getImages() != null ? request.getImages() : java.util.Collections.emptyList())
                 .status(PropertyStatus.ACTIVE)
                 .isAvailable(true)
                 .build();
 
         property = propertyRepository.save(property);
+
+        // Save images in property_images table
+        if (request.getImages() != null) {
+            for (String imageUrl : request.getImages()) {
+                PropertyImage image = PropertyImage.builder()
+                        .property(property)
+                        .imageUrl(imageUrl)
+                        .build();
+                propertyImageRepository.save(image);
+            }
+        }
+        // Refresh property to include images
+        property = propertyRepository.findById(property.getId()).orElse(property);
+        return propertyMapper.toResponse(property);
+    }
+
+    @Transactional
+    public PropertyResponse createProperty(CreatePropertyRequest request, List<MultipartFile> images) {
+        User owner = currentUser.getUser();
+        if (owner == null) {
+            throw new UnauthorizedException("You must be logged in to create a property");
+        }
+
+        PropertyCategory category;
+        try {
+            category = PropertyCategory.valueOf(request.getCategory().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new BadRequestException("Invalid category");
+        }
+
+        Property property = Property.builder()
+                .owner(owner)
+                .title(request.getTitle())
+                .description(request.getDescription())
+                .category(category)
+                .location(request.getLocation())
+                .price(request.getPrice())
+                .status(PropertyStatus.ACTIVE)
+                .isAvailable(true)
+                .build();
+
+        property = propertyRepository.save(property);
+
+        // Save images from MultipartFile if provided
+        if (images != null && !images.isEmpty()) {
+            String uploadDir = "uploads/property-images/" + property.getId();
+            Path uploadPath = Paths.get(uploadDir);
+            if (!Files.exists(uploadPath)) {
+                try {
+                    Files.createDirectories(uploadPath);
+                } catch (IOException e) {
+                    throw new RuntimeException("Could not create upload directory", e);
+                }
+            }
+            for (MultipartFile file : images) {
+                if (!file.isEmpty()) {
+                    String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+                    Path filePath = uploadPath.resolve(fileName);
+                    try {
+                        file.transferTo(filePath);
+                    } catch (IOException e) {
+                        throw new RuntimeException("Failed to save image file", e);
+                    }
+                    String imageUrl = "/" + uploadDir.replace("\\", "/") + "/" + fileName;
+                    PropertyImage image = PropertyImage.builder()
+                            .property(property)
+                            .imageUrl(imageUrl)
+                            .build();
+                    propertyImageRepository.save(image);
+                }
+            }
+        } else if (request.getImages() != null) {
+            // Fallback: Save image URLs from request if present
+            for (String imageUrl : request.getImages()) {
+                PropertyImage image = PropertyImage.builder()
+                        .property(property)
+                        .imageUrl(imageUrl)
+                        .build();
+                propertyImageRepository.save(image);
+            }
+        }
+        // Refresh property to include images
+        property = propertyRepository.findById(property.getId()).orElse(property);
         return propertyMapper.toResponse(property);
     }
 
@@ -151,11 +244,22 @@ public class PropertyService {
                 throw new BadRequestException("Invalid status");
             }
         }
+        // Update images if provided
         if (request.getImages() != null) {
-            property.setImages(request.getImages());
+            // Remove old images
+            propertyImageRepository.findByPropertyId(property.getId()).forEach(propertyImageRepository::delete);
+            // Add new images
+            for (String imageUrl : request.getImages()) {
+                PropertyImage image = PropertyImage.builder()
+                        .property(property)
+                        .imageUrl(imageUrl)
+                        .build();
+                propertyImageRepository.save(image);
+            }
         }
-
         property = propertyRepository.save(property);
+        // Refresh property to include images
+        property = propertyRepository.findById(property.getId()).orElse(property);
         return propertyMapper.toResponse(property);
     }
 

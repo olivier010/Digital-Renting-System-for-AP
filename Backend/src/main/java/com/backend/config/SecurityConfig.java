@@ -38,6 +38,8 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        // Allow public access to static image resources
+                        .requestMatchers("/uploads/**").permitAll()
                         // Public endpoints
                         .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
                         .requestMatchers("/api/contact").permitAll()
@@ -85,4 +87,3 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 }
-

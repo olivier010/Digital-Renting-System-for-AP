@@ -8,12 +8,15 @@ import com.backend.dto.response.PropertyResponse;
 import com.backend.enums.PropertyCategory;
 import com.backend.enums.PropertyStatus;
 import com.backend.service.PropertyService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 
@@ -23,6 +26,7 @@ import java.math.BigDecimal;
 public class PropertyController {
 
     private final PropertyService propertyService;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @GetMapping
     public ResponseEntity<ApiResponse<PageResponse<PropertyResponse>>> getAllProperties(
@@ -76,12 +80,26 @@ public class PropertyController {
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
-    @PostMapping
+    /**
+     * Create a property with image upload. Accepts any file type for images (no content type restrictions).
+     * The frontend should send a multipart/form-data request with:
+     * - property: JSON (as a string)
+     * - images: one or more files (any content type)
+     */
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('OWNER')")
     public ResponseEntity<ApiResponse<PropertyResponse>> createProperty(
-            @Valid @RequestBody CreatePropertyRequest request) {
-
-        PropertyResponse response = propertyService.createProperty(request);
+            @RequestPart("property") String propertyJson,
+            @RequestPart(value = "images", required = false) java.util.List<MultipartFile> images) {
+        // Manually deserialize property JSON
+        CreatePropertyRequest request;
+        try {
+            request = objectMapper.readValue(propertyJson, CreatePropertyRequest.class);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(ApiResponse.error(HttpStatus.BAD_REQUEST.value(), "Invalid property JSON: " + e.getMessage()));
+        }
+        PropertyResponse response = propertyService.createProperty(request, images);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.created(response));
     }
@@ -120,4 +138,3 @@ public class PropertyController {
         return ResponseEntity.ok(ApiResponse.success("Property featured status toggled", response));
     }
 }
-
