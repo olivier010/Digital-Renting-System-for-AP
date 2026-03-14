@@ -2,12 +2,16 @@
 
 export const API_BASE_URL = 'http://localhost:8080/api';
 
-export async function apiFetch(endpoint, options = {}) {
+interface ApiFetchOptions extends RequestInit {
+  headers?: Record<string, string>;
+}
+
+export async function apiFetch(endpoint: string, options: ApiFetchOptions = {}) {
   const token = localStorage.getItem('rentwise_token');
   const headers = {
     'Content-Type': 'application/json',
     ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
-    ...options.headers,
+    ...(options.headers || {}),
   };
   const res = await fetch(`${API_BASE_URL}${endpoint}`, {
     ...options,
