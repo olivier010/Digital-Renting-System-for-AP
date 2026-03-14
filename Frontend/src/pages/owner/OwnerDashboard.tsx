@@ -4,9 +4,7 @@ import {
   Home, 
   Calendar, 
   DollarSign, 
-  TrendingUp, 
   ArrowUpRight, 
-  ArrowDownRight, 
   Star, 
   Eye, 
   Edit, 
@@ -16,7 +14,7 @@ import {
 } from 'lucide-react'
 
 
-import Card, { CardHeader, CardBody, CardFooter } from '../../components/ui/Card'
+import Card, { CardBody } from '../../components/ui/Card'
 import { apiFetch } from '../../utils/api'
 
 const OwnerDashboard = () => {
@@ -25,13 +23,11 @@ const OwnerDashboard = () => {
   const [recentBookings, setRecentBookings] = useState<any[]>([])
   const [properties, setProperties] = useState<any[]>([])
   const [notifications, setNotifications] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  // ...existing code...
 
   useEffect(() => {
     const fetchDashboard = async () => {
-      setLoading(true)
-      setError(null)
+      // ...existing code...
       try {
         // Dashboard stats
         const dashRes = await apiFetch('/owner/dashboard')
@@ -73,9 +69,7 @@ const OwnerDashboard = () => {
         // Notifications (simulate empty for now)
         setNotifications([])
       } catch (err: any) {
-        setError(err.message || 'Failed to load dashboard')
-      } finally {
-        setLoading(false)
+        // ...existing code...
       }
     }
     fetchDashboard()
