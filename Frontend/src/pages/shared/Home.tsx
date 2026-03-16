@@ -1,44 +1,34 @@
+
 import { Link } from 'react-router-dom'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Search, Home as HomeIcon, Calendar, Star, Shield, ChevronRight, Facebook, Twitter, Linkedin, MapPin, Car } from 'lucide-react'
+import { apiFetch } from '../../utils/api'
 
 const Home = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const [isExpanded, setIsExpanded] = useState(false)
 
-  // Mock featured properties data
-  const featuredProperties = [
-    {
-      id: 1,
-      title: 'Modern Apartment Kigali',
-      location: 'Kigali, Nyarugenge',
-      price: 500,
-      image: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400',
-      category: 'apartment',
-      rating: 4.8,
-      reviews: 24
-    },
-    {
-      id: 2,
-      title: 'Family House Kimironko',
-      location: 'Kigali, Gasabo',
-      price: 800,
-      image: 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=400',
-      category: 'house',
-      rating: 4.6,
-      reviews: 15
-    },
-    {
-      id: 3,
-      title: 'Toyota RAV4 2022',
-      location: 'Kigali, Kicukiro',
-      price: 200,
-      image: 'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=400',
-      category: 'car',
-      rating: 4.9,
-      reviews: 32
+  // Featured properties from backend
+  const [featuredProperties, setFeaturedProperties] = useState<any[]>([])
+  useEffect(() => {
+    const fetchFeatured = async () => {
+      try {
+        const res = await apiFetch('/properties/featured?page=0&size=6')
+        let apiProperties = res.data?.content || []
+        apiProperties = apiProperties.map((p: any) => ({
+          ...p,
+          available: p.isAvailable,
+          image: Array.isArray(p.images) && p.images.length > 0
+            ? (p.images[0].startsWith('http') ? p.images[0] : `http://localhost:8080${p.images[0]}`)
+            : '',
+        }))
+        setFeaturedProperties(apiProperties)
+      } catch {
+        setFeaturedProperties([])
+      }
     }
-  ]
+    fetchFeatured()
+  }, [])
 
   // Mock testimonials data
   const testimonials = [
