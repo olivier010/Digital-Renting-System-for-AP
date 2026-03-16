@@ -1,5 +1,8 @@
-import { useState } from 'react'
-import { Search, MapPin, Star, Heart, Phone, Home, Building2, Car, Landmark, Store, Package, Filter, Grid, List, ChevronDown } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
+import { apiFetch } from '../../utils/api'
+import type { Property } from '../../types'
+import { Search, MapPin, Star, Heart, Eye, Phone, Home, Building2, Car, Landmark, Store, Package, Filter, Grid, List, ChevronDown } from 'lucide-react'
 
 const categoryIcons: Record<string, typeof Home> = {
   house: Home,
@@ -23,66 +26,118 @@ const SearchProperties = () => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [showFilters, setShowFilters] = useState(false)
 
-  const [properties] = useState([
-    {
-      id: 1,
-      title: 'Modern Apartment Kigali',
-      location: 'Kigali, Nyarugenge',
-      price: 500,
-      rating: 4.8,
-      reviews: 24,
-      image: '🏢',
-      category: 'apartment',
-      available: true,
-      bookings: 12,
-      owner: { name: 'Jean Mugabo', phone: '+250 788 123 456' },
-      featured: true,
-      instantBook: true
-    },
-    {
-      id: 2,
-      title: 'Family House Kimironko',
-      location: 'Kigali, Gasabo',
-      price: 800,
-      rating: 4.6,
-      reviews: 15,
-      image: '🏠',
-      category: 'house',
-      available: true,
-      bookings: 8,
-      owner: { name: 'Marie Uwase', phone: '+250 788 234 567' },
-      featured: false,
-      instantBook: false
-    },
-    {
-      id: 3,
-      title: 'Toyota RAV4 2022',
-      location: 'Kigali, Kicukiro',
-      price: 200,
-      rating: 4.9,
-      reviews: 32,
-      image: '🚗',
-      category: 'car',
-      available: true,
-      bookings: 20,
-      owner: { name: 'Patrick Habimana', phone: '+250 788 345 678' },
-      featured: false,
-      instantBook: true
+  const [properties, setProperties] = useState<Property[]>([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const [favoriteError, setFavoriteError] = useState<string | null>(null)
+  const [favoritePropertyIds, setFavoritePropertyIds] = useState<number[]>([])
+
+  // Fetch favorites from backend
+  const fetchFavorites = async () => {
+    try {
+      const res = await apiFetch('/favorites');
+      // API returns { data: { content: [ { property: { id, ... }, ... } ] } }
+      const items = res.data?.content || [];
+      const ids = items.map((fav: any) => fav.property?.id).filter((id: any) => typeof id === 'number');
+      setFavoritePropertyIds(ids);
+    } catch (err) {
+      console.error('Error fetching favorites:', err);
     }
-  ])
+  };
+  useEffect(() => {
+    fetchFavorites();
+  }, []);
 
-  const [savedProperties, setSavedProperties] = useState<number[]>([])
+  const toggleFavorite = async (propertyId: number) => {
+    setFavoriteError(null);
+    if (favoritePropertyIds.includes(propertyId)) {
+      // Remove from favorites
+      try {
+        await apiFetch(`/favorites/${propertyId}`, { method: 'DELETE' });
+        await fetchFavorites();
+      } catch (err) {
+        setFavoriteError('Failed to remove from favorites.');
+      }
+    } else {
+      try {
+        await apiFetch('/favorites', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ propertyId })
+        });
+        await fetchFavorites();
+      } catch (err) {
+        setFavoriteError('Failed to add to favorites.');
+      }
+    }
+  };
 
-  const toggleSaveProperty = (propertyId: number) => {
-    setSavedProperties(prev => 
-      prev.includes(propertyId) 
-        ? prev.filter(id => id !== propertyId)
-        : [...prev, propertyId]
-    )
-  }
+  // Fetch properties from backend
+  useEffect(() => {
+    const fetchProperties = async () => {
+      setLoading(true)
+      setError(null)
+      try {
+        // Build query params from filters
+        const params = new URLSearchParams()
+        if (searchFilters.category && searchFilters.category !== 'all') params.append('category', searchFilters.category)
+        if (searchFilters.location) params.append('location', searchFilters.location)
+        if (searchFilters.priceRange[0]) params.append('minPrice', String(searchFilters.priceRange[0]))
+        if (searchFilters.priceRange[1]) params.append('maxPrice', String(searchFilters.priceRange[1]))
+        // Optionally add sort
+        if (searchFilters.sortBy && searchFilters.sortBy !== 'recommended') params.append('sort', searchFilters.sortBy)
+        // Only show available by default
+        params.append('available', 'true')
+
+        const res = await apiFetch(`/properties?${params.toString()}`)
+        // API returns { data: { content: [ ... ] } }
+        const items = res.data?.content || []
+        // Map backend fields to frontend Property type
+        setProperties(items.map((p: any) => ({
+          id: p.id,
+          title: p.title,
+          description: p.description,
+          price: p.price,
+          location: p.location,
+          category: p.category,
+          images: Array.isArray(p.images)
+            ? p.images.map((img: string) => img && !img.startsWith('http') ? `http://localhost:8080${img}` : img)
+            : [],
+          available: p.isAvailable,
+          bookings: p.bookingsCount,
+          rating: p.rating,
+          reviews: p.reviewsCount,
+          status: p.status,
+          owner: {
+            id: p.owner?.id,
+            name: p.owner?.name,
+            email: p.owner?.email,
+            phone: p.owner?.phone,
+          },
+          createdAt: p.createdAt,
+          updatedAt: p.updatedAt,
+        })))
+      } catch (err: any) {
+        setError(err.message || 'Failed to fetch properties')
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchProperties()
+  }, [searchFilters])
+
+
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {loading && (
+        <div className="text-center py-8 text-lg text-gray-600 dark:text-gray-300">Loading properties...</div>
+      )}
+      {error && (
+        <div className="text-center py-8 text-lg text-red-500">{error}</div>
+      )}
+
       {/* Header */}
       <div className="mb-8">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6">
@@ -91,7 +146,7 @@ const SearchProperties = () => {
               Find Your Perfect Property
             </h1>
             <p className="text-gray-600 dark:text-gray-300">
-              {properties.length} properties available
+              {loading ? 'Loading...' : `${properties.length} properties available`}
             </p>
           </div>
           
@@ -240,19 +295,11 @@ const SearchProperties = () => {
       <div className="flex justify-between items-center mb-6">
         <div>
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-            {properties.length} Properties Found
+            {loading ? 'Loading...' : `${properties.length} Properties Found`}
           </h2>
           <p className="text-gray-600 dark:text-gray-400">
             Based on your search criteria
           </p>
-        </div>
-        <div className="flex items-center space-x-4">
-          <select className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
-            <option>Sort by: Recommended</option>
-            <option>Price: Low to High</option>
-            <option>Price: High to Low</option>
-            <option>Rating: High to Low</option>
-          </select>
         </div>
       </div>
 
@@ -261,90 +308,119 @@ const SearchProperties = () => {
         {properties.map((property) => {
           const CategoryIcon = categoryIcons[property.category] || Package
           return (
-          <div key={property.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-md transition-shadow">
-            {/* Property Image */}
-            <div className="relative h-48 bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-6xl">
-              {property.image}
-              {!property.available && (
-                <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                  <span className="text-white font-semibold">Not Available</span>
-                </div>
-              )}
-              <button
-                onClick={() => toggleSaveProperty(property.id)}
-                className="absolute top-3 right-3 p-2 bg-white dark:bg-gray-800 rounded-full shadow-md hover:shadow-lg transition-shadow"
-              >
-                <Heart className={`w-4 h-4 ${savedProperties.includes(property.id) ? 'fill-red-500 text-red-500' : 'text-gray-600 dark:text-gray-400'}`} />
-              </button>
-              {/* Category Badge */}
-              <div className="absolute top-3 left-3">
-                <span className="inline-flex items-center px-2 py-1 bg-white dark:bg-gray-800 text-xs font-medium rounded-full shadow-sm capitalize">
-                  <CategoryIcon className="w-3 h-3 mr-1" />
-                  {property.category}
-                </span>
-              </div>
-            </div>
+            <div key={property.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-md transition-shadow">
+              {/* Property Image */}
+              <div className="relative h-48 bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-6xl">
+                {property.images && property.images.length > 0 ? (
+                  <img src={property.images[0]} alt={property.title} className="w-full h-full object-cover" />
+                ) : (
+                  <span>{CategoryIcon === Home ? '🏠' : CategoryIcon === Building2 ? '🏢' : CategoryIcon === Car ? '🚗' : '🏡'}</span>
+                )}
+                {!property.available && (
+                  <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                    <span className="text-white font-semibold">Not Available</span>
+                  </div>
+                )}
 
-            {/* Property Info */}
-            <div className="p-4">
-              <div className="flex justify-between items-start mb-2">
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                    {property.title}
-                  </h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center">
-                    <MapPin className="w-3 h-3 mr-1" />
-                    {property.location}
-                  </p>
+                {/* Favorite and View Details Icons */}
+                <div className="absolute bottom-3 right-3 flex flex-row-reverse space-x-reverse space-x-2">
+                  <button
+                    className="p-2 bg-white dark:bg-gray-800 rounded-full shadow-md hover:shadow-lg transition-shadow"
+                    title={favoritePropertyIds.includes(Number(property.id)) ? 'Remove from favorites' : 'Add to favorites'}
+                    onClick={() => toggleFavorite(Number(property.id))}
+                  >
+                    <Heart className={
+                      `w-4 h-4 transition-colors duration-150 ` +
+                      (favoritePropertyIds.includes(Number(property.id))
+                        ? 'fill-red-500 text-red-500'
+                        : 'text-gray-400')
+                    } />
+                  </button>
+                  <Link
+                    to={`/properties/${property.id}`}
+                    className="p-2 bg-white dark:bg-gray-800 rounded-full shadow-md hover:shadow-lg transition-shadow"
+                    title="View details"
+                  >
+                    <Eye className="w-4 h-4 text-primary-600 dark:text-primary-400" />
+                  </Link>
                 </div>
-                <div className="text-right">
-                  <p className="text-xl font-bold text-gray-900 dark:text-white">
-                    ${property.price}
-                  </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">per month</p>
-                </div>
-              </div>
-
-              {/* Rating and Reviews */}
-              <div className="flex items-center mb-3">
-                <div className="flex items-center">
-                  <Star className="w-4 h-4 text-yellow-500 fill-current" />
-                  <span className="text-sm font-medium text-gray-900 dark:text-white ml-1">
-                    {property.rating}
-                  </span>
-                  <span className="text-sm text-gray-500 dark:text-gray-400 ml-1">
-                    ({property.reviews} reviews)
+                      {favoriteError && (
+                        <div className="text-center py-2 text-red-500">{favoriteError}</div>
+                      )}
+                {/* Category Badge */}
+                <div className="absolute top-3 left-3">
+                  <span className="inline-flex items-center px-2 py-1 bg-white dark:bg-gray-800 text-xs font-medium rounded-full shadow-sm capitalize">
+                    <CategoryIcon className="w-3 h-3 mr-1" />
+                    {property.category}
                   </span>
                 </div>
-                <span className="text-sm text-gray-500 dark:text-gray-400 ml-3">
-                  {property.bookings} bookings
-                </span>
               </div>
 
-              {/* Contact Info */}
-              <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 mb-3">
-                <Phone className="w-4 h-4 mr-1" />
-                {property.owner.phone}
-              </div>
+              {/* Property Info */}
+              <div className="p-4">
+                <div className="flex justify-between items-start mb-2">
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                      {property.title}
+                    </h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center">
+                      <MapPin className="w-3 h-3 mr-1" />
+                      {property.location}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xl font-bold text-gray-900 dark:text-white">
+                      ${property.price}
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">per month</p>
+                  </div>
+                </div>
 
-              {/* Owner and Book */}
-              <div className="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-gray-700">
-                <span className="text-sm text-gray-600 dark:text-gray-400">
-                  {property.owner.name}
-                </span>
-                <button 
-                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                    property.available 
-                      ? 'bg-primary-600 hover:bg-primary-700 text-white'
-                      : 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
-                  }`}
-                  disabled={!property.available}
-                >
-                  {property.available ? 'Book Now' : 'Unavailable'}
-                </button>
+                {/* Rating and Reviews */}
+                <div className="flex items-center mb-3">
+                  <div className="flex items-center">
+                    <Star className="w-4 h-4 text-yellow-500 fill-current" />
+                    <span className="text-sm font-medium text-gray-900 dark:text-white ml-1">
+                      {property.rating}
+                    </span>
+                    <span className="text-sm text-gray-500 dark:text-gray-400 ml-1">
+                      ({property.reviews} reviews)
+                    </span>
+                  </div>
+                  <span className="text-sm text-gray-500 dark:text-gray-400 ml-3">
+                    {property.bookings} bookings
+                  </span>
+                </div>
+
+                {/* Contact Info */}
+                <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 mb-3">
+                  <Phone className="w-4 h-4 mr-1" />
+                  {property.owner.phone}
+                </div>
+
+                {/* Owner and Book */}
+                <div className="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-gray-700">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">
+                    {property.owner.name}
+                  </span>
+                  {property.available ? (
+                    <Link
+                      to={`/properties/${property.id}`}
+                      className="px-4 py-2 rounded-lg font-medium transition-colors bg-primary-600 hover:bg-primary-700 text-white"
+                    >
+                      Book Now
+                    </Link>
+                  ) : (
+                    <button
+                      className="px-4 py-2 rounded-lg font-medium transition-colors bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed"
+                      disabled
+                    >
+                      Unavailable
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
           )
         })}
       </div>
