@@ -1,11 +1,12 @@
 import { useParams, Link } from 'react-router-dom'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { apiFetch } from '../../utils/api'
+import type { Property } from '../../types'
 import { 
   MapPin, 
   Star, 
   Heart, 
   Share2, 
-  Shield, 
   Phone,
   Home,
   Building2,
@@ -33,66 +34,61 @@ const PropertyDetail = () => {
   const [saved, setSaved] = useState(false)
   const [checkIn, setCheckIn] = useState('')
   const [checkOut, setCheckOut] = useState('')
+  const [specialRequest, setSpecialRequest] = useState('')
+  const [bookingLoading, setBookingLoading] = useState(false)
+  const [bookingError, setBookingError] = useState<string | null>(null)
+  const [bookingSuccess, setBookingSuccess] = useState(false)
 
-  // Mock property data - in real app, this would come from API
-  const property = {
-    id: parseInt(id || '1'),
-    title: 'Modern Apartment Kigali',
-    location: 'Kigali, Nyarugenge',
-    price: 500,
-    rating: 4.8,
-    reviews: 24,
-    bookings: 12,
-    category: 'apartment' as const,
-    images: [
-      'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800',
-      'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800',
-      'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=800',
-    ],
-    owner: {
-      name: 'Jean Mugabo',
-      phone: '+250 788 123 456',
-      email: 'jean@example.com',
-      verified: true,
-      responseTime: 'Within 1 hour',
-      memberSince: '2023'
-    },
-    description: 'Beautiful modern apartment in the heart of Kigali with stunning city views and comfortable living spaces. This property features well-maintained interiors, natural lighting, and easy access to shops, restaurants, and public transport.',
-    rules: [
-      'No smoking',
-      'No parties',
-      'Quiet hours after 10 PM',
-      'No pets allowed'
-    ],
-    availability: {
-      checkIn: '3:00 PM',
-      checkOut: '11:00 AM',
-      minStay: 1,
-      maxStay: 12
+
+  const [property, setProperty] = useState<Property | null>(null)
+  const [loading, setLoading] = useState(true)
+  useEffect(() => {
+    const fetchProperty = async () => {
+      setLoading(true)
+      try {
+        const res = await apiFetch(`/properties/${id}`)
+        let p = res.data
+        // Fix image URLs if needed
+        p.images = Array.isArray(p.images)
+          ? p.images.map((img: string) => img && !img.startsWith('http') ? `http://localhost:8080${img}` : img)
+          : []
+        setProperty(p)
+      } catch {
+        setProperty(null)
+      } finally {
+        setLoading(false)
+      }
     }
-  }
+    if (id) fetchProperty()
+  }, [id])
 
-  const toggleSave = () => {
-    setSaved(!saved)
-  }
 
-  const nextImage = () => {
-    setCurrentImage((prev) => (prev + 1) % property.images.length)
-  }
-
-  const prevImage = () => {
-    setCurrentImage((prev) => (prev - 1 + property.images.length) % property.images.length)
-  }
-
+  const toggleSave = () => setSaved((s) => !s)
+  const nextImage = () => property && setCurrentImage((prev) => (prev + 1) % property.images.length)
+  const prevImage = () => property && setCurrentImage((prev) => (prev - 1 + property.images.length) % property.images.length)
   const calculateTotal = () => {
-    if (!checkIn || !checkOut) return 0
+    if (!property || !checkIn || !checkOut) return 0
     const checkInDate = new Date(checkIn)
     const checkOutDate = new Date(checkOut)
     const months = Math.ceil((checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24 * 30))
     return months * property.price
   }
+  const CategoryIcon = property ? (categoryIcons[property.category] || Package) : Package
 
-  const CategoryIcon = categoryIcons[property.category] || Package
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <span className="text-lg text-gray-600 dark:text-gray-300">Loading property details...</span>
+      </div>
+    )
+  }
+  if (!property) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <span className="text-lg text-red-600 dark:text-red-400">Property not found.</span>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -126,41 +122,47 @@ const PropertyDetail = () => {
             {/* Image Gallery */}
             <div className="relative">
               <div className="aspect-w-16 aspect-h-9 bg-gray-200 dark:bg-gray-700 rounded-xl overflow-hidden">
-                <img 
-                  src={property.images[currentImage]} 
-                  alt={property.title}
-                  className="w-full h-96 object-cover"
-                />
+                {property.images.length > 0 ? (
+                  <img 
+                    src={property.images[currentImage]} 
+                    alt={property.title}
+                    className="w-full h-96 object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-96 flex items-center justify-center text-3xl">🏠</div>
+                )}
               </div>
-              
               {/* Image Navigation */}
-              <button 
-                onClick={prevImage}
-                className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow-lg"
-              >
-                <ChevronLeft className="w-5 h-5" />
-              </button>
-              <button 
-                onClick={nextImage}
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow-lg"
-              >
-                <ChevronRight className="w-5 h-5" />
-              </button>
-
+              {property.images.length > 1 && <>
+                <button 
+                  onClick={prevImage}
+                  className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow-lg"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+                <button 
+                  onClick={nextImage}
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow-lg"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              </>}
               {/* Image Thumbnails */}
-              <div className="flex space-x-2 mt-4">
-                {property.images.map((image, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setCurrentImage(index)}
-                    className={`flex-1 aspect-w-16 aspect-h-9 rounded-lg overflow-hidden border-2 ${
-                      currentImage === index ? 'border-primary-600' : 'border-transparent'
-                    }`}
-                  >
-                    <img src={image} alt={`Property view ${index + 1}`} className="w-full h-20 object-cover" />
-                  </button>
-                ))}
-              </div>
+              {property.images.length > 1 && (
+                <div className="flex space-x-2 mt-4">
+                  {property.images.map((image, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setCurrentImage(index)}
+                      className={`flex-1 aspect-w-16 aspect-h-9 rounded-lg overflow-hidden border-2 ${
+                        currentImage === index ? 'border-primary-600' : 'border-transparent'
+                      }`}
+                    >
+                      <img src={image} alt={`Property view ${index + 1}`} className="w-full h-20 object-cover" />
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Property Info */}
@@ -212,25 +214,31 @@ const PropertyDetail = () => {
               {/* Contact Info */}
               <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Contact</h3>
-                <div className="flex items-center text-gray-600 dark:text-gray-300">
+                <div className="flex items-center text-gray-600 dark:text-gray-300 mb-2">
                   <Phone className="w-4 h-4 mr-2" />
                   <span>{property.owner.phone}</span>
+                </div>
+                <div className="flex items-center text-gray-600 dark:text-gray-300">
+                  <span className="font-medium">Email:</span>
+                  <span className="ml-2">{property.owner.email}</span>
                 </div>
               </div>
             </div>
 
-            {/* House Rules */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">House Rules</h3>
-              <ul className="space-y-2">
-                {property.rules.map((rule, index) => (
-                  <li key={index} className="flex items-center text-sm text-gray-600 dark:text-gray-300">
-                    <X className="w-4 h-4 mr-2 text-red-500" />
-                    {rule}
-                  </li>
-                ))}
-              </ul>
-            </div>
+            {/* House Rules (only if present) */}
+            {Array.isArray((property as any).rules) && (property as any).rules.length > 0 && (
+              <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">House Rules</h3>
+                <ul className="space-y-2">
+                  {(property as any).rules.map((rule: string, index: number) => (
+                    <li key={index} className="flex items-center text-sm text-gray-600 dark:text-gray-300">
+                      <X className="w-4 h-4 mr-2 text-red-500" />
+                      {rule}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
 
           {/* Booking Sidebar */}
@@ -250,7 +258,34 @@ const PropertyDetail = () => {
               </div>
 
               {/* Booking Form */}
-              <div className="space-y-4 mb-6">
+              <form
+                className="space-y-4 mb-6"
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  setBookingError(null);
+                  setBookingSuccess(false);
+                  setBookingLoading(true);
+                  try {
+                    await apiFetch('/bookings', {
+                      method: 'POST',
+                      body: JSON.stringify({
+                        propertyId: property.id,
+                        startDate: checkIn,
+                        endDate: checkOut,
+                        specialRequests: specialRequest,
+                      }),
+                    });
+                    setBookingSuccess(true);
+                    setCheckIn('');
+                    setCheckOut('');
+                    setSpecialRequest('');
+                  } catch (err: any) {
+                    setBookingError(err.message || 'Failed to reserve property');
+                  } finally {
+                    setBookingLoading(false);
+                  }
+                }}
+              >
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Start Date
@@ -260,6 +295,7 @@ const PropertyDetail = () => {
                     value={checkIn}
                     onChange={(e) => setCheckIn(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    required
                   />
                 </div>
                 <div>
@@ -271,9 +307,35 @@ const PropertyDetail = () => {
                     value={checkOut}
                     onChange={(e) => setCheckOut(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    required
                   />
                 </div>
-              </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Special Request (optional)
+                  </label>
+                  <textarea
+                    rows={3}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white resize-none"
+                    placeholder="Add any special request for the owner..."
+                    value={specialRequest}
+                    onChange={e => setSpecialRequest(e.target.value)}
+                  />
+                </div>
+                {bookingError && (
+                  <div className="text-red-500 text-sm">{bookingError}</div>
+                )}
+                {bookingSuccess && (
+                  <div className="text-green-600 text-sm">Reservation successful!</div>
+                )}
+                <button
+                  type="submit"
+                  className="w-full bg-primary-600 hover:bg-primary-700 text-white py-3 px-4 rounded-lg font-medium transition-colors duration-200 disabled:opacity-60"
+                  disabled={bookingLoading}
+                >
+                  {bookingLoading ? 'Reserving...' : 'Reserve Now'}
+                </button>
+              </form>
 
               {/* Price Breakdown */}
               <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mb-6">
@@ -291,11 +353,7 @@ const PropertyDetail = () => {
                 </div>
               </div>
 
-              {/* Book Button */}
-              <button className="w-full bg-primary-600 hover:bg-primary-700 text-white py-3 px-4 rounded-lg font-medium transition-colors duration-200">
-                Reserve Now
-              </button>
-
+              {/* Book Button removed (duplicate) */}
               <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-4">
                 You won't be charged yet
               </p>
@@ -313,13 +371,7 @@ const PropertyDetail = () => {
                 <div>
                   <div className="flex items-center">
                     <p className="font-medium text-gray-900 dark:text-white">{property.owner.name}</p>
-                    {property.owner.verified && (
-                      <Shield className="w-4 h-4 text-blue-600 ml-2" />
-                    )}
                   </div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Member since {property.owner.memberSince}
-                  </p>
                 </div>
               </div>
               <div className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
@@ -327,7 +379,10 @@ const PropertyDetail = () => {
                   <Phone className="w-4 h-4 mr-2" />
                   {property.owner.phone}
                 </p>
-                <p>Response time: {property.owner.responseTime}</p>
+                <p className="flex items-center">
+                  <span className="font-medium">Email:</span>
+                  <span className="ml-2">{property.owner.email}</span>
+                </p>
               </div>
               <button className="w-full mt-4 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 py-2 px-4 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                 Contact Owner
