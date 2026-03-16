@@ -1,229 +1,72 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import PropertyCard from '../../components/PropertyCard'
 import type { Property } from '../../types'
 import Loading from '../../components/ui/Loading'
 import { Star } from 'lucide-react'
+import { apiFetch } from '../../utils/api'
 
-// Enhanced mock data with categories
-const mockProperties: Property[] = [
-  {
-    id: '1',
-    title: 'Modern Apartment Kigali',
-    description: 'Beautiful modern apartment in the heart of Kigali with stunning city views and comfortable living spaces.',
-    price: 500,
-    location: 'Kigali, Nyarugenge',
-    category: 'apartment',
-    images: [],
-    available: true,
-    bookings: 12,
-    rating: 4.8,
-    reviews: 24,
-    status: 'active',
-    owner: {
-      id: 'owner1',
-      name: 'Jean Mugabo',
-      email: 'jean@example.com',
-      phone: '+250 788 123 456'
-    },
-    createdAt: '2024-01-15T10:00:00Z',
-    updatedAt: '2024-01-15T10:00:00Z'
-  },
-  {
-    id: '2',
-    title: 'Family House Kimironko',
-    description: 'Spacious family house with a beautiful garden, located in a quiet neighborhood with easy access to schools.',
-    price: 800,
-    location: 'Kigali, Gasabo',
-    category: 'house',
-    images: [],
-    available: true,
-    bookings: 8,
-    rating: 4.6,
-    reviews: 15,
-    status: 'active',
-    owner: {
-      id: 'owner2',
-      name: 'Marie Uwase',
-      email: 'marie@example.com',
-      phone: '+250 788 234 567'
-    },
-    createdAt: '2024-01-14T15:30:00Z',
-    updatedAt: '2024-01-14T15:30:00Z'
-  },
-  {
-    id: '3',
-    title: 'Toyota RAV4 2022',
-    description: 'Well-maintained Toyota RAV4 2022 model, perfect for city driving and long trips. Full insurance included.',
-    price: 200,
-    location: 'Kigali, Kicukiro',
-    category: 'car',
-    images: [],
-    available: true,
-    bookings: 20,
-    rating: 4.9,
-    reviews: 32,
-    status: 'active',
-    owner: {
-      id: 'owner3',
-      name: 'Patrick Habimana',
-      email: 'patrick@example.com',
-      phone: '+250 788 345 678'
-    },
-    createdAt: '2024-01-13T09:15:00Z',
-    updatedAt: '2024-01-13T09:15:00Z'
-  },
-  {
-    id: '4',
-    title: 'Commercial Space Remera',
-    description: 'Prime commercial space ideal for offices or retail business, located on a busy street with high foot traffic.',
-    price: 1200,
-    location: 'Kigali, Gasabo',
-    category: 'commercial',
-    images: [],
-    available: true,
-    bookings: 3,
-    rating: 4.5,
-    reviews: 8,
-    status: 'active',
-    owner: {
-      id: 'owner4',
-      name: 'Alice Mutesi',
-      email: 'alice@example.com',
-      phone: '+250 788 456 789'
-    },
-    createdAt: '2024-01-12T14:20:00Z',
-    updatedAt: '2024-01-12T14:20:00Z'
-  },
-  {
-    id: '5',
-    title: 'Land Plot Nyamirambo',
-    description: 'Large plot of land suitable for residential construction with clear title deed and all utilities available.',
-    price: 300,
-    location: 'Kigali, Nyarugenge',
-    category: 'land',
-    images: [],
-    available: true,
-    bookings: 2,
-    rating: 4.3,
-    reviews: 5,
-    status: 'active',
-    owner: {
-      id: 'owner5',
-      name: 'Emmanuel Nshuti',
-      email: 'emmanuel@example.com',
-      phone: '+250 788 567 890'
-    },
-    createdAt: '2024-01-11T11:45:00Z',
-    updatedAt: '2024-01-11T11:45:00Z'
-  },
-  {
-    id: '6',
-    title: 'Apartment Gisenyi Lakeside',
-    description: 'Beautiful lakeside apartment in Gisenyi with stunning views of Lake Kivu. Perfect for peaceful living.',
-    price: 450,
-    location: 'Gisenyi, Rubavu',
-    category: 'apartment',
-    images: [],
-    available: true,
-    bookings: 15,
-    rating: 4.7,
-    reviews: 19,
-    status: 'active',
-    owner: {
-      id: 'owner6',
-      name: 'Grace Ingabire',
-      email: 'grace@example.com',
-      phone: '+250 788 678 901'
-    },
-    createdAt: '2024-01-10T16:30:00Z',
-    updatedAt: '2024-01-10T16:30:00Z'
-  },
-  {
-    id: '7',
-    title: 'Honda CR-V 2023',
-    description: 'Brand new Honda CR-V 2023, fully loaded with all features. Available for monthly rental with insurance.',
-    price: 250,
-    location: 'Musanze',
-    category: 'car',
-    images: [],
-    available: true,
-    bookings: 10,
-    rating: 4.8,
-    reviews: 14,
-    status: 'active',
-    owner: {
-      id: 'owner7',
-      name: 'David Niyonzima',
-      email: 'david@example.com',
-      phone: '+250 788 789 012'
-    },
-    createdAt: '2024-01-09T10:00:00Z',
-    updatedAt: '2024-01-09T10:00:00Z'
-  },
-  {
-    id: '8',
-    title: 'Villa Nyarutarama',
-    description: 'Luxury villa in the prestigious Nyarutarama area with modern finishes, spacious rooms and beautiful garden.',
-    price: 1500,
-    location: 'Kigali, Gasabo',
-    category: 'house',
-    images: [],
-    available: true,
-    bookings: 6,
-    rating: 4.9,
-    reviews: 22,
-    status: 'active',
-    owner: {
-      id: 'owner8',
-      name: 'Diane Umutoni',
-      email: 'diane@example.com',
-      phone: '+250 788 890 123'
-    },
-    createdAt: '2024-01-08T14:30:00Z',
-    updatedAt: '2024-01-08T14:30:00Z'
-  }
-]
 
 const Properties = () => {
-  const [filteredProperties, setFilteredProperties] = useState<Property[]>(mockProperties)
-  const [loading, setLoading] = useState(false)
+  const [properties, setProperties] = useState<Property[]>([])
+  const [filteredProperties, setFilteredProperties] = useState<Property[]>([])
+  const [loading, setLoading] = useState(true)
   const [sortBy, setSortBy] = useState<'price-asc' | 'price-desc' | 'newest' | 'popular'>('popular')
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [searchQuery, setSearchQuery] = useState('')
 
+  // Fetch properties from API
+  useEffect(() => {
+    const fetchProperties = async () => {
+      setLoading(true)
+      try {
+        const res = await apiFetch('/properties?page=0&size=100');
+        // API returns { success, data: { content: [...] } }
+        let apiProperties = res.data?.content || [];
+        // Fix image URLs: prefix with backend base if relative
+        apiProperties = apiProperties.map((p: any) => ({
+          ...p,
+          available: p.isAvailable, // map backend isAvailable to frontend available
+          images: Array.isArray(p.images)
+            ? p.images.map((img: string) => img && !img.startsWith('http') ? `http://localhost:8080${img}` : img)
+            : [],
+        }));
+        setProperties(apiProperties)
+        setFilteredProperties(apiProperties)
+      } catch (err) {
+        setProperties([])
+        setFilteredProperties([])
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchProperties()
+  }, [])
+
+  // Search and sort handler
   const handleSearch = (query: string) => {
-    setLoading(true)
     setSearchQuery(query)
-    
-    // Simulate API call with realistic delay
-    setTimeout(() => {
-      let filtered = mockProperties.filter(property => {
-        if (query && !property.location.toLowerCase().includes(query.toLowerCase()) && 
-            !property.title.toLowerCase().includes(query.toLowerCase()) &&
-            !property.description.toLowerCase().includes(query.toLowerCase())) {
-          return false
-        }
-        return true
-      })
-
-      // Apply sorting
-      filtered = [...filtered].sort((a, b) => {
-        if (sortBy === 'price-asc') {
-          return a.price - b.price
-        } else if (sortBy === 'price-desc') {
-          return b.price - a.price
-        } else if (sortBy === 'newest') {
-          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        } else if (sortBy === 'popular') {
-          // Simulate popularity based on bookings and rating
-          return (b.bookings * b.rating) - (a.bookings * a.rating)
-        }
-        return 0
-      })
-
-      setFilteredProperties(filtered)
-      setLoading(false)
-    }, 800)
+    let filtered = properties.filter(property => {
+      if (query && !property.location.toLowerCase().includes(query.toLowerCase()) &&
+          !property.title.toLowerCase().includes(query.toLowerCase()) &&
+          !property.description.toLowerCase().includes(query.toLowerCase())) {
+        return false
+      }
+      return true
+    })
+    // Apply sorting
+    filtered = [...filtered].sort((a, b) => {
+      if (sortBy === 'price-asc') {
+        return a.price - b.price
+      } else if (sortBy === 'price-desc') {
+        return b.price - a.price
+      } else if (sortBy === 'newest') {
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      } else if (sortBy === 'popular') {
+        return (b.bookings * b.rating) - (a.bookings * a.rating)
+      }
+      return 0
+    })
+    setFilteredProperties(filtered)
   }
 
   const handleSortChange = (newSortBy: typeof sortBy) => {
@@ -246,7 +89,7 @@ const Properties = () => {
             {/* Quick Stats */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
               <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
-                <div className="text-2xl font-bold">{mockProperties.length}+</div>
+                <div className="text-2xl font-bold">{properties.length}+</div>
                 <div className="text-sm text-primary-100">Properties</div>
               </div>
               <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
@@ -375,7 +218,7 @@ const Properties = () => {
                 <button
                   onClick={() => {
                     setSearchQuery('')
-                    setFilteredProperties(mockProperties)
+                    setFilteredProperties(properties)
                   }}
                   className="px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium"
                 >
@@ -385,13 +228,15 @@ const Properties = () => {
             )}
 
             {/* Load More */}
-            {!loading && filteredProperties.length > 0 && filteredProperties.length < mockProperties.length && (
+            {/*
+            {!loading && filteredProperties.length > 0 && filteredProperties.length < properties.length && (
               <div className="text-center mt-12">
                 <button className="px-8 py-3 bg-white dark:bg-gray-800 border-2 border-primary-600 text-primary-600 dark:text-primary-400 rounded-lg hover:bg-primary-50 dark:hover:bg-gray-700 transition-colors font-medium">
                   Load More Properties
                 </button>
               </div>
             )}
+            */}
           </div>
         </div>
       </div>
