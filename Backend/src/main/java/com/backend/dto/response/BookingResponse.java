@@ -19,7 +19,6 @@ public class BookingResponse {
     private RenterInfo renter;
     private LocalDate startDate;
     private LocalDate endDate;
-    private Integer guests;
     private BigDecimal totalPrice;
     private String status;
     private String paymentStatus;
@@ -56,4 +55,3 @@ public class BookingResponse {
         private String avatar;
     }
 }
-

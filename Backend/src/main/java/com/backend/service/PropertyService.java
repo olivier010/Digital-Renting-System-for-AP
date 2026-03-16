@@ -244,6 +244,10 @@ public class PropertyService {
                 throw new BadRequestException("Invalid status");
             }
         }
+        // Update isVerified if provided
+        if (request.getIsVerified() != null) {
+            property.setIsVerified(request.getIsVerified());
+        }
         // Update images if provided
         if (request.getImages() != null) {
             // Remove old images

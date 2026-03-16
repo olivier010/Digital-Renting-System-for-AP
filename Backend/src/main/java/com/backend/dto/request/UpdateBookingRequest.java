@@ -17,12 +17,9 @@ public class UpdateBookingRequest {
 
     private LocalDate endDate;
 
-    private Integer guests;
-
     private String specialRequests;
 
     private String status;
 
     private String cancellationReason;
 }
-

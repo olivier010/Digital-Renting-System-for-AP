@@ -1,7 +1,6 @@
 package com.backend.dto.request;
 
 import jakarta.validation.constraints.Future;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -27,10 +26,5 @@ public class CreateBookingRequest {
     @Future(message = "End date must be in the future")
     private LocalDate endDate;
 
-    @Min(value = 1, message = "At least 1 guest is required")
-    @Builder.Default
-    private Integer guests = 1;
-
     private String specialRequests;
 }
-

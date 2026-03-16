@@ -132,7 +132,7 @@ public class PropertyController {
     }
 
     @PatchMapping("/{id}/featured")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'OWNER')")
     public ResponseEntity<ApiResponse<PropertyResponse>> toggleFeatured(@PathVariable Long id) {
         PropertyResponse response = propertyService.toggleFeatured(id);
         return ResponseEntity.ok(ApiResponse.success("Property featured status toggled", response));

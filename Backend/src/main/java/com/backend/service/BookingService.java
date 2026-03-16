@@ -118,7 +118,6 @@ public class BookingService {
                 .renter(renter)
                 .startDate(request.getStartDate())
                 .endDate(request.getEndDate())
-                .guests(request.getGuests() != null ? request.getGuests() : 1)
                 .totalPrice(totalPrice)
                 .specialRequests(request.getSpecialRequests())
                 .status(BookingStatus.PENDING)
@@ -144,7 +143,6 @@ public class BookingService {
 
         if (request.getStartDate() != null) booking.setStartDate(request.getStartDate());
         if (request.getEndDate() != null) booking.setEndDate(request.getEndDate());
-        if (request.getGuests() != null) booking.setGuests(request.getGuests());
         if (request.getSpecialRequests() != null) booking.setSpecialRequests(request.getSpecialRequests());
         if (request.getStatus() != null) {
             booking.setStatus(BookingStatus.valueOf(request.getStatus().toUpperCase()));
@@ -198,5 +196,11 @@ public class BookingService {
                 .first(page.isFirst())
                 .last(page.isLast())
                 .build();
+    }
+
+    public Long getCurrentUserId() {
+        User user = currentUser.getUser();
+        if (user == null) throw new UnauthorizedException("User not authenticated");
+        return user.getId();
     }
 }

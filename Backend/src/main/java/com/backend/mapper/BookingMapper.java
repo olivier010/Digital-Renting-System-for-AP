@@ -16,7 +16,6 @@ public class BookingMapper {
                 .renter(toRenterInfo(booking))
                 .startDate(booking.getStartDate())
                 .endDate(booking.getEndDate())
-                .guests(booking.getGuests())
                 .totalPrice(booking.getTotalPrice())
                 .status(booking.getStatus().name())
                 .paymentStatus(booking.getPaymentStatus().name())

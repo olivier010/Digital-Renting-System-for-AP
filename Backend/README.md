@@ -265,7 +265,6 @@ Returns a paginated list of bookings for the currently authenticated owner. Supp
         },
         "startDate": "2026-04-01",
         "endDate": "2026-04-30",
-        "guests": 2,
         "totalPrice": 2500.00,
         "status": "CONFIRMED",
         "paymentStatus": "PAID",
@@ -413,7 +412,6 @@ Content-Type: application/json
   "propertyId": 1,
   "startDate": "2026-04-01",
   "endDate": "2026-04-30",
-  "guests": 2,
   "specialRequests": "Early check-in if possible. Need parking space."
 }
 ```
@@ -427,7 +425,6 @@ Content-Type: application/json
 {
   "startDate": "2026-04-05",
   "endDate": "2026-05-05",
-  "guests": 3,
   "status": "CONFIRMED",
   "specialRequests": "Updated requests"
 }
