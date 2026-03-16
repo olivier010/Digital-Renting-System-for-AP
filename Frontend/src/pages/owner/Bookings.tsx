@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Calendar, CheckCircle, XCircle, AlertCircle, Search, Filter, Clock } from 'lucide-react';
 
 const API_BASE_URL = 'http://localhost:8080/api';
@@ -19,6 +19,25 @@ const Bookings = () => {
   const [bookings, setBookings] = useState<OwnerBooking[]>([]);
   const [statusEditId, setStatusEditId] = useState<string | null>(null);
   const [statusEditLoading, setStatusEditLoading] = useState(false);
+  const statusModalRef = useRef<HTMLDivElement | null>(null);
+    // Close modal on outside click or Escape
+    useEffect(() => {
+      if (!statusEditId) return;
+      const handleClick = (e: MouseEvent) => {
+        if (statusModalRef.current && !statusModalRef.current.contains(e.target as Node)) {
+          setStatusEditId(null);
+        }
+      };
+      const handleKey = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') setStatusEditId(null);
+      };
+      document.addEventListener('mousedown', handleClick);
+      document.addEventListener('keydown', handleKey);
+      return () => {
+        document.removeEventListener('mousedown', handleClick);
+        document.removeEventListener('keydown', handleKey);
+      };
+    }, [statusEditId]);
   const [activeTab, setActiveTab] = useState<'all' | 'pending' | 'confirmed' | 'cancelled' | 'completed'>('all');
   const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -293,41 +312,68 @@ const Bookings = () => {
                           <span className="ml-1 capitalize">{booking.status}</span>
                         </button>
                         {statusEditId === booking.id && (
-                          <div className="absolute z-20 mt-2 w-36 right-0 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg">
-                            {statusUpdateOptions.map(option => (
-                              <button
-                                key={option.id}
-                                className={`w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 ${booking.status === option.id ? 'bg-gray-100 dark:bg-gray-700 font-semibold' : ''}`}
-                                disabled={statusEditLoading || booking.status === option.id}
-                                onClick={async () => {
-                                  setStatusEditLoading(true);
-                                  try {
-                                    const token = localStorage.getItem('rentwise_token');
-                                    if (!token) return;
-                                    const res = await fetch(`${API_BASE_URL}/bookings/${booking.id}`, {
-                                      method: 'PUT',
-                                      headers: {
-                                        'Authorization': `Bearer ${token}`,
-                                        'Content-Type': 'application/json',
-                                      },
-                                      body: JSON.stringify({
-                                        ...booking,
-                                        status: option.id.toUpperCase(),
-                                      }),
-                                    });
-                                    if (res.ok) {
-                                      setBookings(prev => prev.map(b => b.id === booking.id ? { ...b, status: option.id as OwnerBooking['status'] } : b));
-                                      setStatusEditId(null);
-                                    }
-                                  } finally {
-                                    setStatusEditLoading(false);
-                                  }
-                                }}
-                              >
-                                {option.label}
-                              </button>
-                            ))}
-                          </div>
+                          <>
+                            {/* Modal Backdrop */}
+                            <div className="fixed inset-0 z-40 bg-black bg-opacity-30 transition-opacity animate-fadeIn" />
+                            {/* Modal Content */}
+                            <div
+                              ref={statusModalRef}
+                              className="fixed inset-0 z-50 flex items-center justify-center px-4"
+                            >
+                              <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl w-full max-w-xs p-4 animate-modalPop">
+                                <h3 className="text-lg font-semibold mb-3 text-gray-900 dark:text-white text-center">Change Booking Status</h3>
+                                <div className="flex flex-col gap-2">
+                                  {statusUpdateOptions.map(option => (
+                                    <button
+                                      key={option.id}
+                                      className={`w-full text-left px-4 py-2 rounded-lg transition-colors text-gray-900 dark:text-white ${booking.status === option.id ? 'bg-gray-100 dark:bg-gray-700 font-semibold cursor-not-allowed' : 'hover:bg-gray-100 dark:hover:bg-gray-700'} ${statusEditLoading ? 'opacity-60' : ''}`}
+                                      disabled={statusEditLoading || booking.status === option.id}
+                                      onClick={async () => {
+                                        setStatusEditLoading(true);
+                                        try {
+                                          const token = localStorage.getItem('rentwise_token');
+                                          if (!token) return;
+                                          const res = await fetch(`${API_BASE_URL}/bookings/${booking.id}`, {
+                                            method: 'PUT',
+                                            headers: {
+                                              'Authorization': `Bearer ${token}`,
+                                              'Content-Type': 'application/json',
+                                            },
+                                            body: JSON.stringify({
+                                              ...booking,
+                                              status: option.id.toUpperCase(),
+                                            }),
+                                          });
+                                          if (res.ok) {
+                                            setBookings(prev => prev.map(b => b.id === booking.id ? { ...b, status: option.id as OwnerBooking['status'] } : b));
+                                            setStatusEditId(null);
+                                          }
+                                        } finally {
+                                          setStatusEditLoading(false);
+                                        }
+                                      }}
+                                    >
+                                      {option.label}
+                                    </button>
+                                  ))}
+                                </div>
+                                <button
+                                  className="mt-4 w-full py-2 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+                                  onClick={() => setStatusEditId(null)}
+                                  disabled={statusEditLoading}
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            </div>
+                            {/* Animations */}
+                            <style>{`
+                              @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+                              .animate-fadeIn { animation: fadeIn 0.2s; }
+                              @keyframes modalPop { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+                              .animate-modalPop { animation: modalPop 0.18s cubic-bezier(0.4,0,0.2,1); }
+                            `}</style>
+                          </>
                         )}
                       </div>
                     </div>
