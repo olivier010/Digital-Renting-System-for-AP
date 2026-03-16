@@ -48,7 +48,7 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
       {/* Property Details */}
       <CardBody>
         <div className="mb-3">
-          <h3 className="text-lg font-semibold text-gray-800 mb-1 line-clamp-1">
+          <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-1 line-clamp-1">
             {property.title}
           </h3>
           <p className="text-sm text-gray-600 flex items-center">
