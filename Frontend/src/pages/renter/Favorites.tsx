@@ -1,4 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { apiFetch } from '../../utils/api'
 import { Heart, MapPin, Star, Phone, DollarSign, Search, Filter, X, Home, Building2, Car, Landmark, Store, Package } from 'lucide-react'
 
 const categoryIcons: Record<string, typeof Home> = {
@@ -11,91 +13,50 @@ const categoryIcons: Record<string, typeof Home> = {
 }
 
 const Favorites = () => {
+  const navigate = useNavigate()
   const [searchTerm, setSearchTerm] = useState('')
   const [sortBy, setSortBy] = useState('savedDate')
 
-  const [favoriteProperties] = useState([
-    {
-      id: 1,
-      title: 'Modern Apartment Kigali',
-      location: 'Kigali, Nyarugenge',
-      price: 500,
-      rating: 4.8,
-      reviews: 24,
-      image: '🏢',
-      category: 'apartment',
-      bookings: 12,
-      savedDate: '2024-03-01',
-      availability: 'Available Mar 15-30',
-      owner: { name: 'Jean Mugabo', phone: '+250 788 123 456' },
-      lastViewed: '2024-03-10',
-      priceChange: 0
-    },
-    {
-      id: 2,
-      title: 'Family House Kimironko',
-      location: 'Kigali, Gasabo',
-      price: 800,
-      rating: 4.6,
-      reviews: 15,
-      image: '🏠',
-      category: 'house',
-      bookings: 8,
-      savedDate: '2024-02-28',
-      availability: 'Available Apr 1-15',
-      owner: { name: 'Marie Uwase', phone: '+250 788 234 567' },
-      lastViewed: '2024-03-05',
-      priceChange: -50
-    },
-    {
-      id: 3,
-      title: 'Toyota RAV4 2022',
-      location: 'Kigali, Kicukiro',
-      price: 200,
-      rating: 4.9,
-      reviews: 32,
-      image: '🚗',
-      category: 'car',
-      bookings: 20,
-      savedDate: '2024-02-15',
-      availability: 'Available May 1-31',
-      owner: { name: 'Patrick Habimana', phone: '+250 788 345 678' },
-      lastViewed: '2024-03-01',
-      priceChange: 0
-    },
-    {
-      id: 4,
-      title: 'Land Plot Nyamirambo',
-      location: 'Kigali, Nyarugenge',
-      price: 300,
-      rating: 4.3,
-      reviews: 5,
-      image: '🏞️',
-      category: 'land',
-      bookings: 2,
-      savedDate: '2024-02-10',
-      availability: 'Available Now',
-      owner: { name: 'Emmanuel Nshuti', phone: '+250 788 567 890' },
-      lastViewed: '2024-02-28',
-      priceChange: 0
-    },
-    {
-      id: 5,
-      title: 'Commercial Space Remera',
-      location: 'Kigali, Gasabo',
-      price: 1200,
-      rating: 4.5,
-      reviews: 8,
-      image: '🏪',
-      category: 'commercial',
-      bookings: 3,
-      savedDate: '2024-01-25',
-      availability: 'Available Mar 20-31',
-      owner: { name: 'Alice Mutesi', phone: '+250 788 456 789' },
-      lastViewed: '2024-02-20',
-      priceChange: -100
+  const [favoriteProperties, setFavoriteProperties] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const fetchFavorites = async () => {
+      setLoading(true)
+      setError(null)
+      try {
+        // Backend returns: { data: { content: [ ... ], ...pagination } }
+        const res = await apiFetch('/favorites')
+        // Map backend FavoriteResponse to UI shape
+        const mapped = (res?.data?.content || []).map((fav: any) => {
+          const p = fav.property
+          return {
+            id: p.id,
+            title: p.title,
+            location: p.location,
+            price: Number(p.price),
+            rating: Number(p.rating),
+            reviews: p.reviewsCount,
+            image: p.image || '',
+            category: p.category,
+            bookings: 0, // Not provided by backend
+            savedDate: fav.savedAt ? fav.savedAt.split('T')[0] : '',
+            availability: p.isAvailable ? 'Available' : 'Unavailable',
+            owner: { name: '', phone: '' }, // Not provided by backend
+            lastViewed: '', // Not provided by backend
+            priceChange: 0 // Not provided by backend
+          }
+        })
+        setFavoriteProperties(mapped)
+      } catch (err: any) {
+        setError(err.message || 'Failed to load favorites')
+      } finally {
+        setLoading(false)
+      }
     }
-  ])
+    fetchFavorites()
+  }, [])
 
   const [selectedProperties, setSelectedProperties] = useState<number[]>([])
 
@@ -144,6 +105,21 @@ const Favorites = () => {
     if (change > 0) return `+$${change}`
     if (change < 0) return `-$${Math.abs(change)}`
     return 'No change'
+  }
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-96">
+        <span className="text-lg text-gray-600 dark:text-gray-300">Loading favorites...</span>
+      </div>
+    )
+  }
+  if (error) {
+    return (
+      <div className="flex justify-center items-center h-96">
+        <span className="text-lg text-red-600 dark:text-red-400">{error}</span>
+      </div>
+    )
   }
 
   return (
@@ -280,8 +256,16 @@ const Favorites = () => {
             return (
             <div key={property.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-md transition-shadow">
               {/* Property Image */}
-              <div className="relative h-48 bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-6xl">
-                {property.image}
+              <div className="relative h-48 bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-6xl overflow-hidden">
+                {property.image ? (
+                  <img
+                    src={property.image.startsWith('http') ? property.image : `http://localhost:8080${property.image}`}
+                    alt={property.title}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span role="img" aria-label="property">🏠</span>
+                )}
                 
                 {/* Selection Checkbox */}
                 <div className="absolute top-3 left-3">
@@ -378,10 +362,16 @@ const Favorites = () => {
 
                 {/* Action Buttons */}
                 <div className="flex space-x-2 mt-4">
-                  <button className="flex-1 px-3 py-2 bg-primary-600 hover:bg-primary-700 text-white text-sm rounded-lg font-medium transition-colors">
+                  <button
+                    className="flex-1 px-3 py-2 bg-primary-600 hover:bg-primary-700 text-white text-sm rounded-lg font-medium transition-colors"
+                    onClick={() => navigate(`/properties/${property.id}`)}
+                  >
                     Book Now
                   </button>
-                  <button className="px-3 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 text-sm rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                  <button
+                    className="px-3 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 text-sm rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                    onClick={() => navigate(`/properties/${property.id}`)}
+                  >
                     View Details
                   </button>
                 </div>
