@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { 
@@ -43,11 +44,88 @@ type Property = {
   contact: string
   images: string[]
   createdAt: string
+  isFeatured?: boolean
+  isVerified?: boolean
 }
 
 const API_BASE_URL = 'http://localhost:8080/api';
 
 const Properties = () => {
+  // Toggle featured status
+  const toggleFeatured = async (propertyId: number) => {
+    const property = properties.find((p) => p.id === propertyId)
+    if (!property) return
+    const token = localStorage.getItem('rentwise_token')
+    if (!token) {
+      setError('You must be logged in as an owner.')
+      return
+    }
+    try {
+      const res = await fetch(`${API_BASE_URL}/properties/${propertyId}/featured`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      })
+      if (!res.ok) {
+        const data = await res.json()
+        setError(data.message || 'Failed to update featured status.')
+        return
+      }
+      setProperties((prev) =>
+        prev.map((p) =>
+          p.id === propertyId ? { ...p, isFeatured: !p.isFeatured } : p
+        )
+      )
+    } catch (err) {
+      setError('An unexpected error occurred while updating featured status.')
+    }
+  }
+
+  // Toggle verified status
+  const toggleVerified = async (propertyId: number) => {
+    const property = properties.find((p) => p.id === propertyId)
+    if (!property) return
+    const token = localStorage.getItem('rentwise_token')
+    if (!token) {
+      setError('You must be logged in as an owner.')
+      return
+    }
+    // Build full update payload (match backend UpdatePropertyRequest)
+    const updatePayload = {
+      title: property.title,
+      category: property.category,
+      location: property.location,
+      price: property.price,
+      description: property.description,
+      status: property.status?.toUpperCase?.() || 'ACTIVE',
+      isFeatured: property.isFeatured,
+      isVerified: !property.isVerified,
+      // Add any other required fields here if needed
+    }
+    try {
+      const res = await fetch(`${API_BASE_URL}/properties/${propertyId}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatePayload),
+      })
+      if (!res.ok) {
+        const data = await res.json()
+        setError(data.message || 'Failed to update verified status.')
+        return
+      }
+      setProperties((prev) =>
+        prev.map((p) =>
+          p.id === propertyId ? { ...p, isVerified: !p.isVerified } : p
+        )
+      )
+    } catch (err) {
+      setError('An unexpected error occurred while updating verified status.')
+    }
+  }
   const [searchTerm, setSearchTerm] = useState('')
   const [filterStatus, setFilterStatus] = useState('all')
   const [filterCategory, setFilterCategory] = useState('all')
@@ -98,6 +176,8 @@ const Properties = () => {
             ? p.images.map((img: string) => img.startsWith('http') ? img : `http://localhost:8080${img}`)
             : [],
           createdAt: p.createdAt,
+          isFeatured: p.isFeatured,
+          isVerified: p.isVerified,
         })))
         setLoading(false)
       } catch (err) {
@@ -447,24 +527,47 @@ const Properties = () => {
                   </div>
 
                   {/* Action Buttons */}
-                  <div className="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-gray-700">
-                    <button
-                      onClick={() => togglePropertyStatus(property.id)}
-                      className="flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-                    >
-                      {property.status === 'active' ? (
-                        <>
-                          <ToggleRight className="w-5 h-5 mr-1 text-green-500" />
-                          Active
-                        </>
-                      ) : (
-                        <>
-                          <ToggleLeft className="w-5 h-5 mr-1 text-gray-400" />
-                          Inactive
-                        </>
-                      )}
-                    </button>
-                    
+                  <div className="flex flex-col gap-2 pt-3 border-t border-gray-200 dark:border-gray-700">
+                    <div className="flex items-center justify-between">
+                      <button
+                        type="button"
+                        onClick={() => togglePropertyStatus(property.id)}
+                        className="flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white cursor-pointer focus:outline-none"
+                        tabIndex={0}
+                      >
+                        {property.status === 'active' ? (
+                          <>
+                            <ToggleRight className="w-5 h-5 mr-1 text-green-500" />
+                            Active
+                          </>
+                        ) : (
+                          <>
+                            <ToggleLeft className="w-5 h-5 mr-1 text-gray-400" />
+                            Inactive
+                          </>
+                        )}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => toggleFeatured(property.id)}
+                        className={`flex items-center text-sm ${property.isFeatured ? 'text-yellow-500' : 'text-gray-400 dark:text-gray-500'} hover:text-yellow-600 dark:hover:text-yellow-400 cursor-pointer focus:outline-none ml-2`}
+                        title={property.isFeatured ? 'Unmark as Featured' : 'Mark as Featured'}
+                        tabIndex={0}
+                      >
+                        <Star className="w-5 h-5 mr-1" />
+                        {property.isFeatured ? 'Featured' : 'Not Featured'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => toggleVerified(property.id)}
+                        className={`flex items-center text-sm ${property.isVerified ? 'text-blue-500' : 'text-gray-400 dark:text-gray-500'} hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer focus:outline-none ml-2`}
+                        title={property.isVerified ? 'Unmark as Verified' : 'Mark as Verified'}
+                        tabIndex={0}
+                      >
+                        <CheckCircle className="w-5 h-5 mr-1" />
+                        {property.isVerified ? 'Verified' : 'Not Verified'}
+                      </button>
+                    </div>
                     <div className="flex items-center space-x-2">
                       <Link to={`/owner/properties/${property.id}`} className="p-1 text-blue-500 hover:text-blue-700 dark:hover:text-blue-300" title="View">
                         <Eye className="w-4 h-4" />
