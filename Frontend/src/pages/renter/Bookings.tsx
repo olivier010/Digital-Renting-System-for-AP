@@ -1,93 +1,42 @@
-import { useState } from 'react'
-import { Calendar, MapPin, Star, Users, Clock, CheckCircle, XCircle, AlertCircle, Filter, Search } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { apiFetch } from '../../utils/api'
+import { Calendar, MapPin, Users, CheckCircle, XCircle, AlertCircle, Filter, Search } from 'lucide-react'
 
 const Bookings = () => {
   const [activeTab, setActiveTab] = useState('upcoming')
   const [searchTerm, setSearchTerm] = useState('')
 
-  const [bookings] = useState([
-    {
-      id: 1,
-      property: 'Modern Apartment Kigali',
-      location: 'Kigali, Nyarugenge',
-      image: '🏢',
-      checkIn: '2024-03-15',
-      checkOut: '2024-03-18',
-      amount: 500,
-      status: 'confirmed',
-      rating: null,
-      host: 'Jean Mugabo',
-      hostImage: 'JM',
-      guests: 2,
-      bookingDate: '2024-03-01',
-      paymentStatus: 'paid',
-      checkInTime: '3:00 PM',
-      checkOutTime: '11:00 AM',
-      specialRequests: 'Late check-in requested',
-      propertyId: 1
-    },
-    {
-      id: 2,
-      property: 'Family House Kimironko',
-      location: 'Kigali, Gasabo',
-      image: '🏠',
-      checkIn: '2024-03-20',
-      checkOut: '2024-03-25',
-      amount: 800,
-      status: 'confirmed',
-      rating: null,
-      host: 'Marie Uwase',
-      hostImage: 'MU',
-      guests: 4,
-      bookingDate: '2024-03-02',
-      paymentStatus: 'paid',
-      checkInTime: '4:00 PM',
-      checkOutTime: '10:00 AM',
-      specialRequests: null,
-      propertyId: 2
-    },
-    {
-      id: 3,
-      property: 'Toyota RAV4 2022',
-      location: 'Kigali, Kicukiro',
-      image: '🚗',
-      checkIn: '2024-02-10',
-      checkOut: '2024-02-12',
-      amount: 200,
-      status: 'completed',
-      rating: 5,
-      host: 'Patrick Habimana',
-      hostImage: 'PH',
-      guests: 2,
-      bookingDate: '2024-02-01',
-      paymentStatus: 'paid',
-      checkInTime: '2:00 PM',
-      checkOutTime: '12:00 PM',
-      specialRequests: 'Early check-in',
-      propertyId: 3
-    },
-    {
-      id: 4,
-      property: 'Commercial Space Remera',
-      location: 'Kigali, Gasabo',
-      image: '🏪',
-      checkIn: '2024-01-15',
-      checkOut: '2024-01-20',
-      amount: 1200,
-      status: 'cancelled',
-      rating: null,
-      host: 'Alice Mutesi',
-      hostImage: 'AM',
-      guests: 1,
-      bookingDate: '2024-01-05',
-      paymentStatus: 'refunded',
-      checkInTime: '3:00 PM',
-      checkOutTime: '11:00 AM',
-      specialRequests: null,
-      propertyId: 4,
-      cancellationReason: 'Owner cancelled due to maintenance'
+  const [bookings, setBookings] = useState<any[]>([])
+  // Removed unused loading and error state
+
+  useEffect(() => {
+    const fetchBookings = async () => {
+      // Get renterId from token or user context (for now, try from localStorage)
+      const userStr = localStorage.getItem('rentwise_user')
+      const user = userStr ? JSON.parse(userStr) : null
+      const renterId = user?.id
+      const token = localStorage.getItem('rentwise_token')
+      console.log('User:', user)
+      console.log('Token:', token)
+      if (!renterId) {
+        console.error('No renterId found in user object')
+        return
+      }
+      try {
+        // Use the correct endpoint as per backend: /api/renter/bookings
+        const res = await apiFetch('/renter/bookings')
+        console.log('Bookings API response:', res)
+        if (Array.isArray(res.data?.content) && res.data.content.length > 0) {
+          console.log('First booking object:', res.data.content[0])
+        }
+        setBookings(res.data?.content || [])
+      } catch (err) {
+        console.error('Error fetching bookings:', err)
+        setBookings([])
+      }
     }
-  ])
+    fetchBookings()
+  }, [])
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -119,23 +68,30 @@ const Bookings = () => {
   }
 
   const filteredBookings = bookings.filter(booking => {
+    // Backend status and paymentStatus are uppercase
+    const status = booking.status?.toLowerCase() || '';
     const matchesTab = 
-      (activeTab === 'upcoming' && (booking.status === 'confirmed' || booking.status === 'pending')) ||
-      (activeTab === 'completed' && booking.status === 'completed') ||
-      (activeTab === 'cancelled' && booking.status === 'cancelled')
-    
+      (activeTab === 'upcoming' && (status === 'confirmed' || status === 'pending')) ||
+      (activeTab === 'completed' && status === 'completed') ||
+      (activeTab === 'cancelled' && status === 'cancelled');
+
+    const propertyTitle = booking.property?.title || '';
+    const propertyLocation = booking.property?.location || '';
     const matchesSearch = searchTerm === '' || 
-      booking.property.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      booking.location.toLowerCase().includes(searchTerm.toLowerCase())
-    
-    return matchesTab && matchesSearch
-  })
+      propertyTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      propertyLocation.toLowerCase().includes(searchTerm.toLowerCase());
+
+    return matchesTab && matchesSearch;
+  });
 
   const tabs = [
-    { id: 'upcoming', label: 'Upcoming', count: bookings.filter(b => b.status === 'confirmed' || b.status === 'pending').length },
-    { id: 'completed', label: 'Completed', count: bookings.filter(b => b.status === 'completed').length },
-    { id: 'cancelled', label: 'Cancelled', count: bookings.filter(b => b.status === 'cancelled').length }
-  ]
+    { id: 'upcoming', label: 'Upcoming', count: bookings.filter(b => {
+      const status = b.status?.toLowerCase() || '';
+      return status === 'confirmed' || status === 'pending';
+    }).length },
+    { id: 'completed', label: 'Completed', count: bookings.filter(b => (b.status?.toLowerCase() || '') === 'completed').length },
+    { id: 'cancelled', label: 'Cancelled', count: bookings.filter(b => (b.status?.toLowerCase() || '') === 'cancelled').length }
+  ];
 
   const calculateNights = (checkIn: string, checkOut: string) => {
     const start = new Date(checkIn)
@@ -219,31 +175,40 @@ const Bookings = () => {
                 <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
                   {/* Property Info */}
                   <div className="flex items-start space-x-4">
-                    <div className="w-20 h-20 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center text-3xl flex-shrink-0">
-                      {booking.image}
+                    <div className="w-20 h-20 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center text-3xl flex-shrink-0 overflow-hidden">
+                      {booking.property?.image ? (
+                        <img
+                          src={
+                            booking.property.image && !booking.property.image.startsWith('http')
+                              ? `http://localhost:8080${booking.property.image}`
+                              : booking.property.image
+                          }
+                          alt={booking.property.title}
+                          className="object-cover w-full h-full rounded-lg"
+                        />
+                      ) : (
+                        <MapPin className="w-10 h-10 text-gray-400" />
+                      )}
                     </div>
                     <div className="flex-1">
                       <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
-                        {booking.property}
+                        {booking.property?.title}
                       </h3>
                       <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center mb-2">
                         <MapPin className="w-3 h-3 mr-1" />
-                        {booking.location}
+                        {booking.property?.location}
                       </p>
-                      
+
                       <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-400">
-                        <div className="flex items-center">
-                          <Users className="w-3 h-3 mr-1" />
-                          {booking.guests} guests
-                        </div>
+                        {/* Guests info not available in backend, so skip or show placeholder */}
                         <div className="flex items-center">
                           <Calendar className="w-3 h-3 mr-1" />
-                          {calculateNights(booking.checkIn, booking.checkOut)} nights
+                          {calculateNights(booking.startDate, booking.endDate)} nights
                         </div>
                         {booking.specialRequests && (
                           <div className="flex items-center text-orange-600 dark:text-orange-400">
                             <AlertCircle className="w-3 h-3 mr-1" />
-                            Special requests
+                            Special requests: {booking.specialRequests}
                           </div>
                         )}
                       </div>
@@ -255,29 +220,29 @@ const Bookings = () => {
                     <div className="text-center lg:text-left">
                       <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Total Amount</p>
                       <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                        ${booking.amount}
+                        ${booking.totalPrice}
                       </p>
-                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getPaymentStatusColor(booking.paymentStatus)}`}>
-                        {booking.paymentStatus}
+                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getPaymentStatusColor((booking.paymentStatus || '').toLowerCase())}`}>
+                        {(booking.paymentStatus || '').toLowerCase()}
                       </span>
                     </div>
 
                     <div className="text-center lg:text-left">
                       <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Dates</p>
                       <p className="font-medium text-gray-900 dark:text-white">
-                        {booking.checkIn}
+                        {booking.startDate}
                       </p>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
-                        to {booking.checkOut}
+                        to {booking.endDate}
                       </p>
                     </div>
 
                     <div className="text-center lg:text-left">
                       <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Status</p>
                       <div className="flex items-center space-x-2">
-                        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(booking.status)}`}>
-                          {getStatusIcon(booking.status)}
-                          <span className="ml-1">{booking.status}</span>
+                        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor((booking.status || '').toLowerCase())}`}>
+                          {getStatusIcon((booking.status || '').toLowerCase())}
+                          <span className="ml-1">{(booking.status || '').toLowerCase()}</span>
                         </span>
                       </div>
                     </div>
@@ -293,22 +258,9 @@ const Bookings = () => {
                           </button>
                         </>
                       )}
-                      
-                      {booking.status === 'completed' && !booking.rating && (
-                        <button className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-colors">
-                          Leave Review
-                        </button>
-                      )}
-                      
-                      {booking.status === 'completed' && booking.rating && (
-                        <div className="flex items-center">
-                          <Star className="w-4 h-4 text-yellow-500 fill-current" />
-                          <span className="text-sm text-gray-600 dark:text-gray-400 ml-1">
-                            Rated {booking.rating}/5
-                          </span>
-                        </div>
-                      )}
-                      
+
+                      {/* Rating is not in backend response, so skip for now */}
+
                       {booking.status === 'cancelled' && (
                         <div className="text-sm text-gray-600 dark:text-gray-400">
                           {booking.cancellationReason}
@@ -326,23 +278,10 @@ const Bookings = () => {
                         <Users className="w-4 h-4 mr-2" />
                         <div>
                           <p className="font-medium text-gray-900 dark:text-white">Host</p>
-                          <p>{booking.host}</p>
+                          <p>{booking.property?.ownerName}</p>
                         </div>
                       </div>
-                      <div className="flex items-center text-gray-600 dark:text-gray-400">
-                        <Clock className="w-4 h-4 mr-2" />
-                        <div>
-                          <p className="font-medium text-gray-900 dark:text-white">Check-in</p>
-                          <p>{booking.checkInTime}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center text-gray-600 dark:text-gray-400">
-                        <Clock className="w-4 h-4 mr-2" />
-                        <div>
-                          <p className="font-medium text-gray-900 dark:text-white">Check-out</p>
-                          <p>{booking.checkOutTime}</p>
-                        </div>
-                      </div>
+                      {/* Check-in/out times not available in backend, so skip */}
                     </div>
                   </div>
                 )}
