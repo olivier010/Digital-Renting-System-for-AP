@@ -1,104 +1,92 @@
-import { useState } from 'react'
+
+import { useState, useEffect, useRef } from 'react'
 import { Star, MapPin, Search, MessageSquare, ThumbsUp, ThumbsDown, Clock, CheckCircle } from 'lucide-react'
+import { apiFetch } from '../../utils/api'
 
 const Reviews = () => {
   const [activeTab, setActiveTab] = useState('to_write')
   const [searchTerm, setSearchTerm] = useState('')
 
-  const [reviewsToWrite] = useState([
-    {
-      id: 1,
-      property: 'Mountain View Cabin',
-      location: 'Aspen, CO',
-      image: '🏔️',
-      checkIn: '2024-02-10',
-      checkOut: '2024-02-12',
-      host: 'Michael Brown',
-      hostImage: 'MB',
-      bookingId: 3,
-      daysSinceCheckout: 15,
-      rating: 0,
-      review: '',
-      wouldRecommend: null,
-      cleanliness: 0,
-      communication: 0,
-      checkInRating: 0,
-      accuracy: 0,
-      locationRating: 0,
-      value: 0
-    }
-  ])
+  const [reviewsToWrite, setReviewsToWrite] = useState<any[]>([])
+  const [myReviews, setMyReviews] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [menuOpenId, setMenuOpenId] = useState<number | null>(null)
+  const [editModal, setEditModal] = useState<{ open: boolean, review: any | null }>({ open: false, review: null })
+  const [editForm, setEditForm] = useState<any | null>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
 
-  const [myReviews] = useState([
-    {
-      id: 1,
-      property: 'Luxury Beach House',
-      location: 'Miami Beach, FL',
-      image: '🏖️',
-      rating: 5,
-      review: 'Absolutely stunning property! The host was incredibly responsive and the place was exactly as described. Clean, well-equipped, and the location was perfect. Would definitely stay here again!',
-      date: '2024-02-15',
-      hostResponse: 'Thank you so much for your wonderful review! We\'re thrilled you enjoyed your stay. You\'re always welcome back!',
-      hostResponseDate: '2024-02-16',
-      helpful: 12,
-      notHelpful: 1,
-      wouldRecommend: true,
-      cleanliness: 5,
-      communication: 5,
-      checkInRating: 5,
-      accuracy: 5,
-      locationRating: 5,
-      value: 4,
-      host: 'Sarah Johnson',
-      hostImage: 'SJ',
-      bookingId: 1
-    },
-    {
-      id: 2,
-      property: 'Downtown Studio Apartment',
-      location: 'Chicago, IL',
-      image: '🏙️',
-      rating: 4,
-      review: 'Great location and very clean apartment. The host was helpful and check-in was smooth. Only minor issue was that the WiFi was a bit slow, but everything else was perfect. Good value for money.',
-      date: '2024-01-20',
-      hostResponse: null,
-      helpful: 8,
-      notHelpful: 2,
-      wouldRecommend: true,
-      cleanliness: 5,
-      communication: 4,
-      checkInRating: 5,
-      accuracy: 4,
-      locationRating: 5,
-      value: 4,
-      host: 'David Wilson',
-      hostImage: 'DW',
-      bookingId: 2
-    },
-    {
-      id: 3,
-      property: 'Cozy Mountain Cabin',
-      location: 'Denver, CO',
-      image: '🏔️',
-      rating: 3,
-      review: 'The cabin was nice and cozy, but there were some maintenance issues that weren\'t mentioned in the listing. The location was beautiful though. Host was responsive to our concerns.',
-      date: '2023-12-10',
-      hostResponse: 'We appreciate your feedback and apologize for the maintenance issues. We\'ve addressed them and hope you\'ll give us another chance in the future.',
-      hostResponseDate: '2023-12-11',
-      helpful: 5,
-      notHelpful: 3,
-      wouldRecommend: false,
-      cleanliness: 3,
-      communication: 4,
-      checkInRating: 4,
-      accuracy: 3,
-      locationRating: 5,
-      value: 3,
-      host: 'Lisa Anderson',
-      hostImage: 'LA',
-      bookingId: 3
+  // Close menu on outside click
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setMenuOpenId(null)
+      }
     }
-  ])
+    if (menuOpenId !== null) {
+      document.addEventListener('mousedown', handleClickOutside)
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [menuOpenId])
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true)
+      setError(null)
+      try {
+        // Fetch only completed bookings for reviews to write
+        const bookingsRes = await apiFetch('/renter/bookings?status=COMPLETED')
+        const bookings = bookingsRes.data?.content || []
+        // Filter to only bookings with status COMPLETED and not already reviewed
+        const completedBookings = bookings.filter((b: any) => {
+          const status = (b.status?.toLowerCase?.() || b.status)
+          // Hide if booking has a review or reviewed flag
+          const isReviewed = b.review || b.reviewed === true
+          return status === 'completed' && !isReviewed
+        })
+        setReviewsToWrite(completedBookings)
+        // Fetch user reviews for My Reviews tab
+        try {
+          let allReviews: any[] = []
+          let page = 0
+          let hasMore = true
+          const pageSize = 50 // Adjust as needed
+          while (hasMore) {
+            const reviewsRes = await apiFetch(`/reviews/my?page=${page}&size=${pageSize}`)
+            let pageReviews = []
+            if (Array.isArray(reviewsRes?.data?.content)) {
+              pageReviews = reviewsRes.data.content
+            } else if (Array.isArray(reviewsRes)) {
+              pageReviews = reviewsRes
+            } else if (Array.isArray(reviewsRes.content)) {
+              pageReviews = reviewsRes.content
+            } else if (Array.isArray(reviewsRes.items)) {
+              pageReviews = reviewsRes.items
+            } else if (Array.isArray(reviewsRes.data)) {
+              pageReviews = reviewsRes.data
+            }
+            allReviews = allReviews.concat(pageReviews)
+            // Check if more pages exist
+            if (pageReviews.length < pageSize) {
+              hasMore = false
+            } else {
+              page++
+            }
+          }
+          setMyReviews(allReviews)
+        } catch {
+          setMyReviews([])
+        }
+      } catch (err: any) {
+        setError(err.message || 'Failed to load reviews')
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchData()
+  }, [])
 
   const [reviewForm, setReviewForm] = useState({
     rating: 0,
@@ -270,16 +258,31 @@ const Reviews = () => {
             reviewsToWrite.map((review) => (
               <div key={review.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
                 <div className="flex items-start space-x-4 mb-6">
-                  <div className="w-16 h-16 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center text-2xl">
-                    {review.image}
+                  <div className="w-16 h-16 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center text-2xl overflow-hidden">
+                    {typeof review.property === 'object' && review.property && review.property.image ? (
+                      <img
+                        src={
+                          review.property.image && !review.property.image.startsWith('http')
+                            ? `http://localhost:8080${review.property.image}?t=${Date.now()}`
+                            : `${review.property.image}?t=${Date.now()}`
+                        }
+                        alt={review.property.title || 'Property'}
+                        className="object-cover w-full h-full"
+                        onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                      />
+                    ) : review.image ? (
+                      review.image
+                    ) : (
+                      <span className="text-gray-400">🏠</span>
+                    )}
                   </div>
                   <div className="flex-1">
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                      {review.property}
+                      {typeof review.property === 'object' && review.property ? review.property.title : review.property}
                     </h3>
                     <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center">
                       <MapPin className="w-3 h-3 mr-1" />
-                      {review.location}
+                      {typeof review.property === 'object' && review.property ? review.property.location : review.location}
                     </p>
                     <div className="flex items-center space-x-4 mt-2 text-sm text-gray-500 dark:text-gray-400">
                       <span>Stay: {review.checkIn} - {review.checkOut}</span>
@@ -372,7 +375,69 @@ const Reviews = () => {
                     <button className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                       Save as Draft
                     </button>
-                    <button className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-colors">
+                    <button
+                      className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-colors"
+                      onClick={async () => {
+                        try {
+                          // Compose review payload
+                          const payload = {
+                            bookingId: review.id, // or review.bookingId if needed
+                            propertyId: review.property?.id || review.propertyId,
+                            overallRating: reviewForm.rating,
+                            comment: reviewForm.review,
+                            wouldRecommend: reviewForm.wouldRecommend,
+                            cleanliness: reviewForm.cleanliness,
+                            communication: reviewForm.communication,
+                            checkIn: reviewForm.checkInRating,
+                            accuracy: reviewForm.accuracy,
+                            locationRating: reviewForm.locationRating,
+                            value: reviewForm.value
+                          }
+                          await apiFetch('/reviews', {
+                            method: 'POST',
+                            body: JSON.stringify(payload)
+                          })
+                          alert('Review submitted successfully!')
+                          // Refresh reviewsToWrite
+                          setLoading(true)
+                          try {
+                            const bookingsRes = await apiFetch('/renter/bookings?status=COMPLETED')
+                            const bookings = bookingsRes.data?.content || []
+                            const completedBookings = bookings.filter((b: any) => {
+                              const status = (b.status?.toLowerCase?.() || b.status)
+                              const isReviewed = b.review || b.reviewed === true
+                              return status === 'completed' && !isReviewed
+                            })
+                            setReviewsToWrite(completedBookings)
+                          } catch {}
+                          setLoading(false)
+                          // Show loading spinner
+                          if (loading) {
+                            return (
+                              <div className="flex items-center justify-center min-h-[300px]">
+                                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-600"></div>
+                                <span className="ml-4 text-lg text-gray-700 dark:text-gray-200">Loading...</span>
+                              </div>
+                            );
+                          }
+
+                          // Show error message
+                          if (error) {
+                            return (
+                              <div className="flex flex-col items-center justify-center min-h-[300px]">
+                                <span className="text-red-600 dark:text-red-400 text-lg font-semibold mb-2">{error}</span>
+                                <button
+                                  className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium"
+                                  onClick={() => window.location.reload()}
+                                >Reload</button>
+                              </div>
+                            );
+                          }
+                        } catch (err: any) {
+                          alert('Failed to submit review: ' + (err.message || 'Unknown error'))
+                        }
+                      }}
+                    >
                       Submit Review
                     </button>
                   </div>
@@ -417,16 +482,31 @@ const Reviews = () => {
                 <div key={review.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-start space-x-4">
-                      <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center text-2xl">
-                        {review.image}
+                      <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center text-2xl overflow-hidden">
+                        {typeof review.property === 'object' && review.property && review.property.image ? (
+                          <img
+                            src={
+                              review.property.image && !review.property.image.startsWith('http')
+                                ? `http://localhost:8080${review.property.image}?t=${Date.now()}`
+                                : `${review.property.image}?t=${Date.now()}`
+                            }
+                            alt={review.property.title || 'Property'}
+                            className="object-cover w-full h-full"
+                            onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                          />
+                        ) : review.image ? (
+                          review.image
+                        ) : (
+                          <span className="text-gray-400">🏠</span>
+                        )}
                       </div>
                       <div>
                         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                          {review.property}
+                          {typeof review.property === 'object' && review.property ? review.property.title : review.property}
                         </h3>
                         <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center">
                           <MapPin className="w-3 h-3 mr-1" />
-                          {review.location}
+                          {typeof review.property === 'object' && review.property ? review.property.location : review.location}
                         </p>
                         <div className="flex items-center space-x-4 mt-2">
                           {renderStars(review.rating, undefined, 'sm')}
@@ -442,11 +522,217 @@ const Reviews = () => {
                         </div>
                       </div>
                     </div>
-                    <button className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-                      </svg>
-                    </button>
+                    <div className="relative" ref={menuRef}>
+                      <button
+                        className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                        onClick={() => setMenuOpenId(menuOpenId === review.id ? null : review.id)}
+                        aria-label="Open menu"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                        </svg>
+                      </button>
+                      {menuOpenId === review.id && (
+                        <div className="absolute right-0 mt-2 w-32 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-10">
+                          <button
+                            className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                            onClick={e => {
+                              e.stopPropagation();
+                              setEditForm({
+                                overallRating: review.overallRating,
+                                comment: review.comment,
+                                wouldRecommend: review.wouldRecommend,
+                                cleanliness: review.cleanliness,
+                                communication: review.communication,
+                                checkIn: review.checkIn,
+                                accuracy: review.accuracy,
+                                locationRating: review.locationRating,
+                                value: review.value
+                              });
+                              setEditModal({ open: true, review });
+                              setMenuOpenId(null);
+                            }}
+                          >Edit</button>
+                                {/* Edit Review Modal (root-level, always rendered) */}
+                                {editModal.open && editModal.review && (
+                                  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+                                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 w-full max-w-lg relative">
+                                      <button
+                                        className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                                        onClick={() => setEditModal({ open: false, review: null })}
+                                        aria-label="Close"
+                                      >
+                                        &times;
+                                      </button>
+                                      <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Edit Review</h2>
+                                      <form
+                                        onSubmit={async (e) => {
+                                          e.preventDefault();
+                                          try {
+                                            const payload = {
+                                              overallRating: editForm.overallRating,
+                                              comment: editForm.comment,
+                                              wouldRecommend: editForm.wouldRecommend,
+                                              cleanliness: editForm.cleanliness,
+                                              communication: editForm.communication,
+                                              checkIn: editForm.checkIn,
+                                              accuracy: editForm.accuracy,
+                                              locationRating: editForm.locationRating,
+                                              value: editForm.value
+                                            };
+                                            // Get token from localStorage or context if needed
+                                            const token = localStorage.getItem('token');
+                                            await apiFetch(`/reviews/${editModal.review.id}`, {
+                                              method: 'PUT',
+                                              body: JSON.stringify(payload),
+                                              headers: {
+                                                'Content-Type': 'application/json',
+                                                ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+                                              }
+                                            });
+                                            alert('Review updated successfully!');
+                                            setEditModal({ open: false, review: null });
+                                            // Refresh reviews
+                                            let allReviews: any[] = [];
+                                            let page = 0;
+                                            let hasMore = true;
+                                            const pageSize = 50;
+                                            while (hasMore) {
+                                              const reviewsRes = await apiFetch(`/reviews/my?page=${page}&size=${pageSize}`);
+                                              let pageReviews = [];
+                                              if (Array.isArray(reviewsRes?.data?.content)) {
+                                                pageReviews = reviewsRes.data.content;
+                                              } else if (Array.isArray(reviewsRes)) {
+                                                pageReviews = reviewsRes;
+                                              } else if (Array.isArray(reviewsRes.content)) {
+                                                pageReviews = reviewsRes.content;
+                                              } else if (Array.isArray(reviewsRes.items)) {
+                                                pageReviews = reviewsRes.items;
+                                              } else if (Array.isArray(reviewsRes.data)) {
+                                                pageReviews = reviewsRes.data;
+                                              }
+                                              allReviews = allReviews.concat(pageReviews);
+                                              if (pageReviews.length < pageSize) {
+                                                hasMore = false;
+                                              } else {
+                                                page++;
+                                              }
+                                            }
+                                            setMyReviews(allReviews);
+                                          } catch (err) {
+                                            let msg = 'Unknown error';
+                                            if (err && typeof err === 'object' && 'message' in err && typeof (err as any).message === 'string') {
+                                              msg = (err as any).message;
+                                            }
+                                            alert('Failed to update review: ' + msg);
+                                          }
+                                        }}
+                                      >
+                                        <div className="mb-4">
+                                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Overall Rating</label>
+                                          <div className="flex items-center">
+                                            {[1,2,3,4,5].map((star) => (
+                                              <button
+                                                type="button"
+                                                key={star}
+                                                className={`w-6 h-6 mr-1 ${star <= editForm.overallRating ? 'text-yellow-500' : 'text-gray-300 dark:text-gray-600'}`}
+                                                onClick={() => setEditForm({ ...editForm, overallRating: star })}
+                                              >★</button>
+                                            ))}
+                                          </div>
+                                        </div>
+                                        <div className="mb-4">
+                                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Detailed Ratings</label>
+                                          <div className="grid grid-cols-2 gap-2">
+                                            {[
+                                              { key: 'cleanliness', label: 'Cleanliness' },
+                                              { key: 'communication', label: 'Communication' },
+                                              { key: 'checkIn', label: 'Check-in' },
+                                              { key: 'accuracy', label: 'Accuracy' },
+                                              { key: 'locationRating', label: 'Location' },
+                                              { key: 'value', label: 'Value' }
+                                            ].map(({ key, label }) => (
+                                              <div key={key} className="flex items-center justify-between">
+                                                <span className="text-sm text-gray-700 dark:text-gray-300">{label}</span>
+                                                <div className="flex items-center">
+                                                  {[1,2,3,4,5].map((star) => (
+                                                    <button
+                                                      type="button"
+                                                      key={star}
+                                                      className={`w-4 h-4 ${star <= editForm[key] ? 'text-yellow-500' : 'text-gray-300 dark:text-gray-600'}`}
+                                                      onClick={() => setEditForm({ ...editForm, [key]: star })}
+                                                    >★</button>
+                                                  ))}
+                                                </div>
+                                              </div>
+                                            ))}
+                                          </div>
+                                        </div>
+                                        <div className="mb-4">
+                                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Would you recommend this property?</label>
+                                          <div className="flex space-x-4">
+                                            <button
+                                              type="button"
+                                              className={`px-4 py-2 rounded-lg border ${editForm.wouldRecommend === true ? 'bg-green-100 border-green-500 text-green-700 dark:bg-green-900 dark:text-green-300' : 'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
+                                              onClick={() => setEditForm({ ...editForm, wouldRecommend: true })}
+                                            >Yes</button>
+                                            <button
+                                              type="button"
+                                              className={`px-4 py-2 rounded-lg border ${editForm.wouldRecommend === false ? 'bg-red-100 border-red-500 text-red-700 dark:bg-red-900 dark:text-red-300' : 'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
+                                              onClick={() => setEditForm({ ...editForm, wouldRecommend: false })}
+                                            >No</button>
+                                          </div>
+                                        </div>
+                                        <div className="mb-4">
+                                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Your Review</label>
+                                          <textarea
+                                            rows={4}
+                                            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                                            value={editForm.comment}
+                                            onChange={e => setEditForm({ ...editForm, comment: e.target.value })}
+                                          />
+                                        </div>
+                                        <div className="flex justify-end">
+                                          <button
+                                            type="submit"
+                                            className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-colors"
+                                          >Save Changes</button>
+                                        </div>
+                                      </form>
+                                    </div>
+                                  </div>
+                                )}
+                          <button
+                            className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 dark:hover:bg-gray-700"
+                            onClick={async () => {
+                              setMenuOpenId(null)
+                              if (window.confirm('Are you sure you want to delete this review?')) {
+                                try {
+                                  await apiFetch(`/reviews/${review.id}`, { method: 'DELETE' });
+                                  // Remove review from UI
+                                  setMyReviews(prev => prev.filter(r => r.id !== review.id));
+                                  // Refresh reviewsToWrite so user can write a new review for the same booking
+                                  try {
+                                    setLoading(true);
+                                    const bookingsRes = await apiFetch('/renter/bookings?status=COMPLETED');
+                                    const bookings = bookingsRes.data?.content || [];
+                                    const completedBookings = bookings.filter((b: any) => {
+                                      const status = (b.status?.toLowerCase?.() || b.status);
+                                      const isReviewed = b.review || b.reviewed === true;
+                                      return status === 'completed' && !isReviewed;
+                                    });
+                                    setReviewsToWrite(completedBookings);
+                                  } catch {}
+                                  setLoading(false);
+                                } catch (err: any) {
+                                  alert('Failed to delete review: ' + (err.message || 'Unknown error'));
+                                }
+                              }
+                            }}
+                          >Delete</button>
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   <p className="text-gray-700 dark:text-gray-300 mb-4">
