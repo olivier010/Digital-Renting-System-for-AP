@@ -24,6 +24,7 @@ public class BookingMapper {
                 .cancellationPolicy(booking.getCancellationPolicy())
                 .createdAt(booking.getCreatedAt())
                 .updatedAt(booking.getUpdatedAt())
+                .reviewed(booking.isReviewed())
                 .build();
     }
 

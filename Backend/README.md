@@ -185,6 +185,7 @@ src/main/java/com/backend/
 | POST | `/api/reviews` | Renter | Create review |
 | PUT | `/api/reviews/{id}` | Renter | Update review |
 | DELETE | `/api/reviews/{id}` | Renter/Admin | Delete review |
+| GET | `/api/reviews/my` | Renter | Get reviews written by the current user |
 
 ### Favorites
 

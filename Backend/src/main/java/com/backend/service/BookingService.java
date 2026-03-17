@@ -77,6 +77,24 @@ public class BookingService {
     }
 
     @Transactional(readOnly = true)
+    public PageResponse<BookingResponse> getRenterBookings(Long renterId, int page, int size, String status) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<Booking> bookingPage;
+        if (status != null && !status.isEmpty()) {
+            BookingStatus bookingStatus;
+            try {
+                bookingStatus = BookingStatus.valueOf(status);
+            } catch (IllegalArgumentException e) {
+                throw new BadRequestException("Invalid booking status: " + status);
+            }
+            bookingPage = bookingRepository.findByRenterIdAndStatus(renterId, bookingStatus, pageable);
+        } else {
+            bookingPage = bookingRepository.findByRenterId(renterId, pageable);
+        }
+        return toPageResponse(bookingPage);
+    }
+
+    @Transactional(readOnly = true)
     public PageResponse<BookingResponse> getPropertyBookings(Long propertyId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         Page<Booking> bookingPage = bookingRepository.findByPropertyId(propertyId, pageable);

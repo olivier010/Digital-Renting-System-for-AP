@@ -6,12 +6,14 @@ import com.backend.dto.response.PageResponse;
 import com.backend.dto.response.PaymentResponse;
 import com.backend.dto.response.PropertyResponse;
 import com.backend.dto.response.BookingResponse;
+import com.backend.dto.response.ReviewResponse;
 import com.backend.enums.BookingStatus;
 import com.backend.security.CurrentUser;
 import com.backend.service.BookingService;
 import com.backend.service.DashboardService;
 import com.backend.service.PaymentService;
 import com.backend.service.PropertyService;
+import com.backend.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -32,6 +34,7 @@ public class OwnerController {
     private final PaymentService paymentService;
     private final PropertyService propertyService;
     private final BookingService bookingService;
+    private final ReviewService reviewService;
     private final CurrentUser currentUser;
 
     @GetMapping("/dashboard")
@@ -82,6 +85,15 @@ public class OwnerController {
         LocalDate start = startDate != null ? LocalDate.parse(startDate) : null;
         LocalDate end = endDate != null ? LocalDate.parse(endDate) : null;
         PageResponse<BookingResponse> response = bookingService.getAllBookings(bookingStatus, start, end, page, size);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @GetMapping("/reviews")
+    public ResponseEntity<ApiResponse<PageResponse<ReviewResponse>>> getOwnerReviews(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Long ownerId = currentUser.getUserId();
+        PageResponse<ReviewResponse> response = reviewService.getOwnerReviews(ownerId, page, size);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 }

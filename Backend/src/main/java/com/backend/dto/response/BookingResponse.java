@@ -27,6 +27,7 @@ public class BookingResponse {
     private String cancellationPolicy;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private boolean reviewed;
 
     @Data
     @Builder

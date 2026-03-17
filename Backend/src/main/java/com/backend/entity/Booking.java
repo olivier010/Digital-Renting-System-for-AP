@@ -70,6 +70,10 @@ public class Booking {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
+    @Column(name = "reviewed", nullable = false)
+    @Builder.Default
+    private boolean reviewed = false;
+
     // Relationships
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default

@@ -113,6 +113,10 @@ public class ReviewService {
 
         review = reviewRepository.save(review);
 
+        // Mark booking as reviewed
+        booking.setReviewed(true);
+        bookingRepository.save(booking);
+
         // Update property rating
         updatePropertyRating(property.getId());
 
@@ -159,6 +163,28 @@ public class ReviewService {
 
         review = reviewRepository.save(review);
         return reviewMapper.toResponse(review);
+    }
+
+    @Transactional
+    public void deleteReview(Long id) {
+        Review review = reviewRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Review", "id", id));
+        User user = currentUser.getUser();
+        boolean isRenter = review.getReviewer().getId().equals(user.getId());
+        boolean isAdmin = user.getRole().name().equals("ADMIN");
+        if (!isRenter && !isAdmin) {
+            throw new UnauthorizedException("You can only delete your own reviews or be an admin");
+        }
+        Booking booking = review.getBooking();
+        if (booking != null) {
+            booking.setReviewed(false);
+            bookingRepository.save(booking);
+        }
+        reviewRepository.delete(review);
+    }
+
+    public Long getCurrentUserId() {
+        return currentUser.getUserId();
     }
 
     private void updatePropertyRating(Long propertyId) {

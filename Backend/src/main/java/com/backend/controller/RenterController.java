@@ -32,10 +32,10 @@ public class RenterController {
     @GetMapping("/bookings")
     public ResponseEntity<ApiResponse<PageResponse<BookingResponse>>> getRenterBookings(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        // Get current renter's ID from security context
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(value = "status", required = false) String status) {
         Long renterId = bookingService.getCurrentUserId();
-        PageResponse<BookingResponse> response = bookingService.getRenterBookings(renterId, page, size);
+        PageResponse<BookingResponse> response = bookingService.getRenterBookings(renterId, page, size, status);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 }
