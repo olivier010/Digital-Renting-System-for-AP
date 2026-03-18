@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { apiFetch } from '../../utils/api'
-import { Heart, MapPin, Star, Phone, DollarSign, Search, Filter, X, Home, Building2, Car, Landmark, Store, Package } from 'lucide-react'
+import { Heart, MapPin, Star, DollarSign, Search, Filter, X, Home, Building2, Car, Landmark, Store, Package } from 'lucide-react'
 
 const categoryIcons: Record<string, typeof Home> = {
   house: Home,
@@ -13,9 +12,9 @@ const categoryIcons: Record<string, typeof Home> = {
 }
 
 const Favorites = () => {
-  const navigate = useNavigate()
   const [searchTerm, setSearchTerm] = useState('')
   const [sortBy, setSortBy] = useState('savedDate')
+  const [showAllFavorites, setShowAllFavorites] = useState(false)
 
   const [favoriteProperties, setFavoriteProperties] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -186,7 +185,7 @@ const Favorites = () => {
       </div>
 
       {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
@@ -250,136 +249,241 @@ const Favorites = () => {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredAndSortedProperties.map((property) => {
-            const CategoryIcon = categoryIcons[property.category] || Package
-            return (
-            <div key={property.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-md transition-shadow">
-              {/* Property Image */}
-              <div className="relative h-48 bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-6xl overflow-hidden">
-                {property.image ? (
-                  <img
-                    src={property.image.startsWith('http') ? property.image : `http://localhost:8080${property.image}`}
-                    alt={property.title}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <span role="img" aria-label="property">🏠</span>
-                )}
-                
-                {/* Selection Checkbox */}
-                <div className="absolute top-3 left-3">
-                  <input
-                    type="checkbox"
-                    checked={selectedProperties.includes(property.id)}
-                    onChange={() => togglePropertySelection(property.id)}
-                    className="w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
-                  />
-                </div>
-                
-                {/* Remove Button */}
-                <button className="absolute top-3 right-3 p-2 bg-white dark:bg-gray-800 rounded-full shadow-md hover:shadow-lg transition-shadow">
-                  <X className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                </button>
-                
-                {/* Category Badge */}
-                <div className="absolute bottom-3 left-3">
-                  <span className="inline-flex items-center px-2 py-1 bg-white dark:bg-gray-800 text-xs font-medium rounded-full shadow-sm capitalize">
-                    <CategoryIcon className="w-3 h-3 mr-1" />
-                    {property.category}
-                  </span>
-                </div>
-                
-                {/* Availability Badge */}
-                <div className="absolute bottom-3 right-3">
-                  <span className="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs rounded-full">
-                    {property.availability}
-                  </span>
-                </div>
-              </div>
-
-              {/* Property Info */}
-              <div className="p-4">
-                <div className="flex justify-between items-start mb-2">
-                  <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                      {property.title}
-                    </h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center">
-                      <MapPin className="w-3 h-3 mr-1" />
-                      {property.location}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-xl font-bold text-gray-900 dark:text-white">
-                      ${property.price}
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">per month</p>
-                    {property.priceChange !== 0 && (
-                      <p className={`text-xs font-medium ${getPriceChangeColor(property.priceChange)}`}>
-                        {getPriceChangeText(property.priceChange)}
-                      </p>
+        <>
+          {/* First Row - Always Visible */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-4">
+            {filteredAndSortedProperties.slice(0, 4).map((property) => {
+              const CategoryIcon = categoryIcons[property.category] || Package
+              return (
+                <div key={property.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-lg transition-all duration-200 group">
+                  {/* Property Image */}
+                  <div className="relative h-32 bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                    {property.image ? (
+                      <img
+                        src={property.image.startsWith('http') ? property.image : `http://localhost:8080${property.image}`}
+                        alt={property.title}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <CategoryIcon className="w-8 h-8 text-gray-400" />
                     )}
+                    
+                    {/* Selection Checkbox */}
+                    <div className="absolute top-2 left-2">
+                      <input
+                        type="checkbox"
+                        checked={selectedProperties.includes(property.id)}
+                        onChange={() => togglePropertySelection(property.id)}
+                        className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                      />
+                    </div>
+                    
+                    {/* Remove Button */}
+                    <button className="absolute top-2 right-2 p-1.5 bg-white dark:bg-gray-800 rounded-full shadow-md hover:shadow-lg transition-shadow">
+                      <X className="w-3.5 h-3.5 text-gray-600 dark:text-gray-400" />
+                    </button>
+                    
+                    {/* Category Badge */}
+                    <div className="absolute bottom-2 left-2">
+                      <span className="flex items-center gap-0.5 bg-blue-600 text-white px-2 py-0.5 rounded-full text-xs font-medium">
+                        <CategoryIcon className="w-2.5 h-2.5" />
+                        {property.category}
+                      </span>
+                    </div>
+                    
+                    {/* Availability Badge */}
+                    <div className="absolute bottom-2 right-2">
+                      <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${
+                        property.availability === 'Available' 
+                          ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                          : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                      }`}>
+                        {property.availability}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Property Info */}
+                  <div className="p-3">
+                    {/* Title & Price */}
+                    <div className="mb-2">
+                      <h3 className="font-semibold text-gray-900 dark:text-white text-sm line-clamp-1 mb-1">
+                        {property.title}
+                      </h3>
+                      <div className="flex items-center justify-between">
+                        <span className="text-lg font-bold text-primary-600 dark:text-primary-400">
+                          ${property.price}
+                        </span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">/month</span>
+                      </div>
+                    </div>
+
+                    {/* Location */}
+                    <div className="flex items-center text-xs text-gray-600 dark:text-gray-400 mb-2">
+                      <MapPin className="w-3 h-3 mr-1 flex-shrink-0" />
+                      <span className="line-clamp-1">{property.location}</span>
+                    </div>
+
+                    {/* Stats */}
+                    <div className="flex items-center justify-between py-2 border-t border-gray-100 dark:border-gray-700">
+                      <div className="flex items-center text-xs text-gray-600 dark:text-gray-400">
+                        <div className="flex items-center mr-3">
+                          <Star className="w-3 h-3 text-yellow-500 fill-current mr-1" />
+                          <span>{property.rating}</span>
+                        </div>
+                        <div className="flex items-center">
+                          <div className="w-2 h-2 bg-green-500 rounded-full mr-1"></div>
+                          <span>{property.bookings}</span>
+                        </div>
+                      </div>
+                      <span className="text-xs text-gray-500 dark:text-gray-400">
+                        {property.reviews} reviews
+                      </span>
+                    </div>
+
+                    {/* Price Change & Saved Date */}
+                    <div className="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-700">
+                      <div className="flex items-center">
+                        {property.priceChange !== 0 && (
+                          <span className={`text-xs font-medium ${getPriceChangeColor(property.priceChange)}`}>
+                            {getPriceChangeText(property.priceChange)}
+                          </span>
+                        )}
+                      </div>
+                      <span className="text-xs text-gray-500 dark:text-gray-400">
+                        Saved {property.savedDate}
+                      </span>
+                    </div>
                   </div>
                 </div>
+              )
+            })}
+          </div>
 
-                {/* Rating and Reviews */}
-                <div className="flex items-center mb-3">
-                  <div className="flex items-center">
-                    <Star className="w-4 h-4 text-yellow-500 fill-current" />
-                    <span className="text-sm font-medium text-gray-900 dark:text-white ml-1">
-                      {property.rating}
-                    </span>
-                    <span className="text-sm text-gray-500 dark:text-gray-400 ml-1">
-                      ({property.reviews} reviews)
-                    </span>
-                  </div>
-                  <span className="text-sm text-gray-500 dark:text-gray-400 ml-3">
-                    {property.bookings} bookings
-                  </span>
-                </div>
-
-                {/* Contact */}
-                <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 mb-3">
-                  <Phone className="w-4 h-4 mr-1" />
-                  {property.owner.phone}
-                </div>
-
-                {/* Owner and Saved Date */}
-                <div className="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-gray-700">
-                  <span className="text-xs text-gray-600 dark:text-gray-400">
-                    {property.owner.name}
-                  </span>
-                  <div className="text-right">
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      Saved {property.savedDate}
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      Viewed {property.lastViewed}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Action Buttons */}
-                <div className="flex space-x-2 mt-4">
-                  <button
-                    className="flex-1 px-3 py-2 bg-primary-600 hover:bg-primary-700 text-white text-sm rounded-lg font-medium transition-colors"
-                    onClick={() => navigate(`/properties/${property.id}`)}
-                  >
-                    Book Now
-                  </button>
-                  <button
-                    className="px-3 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 text-sm rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                    onClick={() => navigate(`/properties/${property.id}`)}
-                  >
-                    View Details
-                  </button>
-                </div>
-              </div>
+          {/* See More Link */}
+          {filteredAndSortedProperties.length > 4 && !showAllFavorites && (
+            <div className="text-center">
+              <button
+                onClick={() => setShowAllFavorites(true)}
+                className="inline-flex items-center px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-colors"
+              >
+                See More Favorites ({filteredAndSortedProperties.length - 4} more)
+              </button>
             </div>
-            )
-          })}
-        </div>
+          )}
+
+          {/* Remaining Properties (shown when "See More" is clicked) */}
+          {showAllFavorites && filteredAndSortedProperties.length > 4 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {filteredAndSortedProperties.slice(4).map((property) => {
+                const CategoryIcon = categoryIcons[property.category] || Package
+                return (
+                  <div key={property.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-lg transition-all duration-200 group">
+                    {/* Property Image */}
+                    <div className="relative h-32 bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                      {property.image ? (
+                        <img
+                          src={property.image.startsWith('http') ? property.image : `http://localhost:8080${property.image}`}
+                          alt={property.title}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <CategoryIcon className="w-8 h-8 text-gray-400" />
+                      )}
+                      
+                      {/* Selection Checkbox */}
+                      <div className="absolute top-2 left-2">
+                        <input
+                          type="checkbox"
+                          checked={selectedProperties.includes(property.id)}
+                          onChange={() => togglePropertySelection(property.id)}
+                          className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                        />
+                      </div>
+                      
+                      {/* Remove Button */}
+                      <button className="absolute top-2 right-2 p-1.5 bg-white dark:bg-gray-800 rounded-full shadow-md hover:shadow-lg transition-shadow">
+                        <X className="w-3.5 h-3.5 text-gray-600 dark:text-gray-400" />
+                      </button>
+                      
+                      {/* Category Badge */}
+                      <div className="absolute bottom-2 left-2">
+                        <span className="flex items-center gap-0.5 bg-blue-600 text-white px-2 py-0.5 rounded-full text-xs font-medium">
+                          <CategoryIcon className="w-2.5 h-2.5" />
+                          {property.category}
+                        </span>
+                      </div>
+                      
+                      {/* Availability Badge */}
+                      <div className="absolute bottom-2 right-2">
+                        <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${
+                          property.availability === 'Available' 
+                            ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                            : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                        }`}>
+                          {property.availability}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Property Info */}
+                    <div className="p-3">
+                      {/* Title & Price */}
+                      <div className="mb-2">
+                        <h3 className="font-semibold text-gray-900 dark:text-white text-sm line-clamp-1 mb-1">
+                          {property.title}
+                        </h3>
+                        <div className="flex items-center justify-between">
+                          <span className="text-lg font-bold text-primary-600 dark:text-primary-400">
+                            ${property.price}
+                          </span>
+                          <span className="text-xs text-gray-500 dark:text-gray-400">/month</span>
+                        </div>
+                      </div>
+
+                      {/* Location */}
+                      <div className="flex items-center text-xs text-gray-600 dark:text-gray-400 mb-2">
+                        <MapPin className="w-3 h-3 mr-1 flex-shrink-0" />
+                        <span className="line-clamp-1">{property.location}</span>
+                      </div>
+
+                      {/* Stats */}
+                      <div className="flex items-center justify-between py-2 border-t border-gray-100 dark:border-gray-700">
+                        <div className="flex items-center text-xs text-gray-600 dark:text-gray-400">
+                          <div className="flex items-center mr-3">
+                            <Star className="w-3 h-3 text-yellow-500 fill-current mr-1" />
+                            <span>{property.rating}</span>
+                          </div>
+                          <div className="flex items-center">
+                            <div className="w-2 h-2 bg-green-500 rounded-full mr-1"></div>
+                            <span>{property.bookings}</span>
+                          </div>
+                        </div>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                          {property.reviews} reviews
+                        </span>
+                      </div>
+
+                      {/* Price Change & Saved Date */}
+                      <div className="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-700">
+                        <div className="flex items-center">
+                          {property.priceChange !== 0 && (
+                            <span className={`text-xs font-medium ${getPriceChangeColor(property.priceChange)}`}>
+                              {getPriceChangeText(property.priceChange)}
+                            </span>
+                          )}
+                        </div>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                          Saved {property.savedDate}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </>
       )}
     </div>
   )
