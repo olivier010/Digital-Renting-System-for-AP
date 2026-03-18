@@ -9,8 +9,7 @@ import {
   Eye, 
   Star, 
   MapPin, 
-  Search, 
-  Phone,
+  Search,
   ToggleLeft,
   ToggleRight,
   CheckCircle,
@@ -126,10 +125,12 @@ const Properties = () => {
       setError('An unexpected error occurred while updating verified status.')
     }
   }
+
   const [searchTerm, setSearchTerm] = useState('')
   const [filterStatus, setFilterStatus] = useState('all')
   const [filterCategory, setFilterCategory] = useState('all')
   const [sortBy, setSortBy] = useState('name')
+  const [showAllProperties, setShowAllProperties] = useState(false)
   const [properties, setProperties] = useState<Property[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -441,154 +442,337 @@ const Properties = () => {
           )}
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-          {filteredAndSortedProperties.map((property) => {
-            const CategoryIcon = categoryIcons[property.category] || Package
-            return (
-              <div key={property.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-md transition-shadow">
-                {/* Property Image */}
-                <div className="relative h-48 bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-6xl">
-                  {property.images && property.images.length > 0 ? (
-                    <img
-                      src={property.images[0]}
-                      alt={property.title}
-                      className="object-cover w-full h-full"
-                    />
-                  ) : (
-                    <CategoryIcon className="w-16 h-16 text-gray-400" />
-                  )}
-                  
-                  {/* Category Badge */}
-                  <div className="absolute top-3 left-3">
-                    <span className="flex items-center gap-1 bg-blue-600 text-white px-2 py-1 rounded-full text-xs font-medium capitalize">
-                      <CategoryIcon className="w-3 h-3" />
-                      {property.category}
-                    </span>
-                  </div>
-                  
-                  {/* Status Badge */}
-                  <div className="absolute top-3 right-3">
-                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(property.status)}`}>
-                      {property.status}
-                    </span>
-                  </div>
-                  
-                  {/* Quick Actions */}
-                  <div className="absolute bottom-3 right-3 flex space-x-2">
-                    <Link to={`/owner/properties/${property.id}`} className="p-2 bg-white dark:bg-gray-800 rounded-full shadow-md hover:shadow-lg transition-shadow">
-                      <Eye className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                    </Link>
-                    <Link to={`/owner/properties/${property.id}/edit`} className="p-2 bg-white dark:bg-gray-800 rounded-full shadow-md hover:shadow-lg transition-shadow">
-                      <Edit className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                    </Link>
-                  </div>
-                </div>
+        <>
+          {/* First Row - Always Visible */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-4">
+            {filteredAndSortedProperties.slice(0, 4).map((property) => {
+              const CategoryIcon = categoryIcons[property.category] || Package
+              return (
+                <div key={property.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-lg transition-all duration-200 group">
+                  {/* Property Image */}
+                  <div className="relative h-32 bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                    {property.images && property.images.length > 0 ? (
+                      <img
+                        src={property.images[0]}
+                        alt={property.title}
+                        className="object-cover w-full h-full"
+                      />
+                    ) : (
+                      <CategoryIcon className="w-8 h-8 text-gray-400" />
+                    )}
+                    
+                    {/* Status & Category Badges */}
+                    <div className="absolute top-2 left-2 flex gap-1">
+                      <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${getStatusColor(property.status)}`}>
+                        {property.status}
+                      </span>
+                      <span className="flex items-center gap-0.5 bg-blue-600 text-white px-2 py-0.5 rounded-full text-xs font-medium">
+                        <CategoryIcon className="w-2.5 h-2.5" />
+                        {property.category}
+                      </span>
+                    </div>
 
-                {/* Property Info */}
-                <div className="p-4">
-                  {/* Name & Price */}
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex-1 mr-2">
-                      {property.title}
-                    </h3>
-                    <div className="text-right shrink-0">
-                      <p className="text-xl font-bold text-primary-600 dark:text-primary-400">
-                        ${property.price}
-                      </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">per month</p>
+                    {/* Featured & Verified Indicators */}
+                    <div className="absolute top-2 right-2 flex flex-col gap-1">
+                      {property.isFeatured && (
+                        <div className="bg-yellow-500 text-white p-1 rounded-full" title="Featured">
+                          <Star className="w-3 h-3 fill-current" />
+                        </div>
+                      )}
+                      {property.isVerified && (
+                        <div className="bg-blue-500 text-white p-1 rounded-full" title="Verified">
+                          <CheckCircle className="w-3 h-3" />
+                        </div>
+                      )}
                     </div>
                   </div>
 
-                  {/* Location */}
-                  <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center mb-3">
-                    <MapPin className="w-4 h-4 mr-1 shrink-0" />
-                    {property.location}
-                  </p>
-
-                  {/* Contact */}
-                  <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center mb-3">
-                    <Phone className="w-4 h-4 mr-1 shrink-0" />
-                    {property.contact}
-                  </p>
-
-                  {/* Bookings & Reviews */}
-                  <div className="flex items-center justify-between mb-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                    <div className="text-center">
-                      <p className="text-lg font-bold text-gray-900 dark:text-white">{property.bookings}</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">Bookings</p>
-                    </div>
-                    <div className="text-center">
-                      <div className="flex items-center justify-center">
-                        <Star className="w-4 h-4 text-yellow-500 fill-current mr-1" />
-                        <span className="text-lg font-bold text-gray-900 dark:text-white">{property.rating}</span>
+                  {/* Property Info */}
+                  <div className="p-3">
+                    {/* Title & Price */}
+                    <div className="mb-2">
+                      <h3 className="font-semibold text-gray-900 dark:text-white text-sm line-clamp-1 mb-1">
+                        {property.title}
+                      </h3>
+                      <div className="flex items-center justify-between">
+                        <span className="text-lg font-bold text-primary-600 dark:text-primary-400">
+                          ${property.price}
+                        </span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">/month</span>
                       </div>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">{property.reviews} reviews</p>
                     </div>
-                  </div>
 
-                  {/* Action Buttons */}
-                  <div className="flex flex-col gap-2 pt-3 border-t border-gray-200 dark:border-gray-700">
-                    <div className="flex items-center justify-between">
+                    {/* Location */}
+                    <div className="flex items-center text-xs text-gray-600 dark:text-gray-400 mb-2">
+                      <MapPin className="w-3 h-3 mr-1 flex-shrink-0" />
+                      <span className="line-clamp-1">{property.location}</span>
+                    </div>
+
+                    {/* Stats */}
+                    <div className="flex items-center justify-between py-2 border-t border-gray-100 dark:border-gray-700">
+                      <div className="flex items-center text-xs text-gray-600 dark:text-gray-400">
+                        <div className="flex items-center mr-3">
+                          <div className="w-2 h-2 bg-green-500 rounded-full mr-1"></div>
+                          <span>{property.bookings}</span>
+                        </div>
+                        <div className="flex items-center">
+                          <Star className="w-3 h-3 text-yellow-500 fill-current mr-1" />
+                          <span>{property.rating}</span>
+                        </div>
+                      </div>
+                      <span className="text-xs text-gray-500 dark:text-gray-400">
+                        {property.reviews} reviews
+                      </span>
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex items-center justify-between mt-3 pt-2 border-t border-gray-100 dark:border-gray-700">
                       <button
                         type="button"
                         onClick={() => togglePropertyStatus(property.id)}
-                        className="flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white cursor-pointer focus:outline-none"
-                        tabIndex={0}
+                        className={`flex items-center text-xs px-2 py-1 rounded-full transition-colors ${
+                          property.status === 'active' 
+                            ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300' 
+                            : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400'
+                        }`}
                       >
                         {property.status === 'active' ? (
                           <>
-                            <ToggleRight className="w-5 h-5 mr-1 text-green-500" />
+                            <ToggleRight className="w-3 h-3 mr-1" />
                             Active
                           </>
                         ) : (
                           <>
-                            <ToggleLeft className="w-5 h-5 mr-1 text-gray-400" />
+                            <ToggleLeft className="w-3 h-3 mr-1" />
                             Inactive
                           </>
                         )}
                       </button>
-                      <button
-                        type="button"
-                        onClick={() => toggleFeatured(property.id)}
-                        className={`flex items-center text-sm ${property.isFeatured ? 'text-yellow-500' : 'text-gray-400 dark:text-gray-500'} hover:text-yellow-600 dark:hover:text-yellow-400 cursor-pointer focus:outline-none ml-2`}
-                        title={property.isFeatured ? 'Unmark as Featured' : 'Mark as Featured'}
-                        tabIndex={0}
-                      >
-                        <Star className="w-5 h-5 mr-1" />
-                        {property.isFeatured ? 'Featured' : 'Not Featured'}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => toggleVerified(property.id)}
-                        className={`flex items-center text-sm ${property.isVerified ? 'text-blue-500' : 'text-gray-400 dark:text-gray-500'} hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer focus:outline-none ml-2`}
-                        title={property.isVerified ? 'Unmark as Verified' : 'Mark as Verified'}
-                        tabIndex={0}
-                      >
-                        <CheckCircle className="w-5 h-5 mr-1" />
-                        {property.isVerified ? 'Verified' : 'Not Verified'}
-                      </button>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Link to={`/owner/properties/${property.id}`} className="p-1 text-blue-500 hover:text-blue-700 dark:hover:text-blue-300" title="View">
-                        <Eye className="w-4 h-4" />
-                      </Link>
-                      <Link to={`/owner/properties/${property.id}/edit`} className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" title="Edit">
-                        <Edit className="w-4 h-4" />
-                      </Link>
-                      <button 
-                        onClick={() => deleteProperty(property.id)}
-                        className="p-1 text-red-400 hover:text-red-600 dark:hover:text-red-300"
-                        title="Delete"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                      
+                      <div className="flex items-center space-x-1">
+                        <button 
+                          onClick={() => toggleFeatured(property.id)}
+                          className={`p-1.5 transition-colors rounded hover:bg-gray-100 dark:hover:bg-gray-700 ${
+                            property.isFeatured 
+                              ? 'text-yellow-500 hover:text-yellow-600 dark:hover:text-yellow-400' 
+                              : 'text-gray-400 hover:text-yellow-600 dark:hover:text-yellow-400'
+                          }`}
+                          title={property.isFeatured ? 'Unmark as Featured' : 'Mark as Featured'}
+                        >
+                          <Star className="w-3.5 h-3.5" />
+                        </button>
+                        <button 
+                          onClick={() => toggleVerified(property.id)}
+                          className={`p-1.5 transition-colors rounded hover:bg-gray-100 dark:hover:bg-gray-700 ${
+                            property.isVerified 
+                              ? 'text-blue-500 hover:text-blue-600 dark:hover:text-blue-400' 
+                              : 'text-gray-400 hover:text-blue-600 dark:hover:text-blue-400'
+                          }`}
+                          title={property.isVerified ? 'Unmark as Verified' : 'Mark as Verified'}
+                        >
+                          <CheckCircle className="w-3.5 h-3.5" />
+                        </button>
+                        <Link 
+                          to={`/owner/properties/${property.id}`} 
+                          className="p-1.5 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors rounded hover:bg-gray-100 dark:hover:bg-gray-700" 
+                          title="View"
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                        </Link>
+                        <Link 
+                          to={`/owner/properties/${property.id}/edit`} 
+                          className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors rounded hover:bg-gray-100 dark:hover:bg-gray-700" 
+                          title="Edit"
+                        >
+                          <Edit className="w-3.5 h-3.5" />
+                        </Link>
+                        <button 
+                          onClick={() => deleteProperty(property.id)}
+                          className="p-1.5 text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors rounded hover:bg-gray-100 dark:hover:bg-gray-700"
+                          title="Delete"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            )
-          })}
-        </div>
+              )
+            })}
+          </div>
+
+          {/* See More Link */}
+          {filteredAndSortedProperties.length > 4 && !showAllProperties && (
+            <div className="text-center">
+              <button
+                onClick={() => setShowAllProperties(true)}
+                className="inline-flex items-center px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-colors"
+              >
+                See More Properties ({filteredAndSortedProperties.length - 4} more)
+              </button>
+            </div>
+          )}
+
+          {/* Remaining Properties (shown when "See More" is clicked) */}
+          {showAllProperties && filteredAndSortedProperties.length > 4 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {filteredAndSortedProperties.slice(4).map((property) => {
+                const CategoryIcon = categoryIcons[property.category] || Package
+                return (
+                  <div key={property.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-lg transition-all duration-200 group">
+                    {/* Property Image */}
+                    <div className="relative h-32 bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                      {property.images && property.images.length > 0 ? (
+                        <img
+                          src={property.images[0]}
+                          alt={property.title}
+                          className="object-cover w-full h-full"
+                        />
+                      ) : (
+                        <CategoryIcon className="w-8 h-8 text-gray-400" />
+                      )}
+                      
+                      {/* Status & Category Badges */}
+                      <div className="absolute top-2 left-2 flex gap-1">
+                        <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${getStatusColor(property.status)}`}>
+                          {property.status}
+                        </span>
+                        <span className="flex items-center gap-0.5 bg-blue-600 text-white px-2 py-0.5 rounded-full text-xs font-medium">
+                          <CategoryIcon className="w-2.5 h-2.5" />
+                          {property.category}
+                        </span>
+                      </div>
+
+                      {/* Featured & Verified Indicators */}
+                      <div className="absolute top-2 right-2 flex flex-col gap-1">
+                        {property.isFeatured && (
+                          <div className="bg-yellow-500 text-white p-1 rounded-full" title="Featured">
+                            <Star className="w-3 h-3 fill-current" />
+                          </div>
+                        )}
+                        {property.isVerified && (
+                          <div className="bg-blue-500 text-white p-1 rounded-full" title="Verified">
+                            <CheckCircle className="w-3 h-3" />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Property Info */}
+                    <div className="p-3">
+                      {/* Title & Price */}
+                      <div className="mb-2">
+                        <h3 className="font-semibold text-gray-900 dark:text-white text-sm line-clamp-1 mb-1">
+                          {property.title}
+                        </h3>
+                        <div className="flex items-center justify-between">
+                          <span className="text-lg font-bold text-primary-600 dark:text-primary-400">
+                            ${property.price}
+                          </span>
+                          <span className="text-xs text-gray-500 dark:text-gray-400">/month</span>
+                        </div>
+                      </div>
+
+                      {/* Location */}
+                      <div className="flex items-center text-xs text-gray-600 dark:text-gray-400 mb-2">
+                        <MapPin className="w-3 h-3 mr-1 flex-shrink-0" />
+                        <span className="line-clamp-1">{property.location}</span>
+                      </div>
+
+                      {/* Stats */}
+                      <div className="flex items-center justify-between py-2 border-t border-gray-100 dark:border-gray-700">
+                        <div className="flex items-center text-xs text-gray-600 dark:text-gray-400">
+                          <div className="flex items-center mr-3">
+                            <div className="w-2 h-2 bg-green-500 rounded-full mr-1"></div>
+                            <span>{property.bookings}</span>
+                          </div>
+                          <div className="flex items-center">
+                            <Star className="w-3 h-3 text-yellow-500 fill-current mr-1" />
+                            <span>{property.rating}</span>
+                          </div>
+                        </div>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                          {property.reviews} reviews
+                        </span>
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div className="flex items-center justify-between mt-3 pt-2 border-t border-gray-100 dark:border-gray-700">
+                        <button
+                          type="button"
+                          onClick={() => togglePropertyStatus(property.id)}
+                          className={`flex items-center text-xs px-2 py-1 rounded-full transition-colors ${
+                            property.status === 'active' 
+                              ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300' 
+                              : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400'
+                          }`}
+                        >
+                          {property.status === 'active' ? (
+                            <>
+                              <ToggleRight className="w-3 h-3 mr-1" />
+                              Active
+                            </>
+                          ) : (
+                            <>
+                              <ToggleLeft className="w-3 h-3 mr-1" />
+                              Inactive
+                            </>
+                          )}
+                        </button>
+                        
+                        <div className="flex items-center space-x-1">
+                          <button 
+                            onClick={() => toggleFeatured(property.id)}
+                            className={`p-1.5 transition-colors rounded hover:bg-gray-100 dark:hover:bg-gray-700 ${
+                              property.isFeatured 
+                                ? 'text-yellow-500 hover:text-yellow-600 dark:hover:text-yellow-400' 
+                                : 'text-gray-400 hover:text-yellow-600 dark:hover:text-yellow-400'
+                            }`}
+                            title={property.isFeatured ? 'Unmark as Featured' : 'Mark as Featured'}
+                          >
+                            <Star className="w-3.5 h-3.5" />
+                          </button>
+                          <button 
+                            onClick={() => toggleVerified(property.id)}
+                            className={`p-1.5 transition-colors rounded hover:bg-gray-100 dark:hover:bg-gray-700 ${
+                              property.isVerified 
+                                ? 'text-blue-500 hover:text-blue-600 dark:hover:text-blue-400' 
+                                : 'text-gray-400 hover:text-blue-600 dark:hover:text-blue-400'
+                            }`}
+                            title={property.isVerified ? 'Unmark as Verified' : 'Mark as Verified'}
+                          >
+                            <CheckCircle className="w-3.5 h-3.5" />
+                          </button>
+                          <Link 
+                            to={`/owner/properties/${property.id}`} 
+                            className="p-1.5 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors rounded hover:bg-gray-100 dark:hover:bg-gray-700" 
+                            title="View"
+                          >
+                            <Eye className="w-3.5 h-3.5" />
+                          </Link>
+                          <Link 
+                            to={`/owner/properties/${property.id}/edit`} 
+                            className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors rounded hover:bg-gray-100 dark:hover:bg-gray-700" 
+                            title="Edit"
+                          >
+                            <Edit className="w-3.5 h-3.5" />
+                          </Link>
+                          <button 
+                            onClick={() => deleteProperty(property.id)}
+                            className="p-1.5 text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors rounded hover:bg-gray-100 dark:hover:bg-gray-700"
+                            title="Delete"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </>
       )}
     </div>
   )
