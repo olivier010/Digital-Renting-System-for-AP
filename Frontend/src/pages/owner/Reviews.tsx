@@ -203,7 +203,7 @@ const Reviews = () => {
       </div>
 
       {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
         <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
@@ -327,9 +327,9 @@ const Reviews = () => {
 
       {/* Content */}
       {activeTab === 'received' ? (
-        <div className="space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {filteredReviews.length === 0 ? (
-            <div className="text-center py-12">
+            <div className="col-span-full text-center py-12">
               <MessageSquare className="w-16 h-16 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
                 No reviews found
@@ -340,142 +340,143 @@ const Reviews = () => {
             </div>
           ) : (
             filteredReviews.map((review) => (
-              <div key={review.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-start space-x-4">
-                    <div className="w-12 h-12 bg-primary-100 dark:bg-primary-900 rounded-full flex items-center justify-center">
-                      <span className="text-lg font-medium text-primary-600 dark:text-primary-300">
-                        {review.guestImage}
-                      </span>
+              <div key={review.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-md transition-shadow">
+                {/* Review Header */}
+                <div className="p-4 border-b border-gray-100 dark:border-gray-700">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-start space-x-3">
+                      <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900 rounded-full flex items-center justify-center flex-shrink-0">
+                        <span className="text-sm font-medium text-primary-600 dark:text-primary-300">
+                          {review.guestImage ? (
+                            <img src={review.guestImage} alt={review.guest} className="w-full h-full rounded-full object-cover" />
+                          ) : (
+                            review.guest.charAt(0).toUpperCase()
+                          )}
+                        </span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center space-x-2 mb-1">
+                          <h3 className="font-semibold text-gray-900 dark:text-white text-sm truncate">
+                            {review.guest}
+                          </h3>
+                          {review.verified && (
+                            <CheckCircle className="w-3.5 h-3.5 text-green-500 flex-shrink-0" />
+                          )}
+                        </div>
+                        <div className="flex items-center space-x-2 text-xs text-gray-500 dark:text-gray-400">
+                          <span>{review.date}</span>
+                          <span>•</span>
+                          <span className="truncate">{review.property}</span>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-3 mb-1">
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                          {review.guest}
-                        </h3>
-                        {review.verified && (
-                          <CheckCircle className="w-4 h-4 text-green-500" />
-                        )}
-                      </div>
-                      <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-400">
-                        <span>{review.date}</span>
-                        <span>•</span>
-                        <span>{review.checkIn} - {review.checkOut}</span>
-                        <span>•</span>
-                        <span>Booking #{review.bookingId}</span>
-                      </div>
+                    
+                    <div className="flex items-center space-x-1">
+                      <button className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                        <Flag className="w-3.5 h-3.5" />
+                      </button>
+                      <button className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                        <MoreVertical className="w-3.5 h-3.5" />
+                      </button>
                     </div>
                   </div>
-                  
-                  <div className="flex items-center space-x-2">
-                    <button className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
-                      <Flag className="w-4 h-4" />
-                    </button>
-                    <button className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
-                      <MoreVertical className="w-4 h-4" />
-                    </button>
+
+                  {/* Rating and Property Info */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <div className="flex items-center">
+                        {renderStars(review.rating)}
+                      </div>
+                      <span className="text-sm font-medium text-gray-900 dark:text-white">
+                        {review.rating}.0
+                      </span>
+                    </div>
+                    <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
+                      <MapPin className="w-3 h-3 mr-1" />
+                      <span className="truncate">{review.location}</span>
+                    </div>
                   </div>
                 </div>
 
-                <div className="mb-4">
-                  <div className="flex items-center space-x-4 mb-2">
-                    {renderStars(review.rating)}
-                    <span className="text-sm text-gray-600 dark:text-gray-400">
-                      {review.rating}.0
-                    </span>
-                    {review.wouldRecommend && (
-                      <span className="text-sm text-green-600 dark:text-green-400">
-                        ✓ Would recommend
-                      </span>
-                    )}
-                  </div>
-                  
-                  <p className="text-gray-700 dark:text-gray-300 mb-3">
+                {/* Review Content */}
+                <div className="p-4">
+                  <p className="text-sm text-gray-700 dark:text-gray-300 mb-3 line-clamp-3">
                     {review.review}
                   </p>
                   
+                  {review.wouldRecommend && (
+                    <div className="flex items-center text-xs text-green-600 dark:text-green-400 mb-3">
+                      <CheckCircle className="w-3 h-3 mr-1" />
+                      Would recommend
+                    </div>
+                  )}
+                  
                   {/* Detailed Ratings */}
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                  <div className="grid grid-cols-3 gap-2 mb-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                     <div className="text-center">
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Cleanliness</p>
-                      {renderStars(review.cleanliness, undefined, 'sm')}
+                      <p className="text-xs font-medium text-gray-600 dark:text-gray-400">Cleanliness</p>
+                      <div className="flex justify-center items-center mt-1">
+                        <Star className="w-3 h-3 text-yellow-500 fill-current" />
+                        <span className="text-xs font-medium text-gray-900 dark:text-white ml-1">{review.cleanliness}</span>
+                      </div>
                     </div>
                     <div className="text-center">
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Communication</p>
-                      {renderStars(review.communication, undefined, 'sm')}
+                      <p className="text-xs font-medium text-gray-600 dark:text-gray-400">Communication</p>
+                      <div className="flex justify-center items-center mt-1">
+                        <Star className="w-3 h-3 text-yellow-500 fill-current" />
+                        <span className="text-xs font-medium text-gray-900 dark:text-white ml-1">{review.communication}</span>
+                      </div>
                     </div>
                     <div className="text-center">
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Check-in</p>
-                      {renderStars(review.checkInRating, undefined, 'sm')}
-                    </div>
-                    <div className="text-center">
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Accuracy</p>
-                      {renderStars(review.accuracy, undefined, 'sm')}
-                    </div>
-                    <div className="text-center">
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Location</p>
-                      {renderStars(review.locationRating, undefined, 'sm')}
-                    </div>
-                    <div className="text-center">
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Value</p>
-                      {renderStars(review.value, undefined, 'sm')}
+                      <p className="text-xs font-medium text-gray-600 dark:text-gray-400">Value</p>
+                      <div className="flex justify-center items-center mt-1">
+                        <Star className="w-3 h-3 text-yellow-500 fill-current" />
+                        <span className="text-xs font-medium text-gray-900 dark:text-white ml-1">{review.value}</span>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Property Info */}
-                  <div className="flex items-center space-x-3 text-sm text-gray-600 dark:text-gray-400">
-                    <span className="text-lg">{review.image}</span>
-                    <div>
-                      <p className="font-medium text-gray-900 dark:text-white">{review.property}</p>
-                      <p className="flex items-center">
-                        <MapPin className="w-3 h-3 mr-1" />
-                        {review.location}
+                  {/* Booking Info */}
+                  <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-3">
+                    <span>{review.checkIn} - {review.checkOut}</span>
+                    <span>#{review.bookingId}</span>
+                  </div>
+
+                  {/* Response Section */}
+                  {review.hostResponse ? (
+                    <div className="border-t border-gray-100 dark:border-gray-700 pt-3">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Your Response</span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">{review.hostResponseDate}</span>
+                      </div>
+                      <p className="text-xs text-gray-700 dark:text-gray-300 bg-blue-50 dark:bg-blue-900/20 p-2 rounded">
+                        {review.hostResponse}
                       </p>
                     </div>
-                  </div>
-                </div>
-
-                {/* Host Response */}
-                {review.hostResponse ? (
-                  <div className="border-l-4 border-blue-500 pl-4 py-2 bg-blue-50 dark:bg-blue-900/20 rounded-r-lg mb-4">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm font-medium text-blue-800 dark:text-blue-200">Your Response</span>
-                      <span className="text-xs text-blue-600 dark:text-blue-400">{review.hostResponseDate}</span>
+                  ) : (
+                    <div className="flex items-center justify-between">
+                      <button className="flex items-center text-xs text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 font-medium">
+                        <Reply className="w-3 h-3 mr-1" />
+                        Respond to review
+                      </button>
+                      <div className="flex items-center space-x-3 text-xs text-gray-500 dark:text-gray-400">
+                        <button className="flex items-center hover:text-gray-700 dark:hover:text-gray-300">
+                          <ThumbsUp className="w-3 h-3 mr-1" />
+                          {review.helpful}
+                        </button>
+                        <button className="flex items-center hover:text-gray-700 dark:hover:text-gray-300">
+                          <ThumbsDown className="w-3 h-3 mr-1" />
+                          {review.notHelpful}
+                        </button>
+                      </div>
                     </div>
-                    <p className="text-sm text-blue-700 dark:text-blue-300">
-                      {review.hostResponse}
-                    </p>
-                  </div>
-                ) : (
-                  <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">
-                      No response yet
-                    </span>
-                    <button className="flex items-center px-3 py-1 bg-primary-600 hover:bg-primary-700 text-white text-sm rounded font-medium transition-colors">
-                      <Reply className="w-3 h-3 mr-1" />
-                      Respond
-                    </button>
-                  </div>
-                )}
-
-                {/* Helpful Votes */}
-                <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
-                  <div className="flex items-center space-x-4">
-                    <button className="flex items-center space-x-1 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
-                      <ThumbsUp className="w-4 h-4" />
-                      <span>Helpful ({review.helpful})</span>
-                    </button>
-                    <button className="flex items-center space-x-1 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
-                      <ThumbsDown className="w-4 h-4" />
-                      <span>Not helpful ({review.notHelpful})</span>
-                    </button>
-                  </div>
+                  )}
                 </div>
               </div>
             ))
           )}
         </div>
-      ) : (
+      ) : activeTab === 'to-write' ? (
         <div className="space-y-6">
           {reviewsToWrite.length === 0 ? (
             <div className="text-center py-12">
@@ -600,7 +601,7 @@ const Reviews = () => {
             ))
           )}
         </div>
-      )}
+      ) : null}
     </div>
   )
 }
