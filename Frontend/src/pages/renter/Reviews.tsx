@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { Star, MapPin, Search, MessageSquare, ThumbsUp, ThumbsDown, Clock, CheckCircle } from 'lucide-react'
+import { Star, MapPin, Search, MessageSquare, ThumbsUp, ThumbsDown, Clock, CheckCircle, MoreVertical, Edit, Trash2 } from 'lucide-react'
 import { apiFetch } from '../../utils/api'
 
 const Reviews = () => {
@@ -55,7 +55,7 @@ const Reviews = () => {
         let reviews = []
         try {
           // Try renter-specific endpoint first
-          const reviewsRes = await apiFetch('/renter/reviews')
+          const reviewsRes = await apiFetch('/reviews/my')
           reviews = reviewsRes.data?.content || reviewsRes.data || []
         } catch (renterError) {
           console.log('Renter reviews endpoint failed, trying alternative...')
@@ -176,7 +176,7 @@ const Reviews = () => {
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Average Rating</p>
                 <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                  {myReviews.length > 0 ? (myReviews.reduce((sum, r) => sum + r.rating, 0) / myReviews.length).toFixed(1) : '0.0'}
+                  {myReviews.length > 0 ? (myReviews.reduce((sum, r) => sum + (r.overallRating || 0), 0) / myReviews.length).toFixed(1) : '0.0'}
                 </p>
                 <div className="flex items-center mt-1">
                   <Star className="w-4 h-4 text-yellow-500 fill-current" />
@@ -438,7 +438,7 @@ const Reviews = () => {
                               // Refresh reviews
                               let reviews = []
                               try {
-                                const reviewsRes = await apiFetch('/renter/reviews')
+                                const reviewsRes = await apiFetch('/reviews/my')
                                 reviews = reviewsRes.data?.content || reviewsRes.data || []
                               } catch (err) {
                                 // Fallback to bookings approach
@@ -501,99 +501,152 @@ const Reviews = () => {
                 </div>
               ) : (
                 filteredReviews.map((review) => (
-                  <div key={review.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-xl transition-all duration-300">
-                    <div className="p-6">
-                      <div className="flex items-start justify-between mb-6">
-                        <div className="flex items-start space-x-4">
-                          <div className="w-16 h-16 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
-                            {typeof review.property === 'object' && review.property && review.property.image ? (
+                  <div key={review.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all duration-200">
+                    <div className="p-4">
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex items-start space-x-3 flex-1">
+                          <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
+                            {review.propertyImage ? (
                               <img
-                                src={
-                                  review.property.image && !review.property.image.startsWith('http')
-                                    ? `http://localhost:8080${review.property.image}?t=${Date.now()}`
-                                    : `${review.property.image}?t=${Date.now()}`
-                                }
-                                alt={review.property.title || 'Property'}
+                                src={review.propertyImage.startsWith('http') ? review.propertyImage : `http://localhost:8080${review.propertyImage}`}
+                                alt={review.propertyTitle || 'Property'}
                                 className="object-cover w-full h-full"
                                 onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }}
                               />
                             ) : (
-                              <span className="text-2xl text-gray-400">🏠</span>
+                              <span className="text-xl text-gray-400">🏠</span>
                             )}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2 line-clamp-1">
-                              {typeof review.property === 'object' && review.property ? review.property.title : review.property}
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1 line-clamp-1">
+                              {review.propertyTitle}
                             </h3>
-                            <div className="flex items-center text-gray-600 dark:text-gray-400 mb-2">
-                              <MapPin className="w-4 h-4 mr-2 flex-shrink-0" />
+                            <div className="flex items-center text-gray-600 dark:text-gray-400 mb-1">
+                              <MapPin className="w-3 h-3 mr-1 flex-shrink-0" />
                               <span className="text-sm line-clamp-1">
-                                {typeof review.property === 'object' && review.property ? review.property.location : review.location}
+                                {review.propertyLocation || ''}
                               </span>
                             </div>
                             <div className="flex items-center space-x-2">
-                              {renderStars(review.rating, undefined, 'sm')}
-                              <span className="text-sm text-gray-500 dark:text-gray-400">
-                                {new Date(review.createdAt).toLocaleDateString()}
+                              {renderStars(review.overallRating, undefined, 'sm')}
+                              <span className="text-xs text-gray-500 dark:text-gray-400">
+                                {review.createdAt ? new Date(review.createdAt).toLocaleDateString() : ''}
                               </span>
                             </div>
                           </div>
                         </div>
+                        
+                        {/* Three-dot menu */}
+                        <div className="relative" ref={menuRef}>
+                          <button
+                            className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                            onClick={() => setMenuOpenId(menuOpenId === review.id ? null : review.id)}
+                            aria-label="More options"
+                          >
+                            <MoreVertical className="w-4 h-4" />
+                          </button>
+                          
+                          {menuOpenId === review.id && (
+                            <div className="absolute right-0 top-8 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-10 min-w-[120px]">
+                              <button
+                                className="flex items-center w-full px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                                onClick={() => {
+                                  setEditModal({ open: true, review })
+                                  setEditForm({
+                                    overallRating: review.overallRating,
+                                    comment: review.comment,
+                                    wouldRecommend: review.wouldRecommend,
+                                    cleanliness: review.cleanliness,
+                                    communication: review.communication,
+                                    checkIn: review.checkIn,
+                                    accuracy: review.accuracy,
+                                    locationRating: review.locationRating,
+                                    value: review.value
+                                  })
+                                  setMenuOpenId(null)
+                                }}
+                              >
+                                <Edit className="w-3 h-3 mr-2" />
+                                Edit
+                              </button>
+                              <button
+                                className="flex items-center w-full px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                                onClick={async () => {
+                                  if (window.confirm('Are you sure you want to delete this review?')) {
+                                    try {
+                                      const token = localStorage.getItem('rentwise_token')
+                                      await apiFetch(`/reviews/${review.id}`, {
+                                        method: 'DELETE',
+                                        headers: {
+                                          'Content-Type': 'application/json',
+                                          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+                                        }
+                                      })
+                                      
+                                      // Refresh reviews
+                                      let reviews = []
+                                      try {
+                                        const reviewsRes = await apiFetch('/renter/reviews')
+                                        reviews = reviewsRes.data?.content || reviewsRes.data || []
+                                      } catch (err) {
+                                        const allBookingsRes = await apiFetch('/renter/bookings')
+                                        const allBookings = allBookingsRes.data?.content || []
+                                        reviews = allBookings
+                                          .filter((b: any) => b.review || b.reviews)
+                                          .map((b: any) => b.review || b.reviews)
+                                          .filter(Boolean)
+                                      }
+                                      setMyReviews(reviews)
+                                      setMenuOpenId(null)
+                                      alert('Review deleted successfully!')
+                                    } catch (err: any) {
+                                      alert('Failed to delete review: ' + (err.message || 'Unknown error'))
+                                    }
+                                  }
+                                }}
+                              >
+                                <Trash2 className="w-3 h-3 mr-2" />
+                                Delete
+                              </button>
+                            </div>
+                          )}
+                        </div>
                       </div>
 
-                      <div className="mb-4">
-                        <p className="text-gray-700 dark:text-gray-300">
-                          {review.review}
+                      <div className="mb-3">
+                        <p className="text-sm text-gray-700 dark:text-gray-300 line-clamp-2">
+                          {review.comment}
                         </p>
                       </div>
 
                       {review.hostResponse && (
-                        <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 mb-4">
-                          <div className="flex items-center mb-2">
-                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3 mb-3">
+                          <div className="flex items-center mb-1">
+                            <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
                               Host Response
                             </span>
                             <span className="ml-2 text-xs text-gray-500 dark:text-gray-400">
-                              {review.hostResponseDate}
+                              {review.hostResponseDate ? new Date(review.hostResponseDate).toLocaleDateString() : ''}
                             </span>
                           </div>
-                          <p className="text-sm text-gray-700 dark:text-gray-300">
+                          <p className="text-xs text-gray-700 dark:text-gray-300 line-clamp-2">
                             {review.hostResponse}
                           </p>
                         </div>
                       )}
 
                       {/* Helpful Buttons */}
-                      <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
-                        <div className="flex items-center space-x-4">
-                          <button className="flex items-center space-x-1 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
-                            <ThumbsUp className="w-4 h-4" />
-                            <span>Helpful ({review.helpful})</span>
+                      <div className="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-gray-700">
+                        <div className="flex items-center space-x-3">
+                          <button className="flex items-center space-x-1 text-xs text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
+                            <ThumbsUp className="w-3 h-3" />
+                            <span>Helpful ({review.helpfulCount || 0})</span>
                           </button>
-                          <button className="flex items-center space-x-1 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
-                            <ThumbsDown className="w-4 h-4" />
-                            <span>Not Helpful ({review.notHelpful})</span>
+                          <button className="flex items-center space-x-1 text-xs text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
+                            <ThumbsDown className="w-3 h-3" />
+                            <span>Not Helpful ({review.notHelpfulCount || 0})</span>
                           </button>
                         </div>
-                        <button 
-                          className="text-sm text-primary-600 hover:text-primary-500 dark:text-primary-400"
-                          onClick={() => {
-                            setEditModal({ open: true, review })
-                            setEditForm({
-                              overallRating: review.rating,
-                              comment: review.review,
-                              wouldRecommend: review.wouldRecommend,
-                              cleanliness: review.cleanliness,
-                              communication: review.communication,
-                              checkIn: review.checkInRating,
-                              accuracy: review.accuracy,
-                              locationRating: review.locationRating,
-                              value: review.value
-                            })
-                          }}
-                        >
-                          Edit Review
-                        </button>
                       </div>
                     </div>
                   </div>
@@ -641,10 +694,10 @@ const Reviews = () => {
                     })
                     alert('Review updated successfully!')
                     setEditModal({ open: false, review: null })
-                    // Refresh reviews
+                    // Refresh reviews and fetch property details
                     let reviews = []
                     try {
-                      const reviewsRes = await apiFetch('/renter/reviews')
+                      const reviewsRes = await apiFetch('/reviews/my')
                       reviews = reviewsRes.data?.content || reviewsRes.data || []
                     } catch (err) {
                       // Fallback to bookings approach
@@ -655,7 +708,21 @@ const Reviews = () => {
                         .map((b: any) => b.review || b.reviews)
                         .filter(Boolean)
                     }
-                    setMyReviews(reviews)
+                    // Fetch property details for each review
+                    const reviewsWithProperty = await Promise.all(
+                      reviews.map(async (review: any) => {
+                        if (review.propertyId) {
+                          try {
+                            const propertyRes = await apiFetch(`/properties/${review.propertyId}`)
+                            review.property = propertyRes.data || propertyRes
+                          } catch (propertyError) {
+                            review.property = null
+                          }
+                        }
+                        return review
+                      })
+                    )
+                    setMyReviews(reviewsWithProperty)
                   } catch (err: any) {
                     alert('Failed to update review: ' + (err.message || 'Unknown error'))
                   }
