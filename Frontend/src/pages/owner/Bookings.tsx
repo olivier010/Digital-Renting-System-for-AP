@@ -76,8 +76,8 @@ const Bookings = () => {
           propertyName: b.property?.title || '',
           propertyStatus: b.property?.status || '',
           propertyLocation: b.property?.location || '',
-          propertyImages: Array.isArray(b.property?.images)
-            ? b.property.images.map((img: string) => img.startsWith('http') ? img : `http://localhost:8080${img}`)
+          propertyImages: b.property?.image
+            ? [b.property.image.startsWith('http') ? b.property.image : `http://localhost:8080${b.property.image}`]
             : [],
           tenantId: b.renter?.id?.toString() || b.tenantId,
           tenantName: b.renter?.name || '',
