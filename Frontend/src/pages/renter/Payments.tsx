@@ -1,103 +1,80 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { CreditCard, DollarSign, Download, Filter, Search, FileText, CheckCircle, AlertCircle, Clock, TrendingUp, TrendingDown } from 'lucide-react'
+import { apiFetch } from '../../utils/api'
 
 const Payments = () => {
   const [activeTab, setActiveTab] = useState('all')
   const [searchTerm, setSearchTerm] = useState('')
   const [dateRange, setDateRange] = useState('all')
 
-  const [payments] = useState([
-    {
-      id: 1,
-      type: 'booking_payment',
-      description: 'Luxury Downtown Apartment - Mar 15-18',
-      amount: 750,
-      status: 'completed',
-      date: '2024-03-01',
-      paymentMethod: 'credit_card',
-      cardType: 'Visa',
-      cardLast4: '4242',
-      bookingId: 1,
-      property: 'Luxury Downtown Apartment',
-      location: 'New York, NY',
-      host: 'John Smith',
-      invoiceId: 'INV-2024-001',
-      refundable: false
-    },
-    {
-      id: 2,
-      type: 'booking_payment',
-      description: 'Beach House Paradise - Mar 20-25',
-      amount: 1250,
-      status: 'completed',
-      date: '2024-03-02',
-      paymentMethod: 'credit_card',
-      cardType: 'Mastercard',
-      cardLast4: '5555',
-      bookingId: 2,
-      property: 'Beach House Paradise',
-      location: 'Miami, FL',
-      host: 'Sarah Johnson',
-      invoiceId: 'INV-2024-002',
-      refundable: false
-    },
-    {
-      id: 3,
-      type: 'security_deposit',
-      description: 'Security Deposit - Mountain View Cabin',
-      amount: 200,
-      status: 'refunded',
-      date: '2024-02-15',
-      paymentMethod: 'credit_card',
-      cardType: 'Visa',
-      cardLast4: '4242',
-      bookingId: 3,
-      property: 'Mountain View Cabin',
-      location: 'Aspen, CO',
-      host: 'Michael Brown',
-      invoiceId: 'INV-2024-003',
-      refundable: true,
-      refundDate: '2024-02-14',
-      refundAmount: 200
-    },
-    {
-      id: 4,
-      type: 'booking_payment',
-      description: 'Urban Studio Loft - Jan 15-20',
-      amount: 800,
-      status: 'refunded',
-      date: '2024-01-05',
-      paymentMethod: 'credit_card',
-      cardType: 'Mastercard',
-      cardLast4: '5555',
-      bookingId: 4,
-      property: 'Urban Studio Loft',
-      location: 'Chicago, IL',
-      host: 'David Wilson',
-      invoiceId: 'INV-2024-004',
-      refundable: true,
-      refundDate: '2024-01-18',
-      refundAmount: 800,
-      refundReason: 'Host cancelled due to maintenance'
-    },
-    {
-      id: 5,
-      type: 'service_fee',
-      description: 'Service Fee - Beach House Paradise',
-      amount: 125,
-      status: 'completed',
-      date: '2024-03-02',
-      paymentMethod: 'credit_card',
-      cardType: 'Mastercard',
-      cardLast4: '5555',
-      bookingId: 2,
-      property: 'Beach House Paradise',
-      location: 'Miami, FL',
-      host: 'Platform',
-      invoiceId: 'INV-2024-005',
-      refundable: false
-    }
-  ])
+  const [payments, setPayments] = useState<any[]>([])
+  const [pendingBookings, setPendingBookings] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    setLoading(true)
+    Promise.all([
+      apiFetch('/payments?page=0&size=100'),
+      apiFetch('/renter/bookings')
+    ])
+      .then(([paymentsRes, bookingsRes]) => {
+        // Payments
+        const items = paymentsRes?.data?.content || []
+        setPayments(items.map((p: any) => ({
+          id: p.id,
+          type: p.type,
+          description: p.property?.title || '',
+          amount: Number(p.amount),
+          status: p.status?.toLowerCase(),
+          date: p.createdAt ? new Date(p.createdAt).toLocaleDateString() : '',
+          paymentMethod: p.method,
+          cardType: p.method === 'CREDIT_CARD' ? 'Credit Card' : (p.method || ''),
+          cardLast4: p.cardLastFour,
+          bookingId: p.bookingId,
+          property: p.property?.title || '',
+          location: p.property?.location || '',
+          host: '', // Not available in backend response
+          invoiceId: p.invoiceId,
+          refundable: !!p.refundAmount,
+          refundDate: p.refundDate ? new Date(p.refundDate).toLocaleDateString() : '',
+          refundAmount: p.refundAmount ? Number(p.refundAmount) : undefined,
+          refundReason: p.refundReason,
+        })))
+        // Pending bookings
+        const bookings = bookingsRes?.data?.content || []
+        setPendingBookings(
+          bookings
+            .filter((b: any) => b.paymentStatus?.toLowerCase() === 'pending')
+            .map((b: any) => ({
+              id: b.id,
+              type: 'booking_payment',
+              description: b.property?.title || '',
+              amount: Number(b.totalPrice),
+              status: 'pending',
+              date: b.createdAt ? new Date(b.createdAt).toLocaleDateString() : '',
+              paymentMethod: '',
+              cardType: '',
+              cardLast4: '',
+              bookingId: b.id,
+              property: b.property?.title || '',
+              location: b.property?.location || '',
+              host: '',
+              invoiceId: '',
+              refundable: false,
+              refundDate: '',
+              refundAmount: undefined,
+              refundReason: '',
+              isBooking: true
+            }))
+        )
+        setLoading(false)
+      })
+      .catch((err) => {
+        setError(err.message || 'Failed to load payments/bookings')
+        setLoading(false)
+      })
+  }, [])
 
   const [paymentMethods] = useState([
     {
@@ -165,31 +142,39 @@ const Payments = () => {
     const matchesTab = 
       (activeTab === 'all') ||
       (activeTab === 'completed' && payment.status === 'completed') ||
-      (activeTab === 'refunded' && payment.status === 'refunded') ||
-      (activeTab === 'pending' && payment.status === 'pending')
-    
+      (activeTab === 'refunded' && payment.status === 'refunded')
     const matchesSearch = searchTerm === '' || 
       payment.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
       payment.property.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      payment.invoiceId.toLowerCase().includes(searchTerm.toLowerCase())
-    
+      payment.invoiceId?.toLowerCase().includes(searchTerm.toLowerCase())
     return matchesTab && matchesSearch
+  })
+
+  // For pending tab, merge pending bookings and payments with status 'pending'
+  const pendingItems = [
+    ...pendingBookings,
+    ...payments.filter(p => p.status === 'pending')
+  ].filter(item => {
+    const matchesSearch = searchTerm === '' || 
+      item.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.property.toLowerCase().includes(searchTerm.toLowerCase())
+    return matchesSearch
   })
 
   const tabs = [
     { id: 'all', label: 'All Payments', count: payments.length },
     { id: 'completed', label: 'Completed', count: payments.filter(p => p.status === 'completed').length },
     { id: 'refunded', label: 'Refunded', count: payments.filter(p => p.status === 'refunded').length },
-    { id: 'pending', label: 'Pending', count: payments.filter(p => p.status === 'pending').length }
+    { id: 'pending', label: 'Pending', count: pendingBookings.length + payments.filter(p => p.status === 'pending').length }
   ]
 
   const totalSpent = payments
     .filter(p => p.status === 'completed' && p.type !== 'refund')
-    .reduce((sum, p) => sum + p.amount, 0)
+    .reduce((sum, p) => sum + (p.amount || 0), 0)
 
   const totalRefunded = payments
     .filter(p => p.status === 'refunded')
-    .reduce((sum, p) => sum + (p.refundAmount || p.amount), 0)
+    .reduce((sum, p) => sum + (p.refundAmount || p.amount || 0), 0)
 
   const netSpent = totalSpent - totalRefunded
 
@@ -378,7 +363,75 @@ const Payments = () => {
 
       {/* Payments List */}
       <div className="space-y-4">
-        {filteredPayments.length === 0 ? (
+        {loading ? (
+          <div className="text-center py-12">
+            <CreditCard className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+              Loading payments...
+            </h3>
+          </div>
+        ) : error ? (
+          <div className="text-center py-12">
+            <AlertCircle className="w-16 h-16 text-red-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-red-700 dark:text-red-400 mb-2">
+              {error}
+            </h3>
+          </div>
+        ) : activeTab === 'pending' ? (
+          pendingItems.length === 0 ? (
+            <div className="text-center py-12">
+              <CreditCard className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                No pending bookings or payments
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400">
+                {searchTerm ? 'Try adjusting your search terms' : 'No pending items match the selected criteria'}
+              </p>
+            </div>
+          ) : (
+            pendingItems.map((item) => (
+              <div key={item.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
+                  <div className="flex-1">
+                    <div className="flex items-start space-x-4">
+                      <div className="p-3 bg-yellow-100 dark:bg-yellow-900 rounded-lg">
+                        <Clock className="w-6 h-6 text-yellow-600" />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
+                          {item.description}
+                        </h3>
+                        <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-400">
+                          <span className={`px-2 py-1 text-xs font-medium rounded-full ${getTypeColor(item.type)}`}>
+                            Pending
+                          </span>
+                          {item.bookingId && <span>Booking ID: #{item.bookingId}</span>}
+                        </div>
+                        <div className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                          <p>{item.property} • {item.location}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex flex-col lg:flex-row lg:items-end gap-4">
+                    <div className="text-center lg:text-right">
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Amount</p>
+                      <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                        ${item.amount}
+                      </p>
+                    </div>
+                    <div className="text-center lg:text-right">
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Date</p>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {item.date}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))
+          )
+        ) : filteredPayments.length === 0 ? (
           <div className="text-center py-12">
             <CreditCard className="w-16 h-16 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
