@@ -84,32 +84,32 @@ const Reviews = () => {
         });
         if (!res.ok) return;
         const data = await res.json();
-        // Map API data to Review[]
-        const apiReviews = (data.data || []).map((r: any) => ({
+        // Map API data to Review[] (match API response fields)
+        const apiReviews = (data.data?.content || []).map((r: any) => ({
           id: r.id,
-          property: r.property?.title || '',
-          location: r.property?.location || '',
-          image: r.property?.image || '',
-          guest: r.renter?.name || '',
-          guestImage: r.renter?.avatar || '',
-          rating: r.rating || 0,
-          review: r.review || '',
-          date: r.date || '',
-          checkIn: r.checkIn || '',
-          checkOut: r.checkOut || '',
+          property: r.propertyTitle || '',
+          location: '', // Not provided in API
+          image: '', // Not provided in API
+          guest: r.reviewer?.name || '',
+          guestImage: r.reviewer?.avatar || '',
+          rating: r.overallRating || 0,
+          review: r.comment || '',
+          date: r.createdAt || '',
+          checkIn: '',
+          checkOut: '',
           hostResponse: r.hostResponse || null,
           hostResponseDate: r.hostResponseDate || '',
-          helpful: r.helpful || 0,
-          notHelpful: r.notHelpful || 0,
+          helpful: r.helpfulCount || 0,
+          notHelpful: 0,
           wouldRecommend: r.wouldRecommend ?? null,
           cleanliness: r.cleanliness || 0,
           communication: r.communication || 0,
-          checkInRating: r.checkInRating || 0,
+          checkInRating: r.checkIn || 0,
           accuracy: r.accuracy || 0,
           locationRating: r.locationRating || 0,
           value: r.value || 0,
-          bookingId: r.bookingId || '',
-          verified: r.verified || false,
+          bookingId: r.bookingId?.toString() || '',
+          verified: r.isVerified || false,
         }));
         setReviews(apiReviews);
       } catch (err) {
