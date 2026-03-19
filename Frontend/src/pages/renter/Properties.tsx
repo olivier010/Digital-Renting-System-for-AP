@@ -13,6 +13,8 @@ const Properties = () => {
   const [sortBy, setSortBy] = useState<'price-asc' | 'price-desc' | 'newest' | 'popular'>('popular')
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [searchQuery, setSearchQuery] = useState('')
+  const [showAllProperties, setShowAllProperties] = useState(false)
+  const ITEMS_PER_PAGE = 6 // 2 rows of 3 items each
 
   // Fetch properties from API
   useEffect(() => {
@@ -45,6 +47,7 @@ const Properties = () => {
   // Search and sort handler
   const handleSearch = (query: string) => {
     setSearchQuery(query)
+    setShowAllProperties(false) // Reset show all when searching
     let filtered = properties.filter(property => {
       if (query && !property.location.toLowerCase().includes(query.toLowerCase()) &&
           !property.title.toLowerCase().includes(query.toLowerCase()) &&
@@ -71,9 +74,17 @@ const Properties = () => {
 
   const handleSortChange = (newSortBy: typeof sortBy) => {
     setSortBy(newSortBy)
+    setShowAllProperties(false) // Reset show all when sorting
     // Re-apply current search with new sort
     handleSearch(searchQuery)
   }
+
+  // Calculate properties to display
+  const displayProperties = showAllProperties 
+    ? filteredProperties 
+    : filteredProperties.slice(0, ITEMS_PER_PAGE)
+  
+  const shouldShowViewMore = filteredProperties.length > ITEMS_PER_PAGE && !showAllProperties
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
@@ -196,10 +207,48 @@ const Properties = () => {
 
             {/* Properties Grid/List */}
             {!loading && filteredProperties.length > 0 && (
-              <div className={viewMode === 'grid' ? 'grid md:grid-cols-2 xl:grid-cols-3 gap-6' : 'space-y-6'}>
-                {filteredProperties.map((property) => (
-                  <PropertyCard key={property.id} property={property} />
-                ))}
+              <div>
+                <div className={viewMode === 'grid' ? 'grid md:grid-cols-2 xl:grid-cols-3 gap-4' : 'space-y-6'}>
+                  {displayProperties.map((property) => (
+                    <PropertyCard key={property.id} property={property} />
+                  ))}
+                </div>
+                
+                {/* View More Button */}
+                {shouldShowViewMore && (
+                  <div className="text-center mt-6">
+                    <button
+                      onClick={() => setShowAllProperties(true)}
+                      className="inline-flex items-center px-6 py-2 bg-white dark:bg-gray-800 border-2 border-primary-600 text-primary-600 dark:text-primary-400 rounded-lg hover:bg-primary-50 dark:hover:bg-gray-700 transition-all duration-200 font-medium shadow-md hover:shadow-lg transform hover:scale-105 text-sm"
+                    >
+                      <span>View More Properties</span>
+                      <svg className="w-3 h-3 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+                    <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">
+                      Showing {displayProperties.length} of {filteredProperties.length} properties
+                    </p>
+                  </div>
+                )}
+                
+                {/* Show Less Button (when showing all) */}
+                {showAllProperties && filteredProperties.length > ITEMS_PER_PAGE && (
+                  <div className="text-center mt-6">
+                    <button
+                      onClick={() => setShowAllProperties(false)}
+                      className="inline-flex items-center px-6 py-2 bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200 font-medium shadow-md hover:shadow-lg transform hover:scale-105 text-sm"
+                    >
+                      <svg className="w-3 h-3 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                      </svg>
+                      <span>Show Less</span>
+                    </button>
+                    <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">
+                      Showing all {filteredProperties.length} properties
+                    </p>
+                  </div>
+                )}
               </div>
             )}
 
