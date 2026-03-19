@@ -3,8 +3,10 @@ package com.backend.service;
 import com.backend.dto.request.CreatePaymentRequest;
 import com.backend.dto.response.PageResponse;
 import com.backend.dto.response.PaymentResponse;
+import com.backend.dto.response.PropertyEarningsResponse;
 import com.backend.entity.Booking;
 import com.backend.entity.Payment;
+import com.backend.entity.Property;
 import com.backend.entity.User;
 import com.backend.enums.BookingStatus;
 import com.backend.enums.PaymentStatus;
@@ -15,6 +17,7 @@ import com.backend.exception.UnauthorizedException;
 import com.backend.mapper.PaymentMapper;
 import com.backend.repository.BookingRepository;
 import com.backend.repository.PaymentRepository;
+import com.backend.repository.PropertyRepository;
 import com.backend.security.CurrentUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -26,7 +29,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -36,6 +41,7 @@ public class PaymentService {
     private final BookingRepository bookingRepository;
     private final PaymentMapper paymentMapper;
     private final CurrentUser currentUser;
+    private final PropertyRepository propertyRepository;
 
     @Transactional(readOnly = true)
     public PageResponse<PaymentResponse> getCurrentUserPayments(PaymentStatus status, PaymentType type, int page, int size) {
@@ -114,6 +120,32 @@ public class PaymentService {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         Page<Payment> paymentPage = paymentRepository.findByOwnerId(ownerId, pageable);
         return toPageResponse(paymentPage);
+    }
+
+    @Transactional(readOnly = true)
+    public List<PropertyEarningsResponse> getOwnerPropertyEarnings(Long ownerId) {
+        List<Property> properties = propertyRepository.findByOwnerId(ownerId, Pageable.unpaged()).getContent();
+        return properties.stream().map(property -> {
+            BigDecimal totalRevenue = paymentRepository
+                .findByOwnerId(ownerId, Pageable.unpaged())
+                .getContent().stream()
+                .filter(p -> p.getBooking().getProperty().getId().equals(property.getId()))
+                .map(Payment::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+            int bookingsCount = property.getBookings().size();
+            double occupancyRate = 0.0; // Calculate if you have data
+            BigDecimal averagePrice = property.getPrice();
+            double growth = 0.0; // Calculate if you have data
+            return PropertyEarningsResponse.builder()
+                    .propertyId(property.getId())
+                    .propertyTitle(property.getTitle())
+                    .totalRevenue(totalRevenue)
+                    .bookingsCount(bookingsCount)
+                    .occupancyRate(occupancyRate)
+                    .averagePrice(averagePrice)
+                    .growth(growth)
+                    .build();
+        }).collect(Collectors.toList());
     }
 
     private PageResponse<PaymentResponse> toPageResponse(Page<Payment> page) {

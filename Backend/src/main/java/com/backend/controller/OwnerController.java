@@ -96,4 +96,12 @@ public class OwnerController {
         PageResponse<ReviewResponse> response = reviewService.getOwnerReviews(ownerId, page, size);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
+
+    @GetMapping("/earnings/properties")
+    public ResponseEntity<ApiResponse<?>> getPropertyEarnings() {
+        Long ownerId = currentUser.getUserId();
+        // You may want to create a DTO for per-property earnings, e.g., PropertyEarningsResponse
+        var propertyEarnings = paymentService.getOwnerPropertyEarnings(ownerId);
+        return ResponseEntity.ok(ApiResponse.success(propertyEarnings));
+    }
 }

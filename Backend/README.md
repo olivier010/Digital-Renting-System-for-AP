@@ -220,6 +220,9 @@ src/main/java/com/backend/
 | GET | `/api/owner/dashboard` | Owner | Get owner dashboard |
 | GET | `/api/owner/properties` | Owner | Get owner's properties |
 | GET | `/api/owner/bookings` | Owner | Get owner's bookings |
+| GET | `/api/owner/earnings` | Owner | Get owner earnings summary |
+| GET | `/api/owner/earnings/transactions` | Owner | Get owner earnings transactions |
+| GET | `/api/owner/earnings/properties` | Owner | Get owner earnings by property |
 
 #### Get Owner's Bookings
 
@@ -288,6 +291,78 @@ Returns a paginated list of bookings for the currently authenticated owner. Supp
 }
 ```
 
+## Owner Earnings Endpoints
+
+### GET /api/owner/earnings
+Returns summary data for the owner, including total revenue, monthly revenue, pending revenue, average booking value, total bookings, growth rate, projected revenue, and more.
+
+**Response Example:**
+```
+{
+  "success": true,
+  "data": {
+    "myEarnings": 125000,
+    "monthlyRevenue": 24500,
+    "pendingRevenue": 8500,
+    "averageBookingValue": 850,
+    "totalBookings": 156,
+    "growthRate": 12.5,
+    "projectedRevenue": 145000,
+    ...
+  }
+}
+```
+
+### GET /api/owner/earnings/transactions
+Returns a paginated list of payment transactions for the owner (date, property, guest, amount, type, status, payment method, etc.).
+
+**Response Example:**
+```
+{
+  "success": true,
+  "data": {
+    "content": [
+      {
+        "id": 1,
+        "date": "2024-03-15",
+        "property": "Luxury Downtown Apartment",
+        "guest": "John Smith",
+        "amount": 750,
+        "type": "BOOKING_PAYMENT",
+        "status": "COMPLETED",
+        "paymentMethod": "Credit Card"
+      },
+      ...
+    ],
+    "page": 0,
+    "size": 10,
+    "totalElements": 100,
+    "totalPages": 10
+  }
+}
+```
+
+### GET /api/owner/earnings/properties
+Returns per-property earnings for the owner, including property ID, title, total revenue, bookings count, occupancy rate, average price, and growth.
+
+**Response Example:**
+```
+{
+  "success": true,
+  "data": [
+    {
+      "propertyId": 1,
+      "propertyTitle": "Luxury Downtown Apartment",
+      "totalRevenue": 42000,
+      "bookingsCount": 18,
+      "occupancyRate": 85.0,
+      "averagePrice": 2333,
+      "growth": 15.2
+    },
+    ...
+  ]
+}
+```
 ### Renter
 
 | Method | Endpoint | Auth | Description |
