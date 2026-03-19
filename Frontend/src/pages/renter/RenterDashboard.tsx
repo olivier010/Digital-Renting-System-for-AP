@@ -1,4 +1,46 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+// Type definitions
+type Booking = {
+  id: number;
+  property: string;
+  location: string;
+  image: string;
+  checkIn: string;
+  checkOut: string;
+  amount: number;
+  status: string;
+  rating: number | null;
+  host: string;
+  hostImage: string;
+};
+type Trip = {
+  id: number;
+  property: string;
+  location: string;
+  image: string;
+  checkIn: string;
+  daysUntil: number;
+  status: string;
+};
+type FavoriteProperty = {
+  id: number;
+  title: string;
+  location: string;
+  price: number;
+  image: string;
+  rating: number;
+  savedDate: string;
+  category: string;
+  availability: string;
+};
+type Notification = {
+  id: number;
+  type: string;
+  message: string;
+  time: string;
+  read: boolean;
+};
+import { apiFetch } from '../../utils/api'
 import { Link } from 'react-router-dom'
 import { 
   Calendar, 
@@ -17,128 +59,91 @@ import {
 } from 'lucide-react'
 
 const RenterDashboard = () => {
-  const [stats] = useState({
-    totalBookings: 12,
-    activeBookings: 2,
-    favoriteProperties: 8,
-    totalSpent: 15400,
-    averageRating: 4.7,
-    upcomingCheckIn: 3,
-    completedStays: 9,
-    savedSearches: 5
+  const [stats, setStats] = useState({
+    totalBookings: 0,
+    activeBookings: 0,
+    favoriteProperties: 0,
+    totalSpent: 0,
+    averageRating: 0,
+    upcomingCheckIn: 0,
+    completedStays: 0,
+    savedSearches: 0
   })
 
-  const [recentBookings] = useState([
-    {
-      id: 1,
-      property: 'Modern Apartment Kigali',
-      location: 'Kigali, Nyarugenge',
-      image: '🏢',
-      checkIn: '2024-03-15',
-      checkOut: '2024-03-18',
-      amount: 500,
-      status: 'confirmed',
-      rating: null,
-      host: 'Jean Mugabo',
-      hostImage: 'JM'
-    },
-    {
-      id: 2,
-      property: 'Family House Kimironko',
-      location: 'Kigali, Gasabo',
-      image: '🏠',
-      checkIn: '2024-03-20',
-      checkOut: '2024-03-25',
-      amount: 800,
-      status: 'confirmed',
-      rating: null,
-      host: 'Marie Uwase',
-      hostImage: 'MU'
-    },
-    {
-      id: 3,
-      property: 'Toyota RAV4 2022',
-      location: 'Kigali, Kicukiro',
-      image: '🚗',
-      checkIn: '2024-02-10',
-      checkOut: '2024-02-12',
-      amount: 200,
-      status: 'completed',
-      rating: 5,
-      host: 'Patrick Habimana',
-      hostImage: 'PH'
-    }
-  ])
+  const [recentBookings, setRecentBookings] = useState<Booking[]>([])
 
-  const [favoriteProperties] = useState([
-    {
-      id: 1,
-      title: 'Modern Apartment Kigali',
-      location: 'Kigali, Nyarugenge',
-      price: 500,
-      image: '🏢',
-      rating: 4.8,
-      savedDate: '2024-03-01',
-      category: 'apartment',
-      availability: 'Available Mar 15-30'
-    },
-    {
-      id: 2,
-      title: 'Family House Kimironko',
-      location: 'Kigali, Gasabo',
-      price: 800,
-      image: '🏠',
-      rating: 4.6,
-      savedDate: '2024-02-28',
-      category: 'house',
-      availability: 'Available Apr 1-15'
-    }
-  ])
+  const [favoriteProperties, setFavoriteProperties] = useState<FavoriteProperty[]>([])
 
-  const [upcomingTrips] = useState([
-    {
-      id: 1,
-      property: 'Modern Apartment Kigali',
-      location: 'Kigali, Nyarugenge',
-      image: '🏢',
-      checkIn: '2024-03-15',
-      daysUntil: 3,
-      status: 'confirmed'
-    },
-    {
-      id: 2,
-      property: 'Family House Kimironko',
-      location: 'Kigali, Gasabo',
-      image: '🏠',
-      checkIn: '2024-03-20',
-      daysUntil: 8,
-      status: 'confirmed'
-    }
-  ])
+  const [upcomingTrips, setUpcomingTrips] = useState<Trip[]>([])
 
-  const [notifications] = useState([
-    {
-      id: 1,
-      type: 'booking_confirmed',
-      message: 'Your booking for Family House Kimironko has been confirmed',
-      time: '2 hours ago',
-      read: false
-    },
-    {
-      id: 2,
-      type: 'checkin_reminder',
-      message: 'Check-in reminder for Modern Apartment Kigali in 3 days',
-      time: '5 hours ago',
-      read: false
-    },
-    {
-      id: 3,
-      type: 'review_request',
-      message: 'Please rate your experience with Toyota RAV4 2022',
-      time: '2 days ago',
-      read: true
+  const [notifications, setNotifications] = useState<Notification[]>([])
+  useEffect(() => {
+    async function fetchDashboard() {
+      try {
+        // Dashboard stats
+        const dashboardRes = await apiFetch('/renter/dashboard');
+        const dash = dashboardRes.data || {};
+        setStats({
+          totalBookings: dash.myTotalBookings || 0,
+          activeBookings: dash.myActiveBookings || 0,
+          favoriteProperties: dash.myFavorites || 0,
+          totalSpent: dash.totalSpent || 0,
+          averageRating: dash.averageRating || 0,
+          upcomingCheckIn: 0,
+          completedStays: 0,
+          savedSearches: 0
+        });
+        // Upcoming trips (confirmed status)
+        const confirmedBookingsRes = await apiFetch('/renter/bookings?page=0&size=6&status=CONFIRMED');
+        const confirmedBookings = confirmedBookingsRes.data?.content || [];
+        setUpcomingTrips(confirmedBookings.map((b: any) => ({
+          id: b.id,
+          property: b.property?.title || '',
+          location: b.property?.location || '',
+          image: b.property?.image ? (b.property.image.startsWith('http') ? b.property.image : `http://localhost:8080${b.property.image}`) : '',
+          checkIn: b.startDate,
+          daysUntil: 0,
+          status: b.status
+        })));
+
+        // Recent bookings (completed status)
+        const completedBookingsRes = await apiFetch('/renter/bookings?page=0&size=3&status=COMPLETED');
+        const completedBookings = completedBookingsRes.data?.content || [];
+        setRecentBookings(completedBookings.map((b: any) => ({
+          id: b.id,
+          property: b.property?.title || '',
+          location: b.property?.location || '',
+          image: b.property?.image ? (b.property.image.startsWith('http') ? b.property.image : `http://localhost:8080${b.property.image}`) : '',
+          checkIn: b.startDate,
+          checkOut: b.endDate,
+          amount: b.totalPrice,
+          status: b.status,
+          rating: b.reviewed ? 5 : null,
+          host: b.property?.ownerName || '',
+          hostImage: b.property?.image ? (b.property.image.startsWith('http') ? b.property.image : `http://localhost:8080${b.property.image}`) : ''
+        })));
+        // Favorites
+        const favRes = await apiFetch('/favorites');
+        setFavoriteProperties((favRes.data?.content || []).map((f: any) => ({
+          id: f.id,
+          title: f.property?.title || '',
+          location: f.property?.location || '',
+          price: f.property?.price || 0,
+          image: f.property?.image ? (f.property.image.startsWith('http') ? f.property.image : `http://localhost:8080${f.property.image}`) : '',
+          rating: f.property?.rating || 0,
+          savedDate: f.savedAt,
+          category: f.property?.category || '',
+          availability: f.property?.isAvailable ? 'Available' : 'Occupied'
+        })));
+        // Removed undefined bookingsRes reference
+        // Notifications (mock for now)
+        setNotifications([]);
+      } catch (err) {
+        // Optionally handle error
+      }
     }
-  ])
+    fetchDashboard();
+  }, []);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -289,18 +294,27 @@ const RenterDashboard = () => {
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
             <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Upcoming Trips</h2>
-              <Link to="/renter/bookings" className="text-primary-600 hover:text-primary-500 dark:text-primary-400 text-sm font-medium flex items-center">
-                View All
-                <ChevronRight className="w-4 h-4 ml-1" />
-              </Link>
+                      <Link to="/renter/bookings" className="text-primary-600 hover:text-primary-500 dark:text-primary-400 text-sm font-medium flex items-center">
+                        View All Trips
+                        <ChevronRight className="w-4 h-4 ml-1" />
+                      </Link>
             </div>
             <div className="p-6">
               <div className="space-y-4">
-                {upcomingTrips.map((trip) => (
+                        {upcomingTrips
+                          .sort((a, b) => new Date(a.checkIn).getTime() - new Date(b.checkIn).getTime())
+                          .slice(0, 3)
+                          .map((trip) => (
                   <div key={trip.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
                     <div className="flex items-center space-x-4">
                       <div className="w-16 h-16 bg-gray-200 dark:bg-gray-600 rounded-lg flex items-center justify-center text-2xl">
-                        {trip.image}
+                        {trip.image && trip.image.startsWith('http') ? (
+                          <img src={trip.image} alt={trip.property} className="w-full h-full object-cover rounded-lg" />
+                        ) : trip.image ? (
+                          trip.image
+                        ) : (
+                          <span className="text-gray-400">No Image</span>
+                        )}
                       </div>
                       <div>
                         <p className="font-medium text-gray-900 dark:text-white">{trip.property}</p>
@@ -332,18 +346,24 @@ const RenterDashboard = () => {
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
             <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Recent Bookings</h2>
-              <Link to="/renter/bookings" className="text-primary-600 hover:text-primary-500 dark:text-primary-400 text-sm font-medium flex items-center">
-                View All
-                <ChevronRight className="w-4 h-4 ml-1" />
-              </Link>
+                      <Link to="/renter/bookings" className="text-primary-600 hover:text-primary-500 dark:text-primary-400 text-sm font-medium flex items-center">
+                        View All Bookings
+                        <ChevronRight className="w-4 h-4 ml-1" />
+                      </Link>
             </div>
             <div className="p-6">
               <div className="space-y-4">
-                {recentBookings.map((booking) => (
+                        {recentBookings.slice(0, 2).map((booking) => (
                   <div key={booking.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
                     <div className="flex items-center space-x-3">
                       <div className="w-12 h-12 bg-gray-200 dark:bg-gray-600 rounded-lg flex items-center justify-center text-2xl">
-                        {booking.image}
+                        {booking.image && booking.image.startsWith('http') ? (
+                          <img src={booking.image} alt={booking.property} className="w-full h-full object-cover rounded-lg" />
+                        ) : booking.image ? (
+                          booking.image
+                        ) : (
+                          <span className="text-gray-400">No Image</span>
+                        )}
                       </div>
                       <div>
                         <p className="font-medium text-gray-900 dark:text-white">{booking.property}</p>
@@ -427,7 +447,13 @@ const RenterDashboard = () => {
                   <div key={property.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
                     <div className="flex items-center space-x-3">
                       <div className="w-10 h-10 bg-gray-200 dark:bg-gray-600 rounded-lg flex items-center justify-center text-lg">
-                        {property.image}
+                        {property.image && property.image.startsWith('http') ? (
+                          <img src={property.image} alt={property.title} className="w-full h-full object-cover rounded-lg" />
+                        ) : property.image ? (
+                          property.image
+                        ) : (
+                          <span className="text-gray-400">No Image</span>
+                        )}
                       </div>
                       <div>
                         <p className="text-sm font-medium text-gray-900 dark:text-white">{property.title}</p>
