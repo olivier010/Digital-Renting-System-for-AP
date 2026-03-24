@@ -14,7 +14,9 @@ import {
   Bath, 
   DollarSign,
   Download,
-  Plus
+  Plus,
+  ToggleLeft,
+  ToggleRight
 } from 'lucide-react'
 
 const Properties = () => {
@@ -181,6 +183,30 @@ const Properties = () => {
     )
   }
 
+  // Toggle featured status
+  const toggleFeatured = (propertyId: number) => {
+    // In a real app, this would make an API call
+    console.log('Toggle featured:', propertyId)
+  }
+
+  // Toggle verified status
+  const toggleVerified = (propertyId: number) => {
+    // In a real app, this would make an API call
+    console.log('Toggle verified:', propertyId)
+  }
+
+  // Toggle property status
+  const togglePropertyStatus = (propertyId: number) => {
+    // In a real app, this would make an API call
+    console.log('Toggle property status:', propertyId)
+  }
+
+  // Delete property
+  const deleteProperty = (propertyId: number) => {
+    // In a real app, this would make an API call
+    console.log('Delete property:', propertyId)
+  }
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header */}
@@ -317,147 +343,104 @@ const Properties = () => {
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredProperties.map((property) => (
-          <div key={property.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-md transition-shadow">
-            {/* Property Image */}
-            <div className="relative h-48 bg-gray-200 dark:bg-gray-700">
-              <div className="absolute inset-0 flex items-center justify-center">
-                <Home className="w-12 h-12 text-gray-400" />
+          <div key={property.id} className="bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+            <div className="p-4">
+              <div className="flex items-center space-x-3 mb-3">
+                <div className="w-12 h-12 bg-gray-200 dark:bg-gray-600 rounded-lg flex items-center justify-center">
+                  <Home className="w-6 h-6 text-gray-400" />
+                </div>
+                <div className="flex-1">
+                  <p className="font-medium text-gray-900 dark:text-white">{property.title}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">{property.location}</p>
+                </div>
               </div>
               
-              {/* Status Badges */}
-              <div className="absolute top-3 left-3 flex flex-col space-y-2">
-                <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(property.status)}`}>
-                  {property.status}
-                </span>
-                {property.featured && (
-                  <span className="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
-                    Featured
-                  </span>
-                )}
-                {property.verified && (
-                  <span className="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                    Verified
-                  </span>
-                )}
-              </div>
-              
-              {/* Actions */}
-              <div className="absolute top-3 right-3">
-                <input
-                  type="checkbox"
-                  checked={selectedProperties.includes(property.id)}
-                  onChange={() => handleSelectProperty(property.id)}
-                  className="rounded border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800"
-                />
-              </div>
-            </div>
-
-            {/* Property Details */}
-            <div className="p-6">
-              <div className="flex items-start justify-between mb-3">
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
-                    {property.title}
-                  </h3>
-                  <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
-                    <MapPin className="w-4 h-4 mr-1" />
-                    {property.location}
-                  </div>
-                </div>
-                <div className="flex items-center space-x-1">
-                  <Star className="w-4 h-4 text-yellow-500 fill-current" />
-                  <span className="text-sm font-medium text-gray-900 dark:text-white">
-                    {property.rating}
-                  </span>
-                </div>
-              </div>
-
-              {/* Owner Info */}
-              <div className="mb-4">
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Owner: <span className="font-medium text-gray-900 dark:text-white">{property.owner}</span>
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  {property.ownerEmail}
-                </p>
-              </div>
-
-              {/* Property Specs */}
-              <div className="flex items-center space-x-4 mb-4 text-sm text-gray-600 dark:text-gray-400">
+              <div className="flex items-center space-x-3 mb-3 text-xs">
                 <div className="flex items-center">
-                  <Bed className="w-4 h-4 mr-1" />
-                  {property.bedrooms} bed
+                  <Star className="w-3 h-3 text-yellow-500 fill-current" />
+                  <span className="text-gray-600 dark:text-gray-400 ml-1">{property.rating} ({property.reviews})</span>
                 </div>
-                <div className="flex items-center">
-                  <Bath className="w-4 h-4 mr-1" />
-                  {property.bathrooms} bath
-                </div>
-                <div className="flex items-center">
-                  <Home className="w-4 h-4 mr-1" />
-                  {property.sqft} sqft
-                </div>
+                <span className="text-gray-500 dark:text-gray-400">• {property.bookings} bookings</span>
+                <span className="text-gray-500 dark:text-gray-400 capitalize">• {property.type}</span>
               </div>
 
-              {/* Stats */}
-              <div className="grid grid-cols-2 gap-4 mb-4">
+              <div className="flex items-center justify-between mb-3">
                 <div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">Price/night</p>
-                  <p className="text-lg font-bold text-gray-900 dark:text-white">${property.price}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">Total Revenue</p>
-                  <p className="text-lg font-bold text-gray-900 dark:text-white">${property.revenue.toLocaleString()}</p>
+                  <p className="font-semibold text-gray-900 dark:text-white">${property.price}/night</p>
+                  <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(property.status)}`}>
+                    {property.status}
+                  </span>
                 </div>
               </div>
 
-              {/* Activity */}
-              <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-4">
-                <span>{property.bookings} bookings</span>
-                <span>{property.reviews} reviews</span>
-                <span>{property.images} images</span>
-              </div>
-
-              {/* Amenities */}
-              <div className="flex flex-wrap gap-1 mb-4">
-                {property.amenities.slice(0, 3).map((amenity, index) => (
-                  <span key={index} className="inline-flex px-2 py-1 text-xs bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 rounded">
-                    {amenity}
-                  </span>
-                ))}
-                {property.amenities.length > 3 && (
-                  <span className="inline-flex px-2 py-1 text-xs bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 rounded">
-                    +{property.amenities.length - 3}
-                  </span>
-                )}
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <button className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
-                    <Eye className="w-4 h-4" />
-                  </button>
-                  <button className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
-                    <Edit className="w-4 h-4" />
-                  </button>
+              {/* Action Buttons - Same as Owner */}
+              <div className="flex items-center justify-between pt-2 border-t border-gray-200 dark:border-gray-600">
+                <button
+                  type="button"
+                  onClick={() => togglePropertyStatus(property.id)}
+                  className={`flex items-center text-xs px-2 py-1 rounded-full transition-colors ${
+                    property.status === 'active' 
+                      ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300' 
+                      : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400'
+                  }`}
+                >
                   {property.status === 'active' ? (
-                    <button className="p-2 text-gray-400 hover:text-yellow-600 dark:hover:text-yellow-400">
-                      <Ban className="w-4 h-4" />
-                    </button>
+                    <>
+                      <ToggleRight className="w-3 h-3 mr-1" />
+                      Active
+                    </>
                   ) : (
-                    <button className="p-2 text-gray-400 hover:text-green-600 dark:hover:text-green-400">
-                      <CheckCircle className="w-4 h-4" />
-                    </button>
+                    <>
+                      <ToggleLeft className="w-3 h-3 mr-1" />
+                      Inactive
+                    </>
                   )}
-                  <button className="p-2 text-gray-400 hover:text-red-600 dark:hover:text-red-400">
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
+                </button>
                 
-                <div className="text-xs text-gray-500 dark:text-gray-400">
-                  Listed {property.listedAt}
+                <div className="flex items-center space-x-1">
+                  <button 
+                    onClick={() => toggleFeatured(property.id)}
+                    className={`p-1.5 transition-colors rounded hover:bg-gray-100 dark:hover:bg-gray-700 ${
+                      property.featured 
+                        ? 'text-yellow-500 hover:text-yellow-600 dark:hover:text-yellow-400' 
+                        : 'text-gray-400 hover:text-yellow-600 dark:hover:text-yellow-400'
+                    }`}
+                    title={property.featured ? 'Unmark as Featured' : 'Mark as Featured'}
+                  >
+                    <Star className="w-3.5 h-3.5" />
+                  </button>
+                  <button 
+                    onClick={() => toggleVerified(property.id)}
+                    className={`p-1.5 transition-colors rounded hover:bg-gray-100 dark:hover:bg-gray-700 ${
+                      property.verified 
+                        ? 'text-blue-500 hover:text-blue-600 dark:hover:text-blue-400' 
+                        : 'text-gray-400 hover:text-blue-600 dark:hover:text-blue-400'
+                    }`}
+                    title={property.verified ? 'Unmark as Verified' : 'Mark as Verified'}
+                  >
+                    <CheckCircle className="w-3.5 h-3.5" />
+                  </button>
+                  <button 
+                    className="p-1.5 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors rounded hover:bg-gray-100 dark:hover:bg-gray-700" 
+                    title="View"
+                  >
+                    <Eye className="w-3.5 h-3.5" />
+                  </button>
+                  <button 
+                    className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors rounded hover:bg-gray-100 dark:hover:bg-gray-700" 
+                    title="Edit"
+                  >
+                    <Edit className="w-3.5 h-3.5" />
+                  </button>
+                  <button 
+                    onClick={() => deleteProperty(property.id)}
+                    className="p-1.5 text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors rounded hover:bg-gray-100 dark:hover:bg-gray-700"
+                    title="Delete"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
                 </div>
               </div>
             </div>

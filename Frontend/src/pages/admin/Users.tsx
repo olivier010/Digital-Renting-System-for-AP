@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { apiFetch } from '../../utils/api'
 import { 
   Users as UsersIcon, 
   Search, 
@@ -14,122 +15,93 @@ import {
   Download
 } from 'lucide-react'
 
+interface User {
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  role: string;
+  status: string;
+  joinedAt: string;
+  lastLogin: string;
+  properties: number;
+  bookings: number;
+  avatar: string;
+  verified: boolean;
+  subscription: string;
+}
+
 const Users = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [filterRole, setFilterRole] = useState('all')
   const [filterStatus, setFilterStatus] = useState('all')
   const [selectedUsers, setSelectedUsers] = useState<number[]>([])
+  const [selectedPending, setSelectedPending] = useState<number[]>([])
 
-  const [users] = useState([
-    {
-      id: 1,
-      firstName: 'John',
-      lastName: 'Doe',
-      email: 'john.doe@example.com',
-      role: 'renter',
-      status: 'active',
-      joinedAt: '2024-01-15',
-      lastLogin: '2024-03-15 09:30',
-      properties: 0,
-      bookings: 12,
-      revenue: 0,
-      avatar: 'JD',
-      verified: true,
-      subscription: 'premium'
-    },
-    {
-      id: 2,
-      firstName: 'Jane',
-      lastName: 'Smith',
-      email: 'jane.smith@example.com',
-      role: 'owner',
-      status: 'active',
-      joinedAt: '2024-01-10',
-      lastLogin: '2024-03-15 14:22',
-      properties: 3,
-      bookings: 0,
-      revenue: 45600,
-      avatar: 'JS',
-      verified: true,
-      subscription: 'premium'
-    },
-    {
-      id: 3,
-      firstName: 'Bob',
-      lastName: 'Johnson',
-      email: 'bob.johnson@example.com',
-      role: 'renter',
-      status: 'pending',
-      joinedAt: '2024-03-14',
-      lastLogin: 'Never',
-      properties: 0,
-      bookings: 0,
-      revenue: 0,
-      avatar: 'BJ',
-      verified: false,
-      subscription: 'free'
-    },
-    {
-      id: 4,
-      firstName: 'Alice',
-      lastName: 'Brown',
-      email: 'alice.brown@example.com',
-      role: 'owner',
-      status: 'suspended',
-      joinedAt: '2023-12-05',
-      lastLogin: '2024-03-10 16:45',
-      properties: 5,
-      bookings: 0,
-      revenue: 78900,
-      avatar: 'AB',
-      verified: true,
-      subscription: 'premium'
-    },
-    {
-      id: 5,
-      firstName: 'Charlie',
-      lastName: 'Wilson',
-      email: 'charlie.wilson@example.com',
-      role: 'admin',
-      status: 'active',
-      joinedAt: '2023-06-20',
-      lastLogin: '2024-03-15 11:15',
-      properties: 0,
-      bookings: 0,
-      revenue: 0,
-      avatar: 'CW',
-      verified: true,
-      subscription: 'admin'
-    },
-    {
-      id: 6,
-      firstName: 'Diana',
-      lastName: 'Martinez',
-      email: 'diana.martinez@example.com',
-      role: 'renter',
-      status: 'active',
-      joinedAt: '2024-02-28',
-      lastLogin: '2024-03-14 20:30',
-      properties: 0,
-      bookings: 8,
-      revenue: 0,
-      avatar: 'DM',
-      verified: false,
-      subscription: 'free'
+  const [users, setUsers] = useState<User[]>([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const fetchUsers = async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      // The backend wraps data in a 'data' property (ApiResponse)
+      const res = await apiFetch('/users')
+      // If paginated, users are in res.data.content, else adjust as needed
+      const userList = (res.data?.content || []).map((u: any) => ({
+        ...u,
+        status: u.isActive ? 'active' : 'pending',
+      }))
+      setUsers(userList)
+    } catch (err: any) {
+      setError(err.message || 'Failed to fetch users')
+    } finally {
+      setLoading(false)
     }
-  ])
+  }
+
+  useEffect(() => {
+    fetchUsers()
+  }, [])
+
+  // Approve/reject handlers
+  const handleApprove = async (userIds: number[]) => {
+    try {
+      await Promise.all(userIds.map(id => apiFetch(`/users/${id}/status?isActive=true`, { method: 'PATCH' })))
+      setSelectedPending([])
+      fetchUsers()
+    } catch (err) {
+      alert('Failed to approve user(s)')
+    }
+  }
+
+  const handleReject = async (userIds: number[]) => {
+    try {
+      await Promise.all(userIds.map(id => apiFetch(`/users/${id}`, { method: 'DELETE' })))
+      setSelectedPending([])
+      fetchUsers()
+    } catch (err) {
+      alert('Failed to reject/delete user(s)')
+    }
+  }
 
   const filteredUsers = users.filter(user => {
     const matchesSearch = searchTerm === '' || 
-      user.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase())
-    
+      user.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.lastName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email?.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesRole = filterRole === 'all' || user.role === filterRole
-    const matchesStatus = filterStatus === 'all' || user.status === filterStatus
-    
+    const matchesStatus = filterStatus === 'all' ||
+      (filterStatus === 'active' && user.status === 'active') ||
+      (filterStatus === 'pending' && user.status === 'pending') ||
+      (filterStatus === 'suspended' && user.status === 'suspended')
     return matchesSearch && matchesRole && matchesStatus
   })
+
+  // Split users into pending and approved
+  const pendingUsers = filteredUsers.filter(u => u.status === 'pending')
+  const approvedUsers = filteredUsers.filter(u => u.status !== 'pending')
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -174,6 +146,29 @@ const Users = () => {
         : [...prev, userId]
     )
   }
+
+  // Delete approved user(s)
+  const handleDelete = async (userIds: number[]) => {
+    if (!window.confirm('Are you sure you want to delete the selected user(s)?')) return;
+    try {
+      await Promise.all(userIds.map(id => apiFetch(`/users/${id}`, { method: 'DELETE' })));
+      setSelectedUsers([]);
+      fetchUsers();
+    } catch (err) {
+      alert('Failed to delete user(s)');
+    }
+  };
+
+  // Lock/unlock user
+  const handleToggleLock = async (user: User) => {
+    try {
+      const newStatus = user.status === 'active' ? 'suspended' : 'active';
+      await apiFetch(`/users/${user.id}/status?isActive=${newStatus === 'active'}`, { method: 'PATCH' });
+      fetchUsers();
+    } catch (err) {
+      alert('Failed to update user status');
+    }
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -290,7 +285,118 @@ const Users = () => {
         </div>
       </div>
 
-      {/* Users Table */}
+      {/* Loading/Error States */}
+      {loading && (
+        <div className="text-center py-8 text-gray-500 dark:text-gray-400">Loading users...</div>
+      )}
+      {error && (
+        <div className="text-center py-8 text-red-500 dark:text-red-400">{error}</div>
+      )}
+
+      {/* Pending Users Table with Bulk Actions */}
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden mb-8">
+        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Users Waiting for Approval</h2>
+          {selectedPending.length > 0 && (
+            <div className="flex items-center space-x-2">
+              <button
+                className="px-3 py-1 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 rounded hover:bg-green-200 dark:hover:bg-green-800 text-xs font-medium"
+                onClick={() => handleApprove(selectedPending)}
+              >
+                Approve Selected
+              </button>
+              <button
+                className="px-3 py-1 bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200 rounded hover:bg-red-200 dark:hover:bg-red-800 text-xs font-medium"
+                onClick={() => handleReject(selectedPending)}
+              >
+                Reject Selected
+              </button>
+            </div>
+          )}
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-50 dark:bg-gray-700">
+              <tr>
+                <th className="px-6 py-3 text-left">
+                  <input
+                    type="checkbox"
+                    checked={selectedPending.length === pendingUsers.length && pendingUsers.length > 0}
+                    onChange={() => {
+                      if (selectedPending.length === pendingUsers.length) {
+                        setSelectedPending([])
+                      } else {
+                        setSelectedPending(pendingUsers.map(u => u.id))
+                      }
+                    }}
+                    className="rounded border-gray-300 dark:border-gray-600"
+                  />
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">User</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Role</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+              {pendingUsers.length === 0 && (
+                <tr>
+                  <td colSpan={4} className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">No users waiting for approval.</td>
+                </tr>
+              )}
+              {pendingUsers.map((user) => (
+                <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                  <td className="px-6 py-4">
+                    <input
+                      type="checkbox"
+                      checked={selectedPending.includes(user.id)}
+                      onChange={() => {
+                        setSelectedPending(prev =>
+                          prev.includes(user.id)
+                            ? prev.filter(id => id !== user.id)
+                            : [...prev, user.id]
+                        )
+                      }}
+                      className="rounded border-gray-300 dark:border-gray-600"
+                    />
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center">
+                      <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900 rounded-full flex items-center justify-center">
+                        <span className="text-sm font-medium text-primary-600 dark:text-primary-400">{user.avatar}</span>
+                      </div>
+                      <div className="ml-4">
+                        <p className="text-sm font-medium text-gray-900 dark:text-white">{user.firstName} {user.lastName}</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">{user.email}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getRoleColor(user.role)}`}>{user.role}</span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center space-x-2">
+                      <button
+                        className="px-3 py-1 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 rounded hover:bg-green-200 dark:hover:bg-green-800 text-xs font-medium"
+                        onClick={() => handleApprove([user.id])}
+                      >
+                        Approve
+                      </button>
+                      <button
+                        className="px-3 py-1 bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200 rounded hover:bg-red-200 dark:hover:bg-red-800 text-xs font-medium"
+                        onClick={() => handleReject([user.id])}
+                      >
+                        Reject
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Approved Users Table */}
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
         {selectedUsers.length > 0 && (
           <div className="px-6 py-3 bg-blue-50 dark:bg-blue-900/20 border-b border-blue-200 dark:border-blue-800">
@@ -299,17 +405,16 @@ const Users = () => {
                 {selectedUsers.length} user{selectedUsers.length !== 1 ? 's' : ''} selected
               </span>
               <div className="flex items-center space-x-2">
-                <button className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300">
-                  Approve Selected
-                </button>
-                <button className="text-sm text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300">
+                <button
+                  className="text-sm text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
+                  onClick={() => handleDelete(selectedUsers)}
+                >
                   Delete Selected
                 </button>
               </div>
             </div>
           </div>
         )}
-        
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50 dark:bg-gray-700">
@@ -317,7 +422,7 @@ const Users = () => {
                 <th className="px-6 py-3 text-left">
                   <input
                     type="checkbox"
-                    checked={selectedUsers.length === filteredUsers.length && filteredUsers.length > 0}
+                    checked={selectedUsers.length === approvedUsers.length && approvedUsers.length > 0}
                     onChange={handleSelectAll}
                     className="rounded border-gray-300 dark:border-gray-600"
                   />
@@ -326,12 +431,16 @@ const Users = () => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Role</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Activity</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Revenue</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-              {filteredUsers.map((user) => (
+              {approvedUsers.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">No approved users found.</td>
+                </tr>
+              )}
+              {approvedUsers.map((user) => (
                 <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                   <td className="px-6 py-4">
                     <input
@@ -344,77 +453,59 @@ const Users = () => {
                   <td className="px-6 py-4">
                     <div className="flex items-center">
                       <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900 rounded-full flex items-center justify-center">
-                        <span className="text-sm font-medium text-primary-600 dark:text-primary-400">
-                          {user.avatar}
-                        </span>
+                        <span className="text-sm font-medium text-primary-600 dark:text-primary-400">{user.avatar}</span>
                       </div>
                       <div className="ml-4">
                         <div className="flex items-center">
-                          <p className="text-sm font-medium text-gray-900 dark:text-white">
-                            {user.firstName} {user.lastName}
-                          </p>
-                          {user.verified && (
-                            <CheckCircle className="w-4 h-4 text-blue-500 ml-2" />
-                          )}
+                          <p className="text-sm font-medium text-gray-900 dark:text-white">{user.firstName} {user.lastName}</p>
+                          {user.verified && (<CheckCircle className="w-4 h-4 text-blue-500 ml-2" />)}
                         </div>
                         <p className="text-sm text-gray-500 dark:text-gray-400">{user.email}</p>
-                        <p className="text-xs text-gray-400 dark:text-gray-500">
-                          Joined {user.joinedAt}
-                        </p>
+                        <p className="text-xs text-gray-400 dark:text-gray-500">Joined {user.joinedAt}</p>
                       </div>
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getRoleColor(user.role)}`}>
-                      {user.role}
-                    </span>
+                    <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getRoleColor(user.role)}`}>{user.role}</span>
                   </td>
                   <td className="px-6 py-4">
-                    <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(user.status)}`}>
-                      {user.status}
-                    </span>
+                    <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(user.status)}`}>{user.status}</span>
                   </td>
                   <td className="px-6 py-4">
                     <div className="text-sm text-gray-900 dark:text-white">
                       <div className="flex items-center space-x-4 mb-1">
-                        <span className="text-xs text-gray-500 dark:text-gray-400">
-                          {user.properties} properties
-                        </span>
-                        <span className="text-xs text-gray-500 dark:text-gray-400">
-                          {user.bookings} bookings
-                        </span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">{user.properties} properties</span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">{user.bookings} bookings</span>
                       </div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400">
-                        Last: {user.lastLogin}
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="text-sm font-medium text-gray-900 dark:text-white">
-                      ${user.revenue.toLocaleString()}
-                    </div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">
-                      {user.subscription}
+                      <div className="text-xs text-gray-500 dark:text-gray-400">Last: {user.lastLogin}</div>
                     </div>
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center space-x-2">
-                      <button className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
-                        <Eye className="w-4 h-4" />
-                      </button>
-                      <button className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
-                        <Edit className="w-4 h-4" />
-                      </button>
+                      <button className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"><Eye className="w-4 h-4" /></button>
+                      <button className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"><Edit className="w-4 h-4" /></button>
                       {user.status === 'active' ? (
-                        <button className="p-1 text-gray-400 hover:text-yellow-600 dark:hover:text-yellow-400">
+                        <button
+                          className="p-1 text-gray-400 hover:text-yellow-600 dark:hover:text-yellow-400"
+                          title="Lock user"
+                          onClick={() => handleToggleLock(user)}
+                        >
                           <Lock className="w-4 h-4" />
                         </button>
                       ) : (
-                        <button className="p-1 text-gray-400 hover:text-green-600 dark:hover:text-green-400">
+                        <button
+                          className="p-1 text-gray-400 hover:text-green-600 dark:hover:text-green-400"
+                          title="Unlock user"
+                          onClick={() => handleToggleLock(user)}
+                        >
                           <Unlock className="w-4 h-4" />
                         </button>
                       )}
-                      <button className="p-1 text-gray-400 hover:text-red-600 dark:hover:text-red-400">
+                      <button
+                        className="p-1 text-gray-400 hover:text-red-600 dark:hover:text-red-400"
+                        title="Delete user"
+                        onClick={() => handleDelete([user.id])}
+                      >
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
