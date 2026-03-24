@@ -59,7 +59,7 @@ public class AuthService {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .phone(request.getPhone())
                 .role(role)
-                .isActive(true)
+                .isActive(false) // Require admin approval
                 .isVerified(false)
                 .build();
 
@@ -78,12 +78,15 @@ public class AuthService {
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
         );
 
-        String token = jwtTokenProvider.generateToken(authentication);
-
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new ResourceNotFoundException("User", "email", request.getEmail()));
+        if (!user.getIsActive()) {
+            throw new BadRequestException("Account not yet approved by admin.");
+        }
         user.setLastLogin(LocalDateTime.now());
         userRepository.save(user);
+
+        String token = jwtTokenProvider.generateToken(authentication);
 
         return AuthResponse.builder()
                 .token(token)

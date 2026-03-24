@@ -901,3 +901,15 @@ These are IDE indexing issues, not actual errors:
 
 This project is for educational purposes - Asia Pacific University.
 
+## User Registration & Admin Approval
+
+- When a user registers, their account is created with `is_active = false` (not active).
+- The user cannot log in until an admin approves their account.
+- Admins can view and manage users via the `/api/users` endpoints (admin only).
+- To approve a user, an admin should activate the user using:
+
+```
+PATCH /api/users/{id}/status?isActive=true
+```
+
+- If a user tries to log in before approval, they will receive an error: `Account not yet approved by admin.`
