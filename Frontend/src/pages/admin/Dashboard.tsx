@@ -1,35 +1,71 @@
-import { useState } from 'react'
+
+import { useState, useEffect } from 'react'
+import { apiFetch } from '../../utils/api'
 import { Link } from 'react-router-dom'
 import { Users, Home, TrendingUp, DollarSign, AlertCircle, CheckCircle, FileText, BarChart, Settings } from 'lucide-react'
 
 const Dashboard = () => {
-  // Mock data for admin dashboard
-  const [stats] = useState({
-    totalUsers: 15420,
-    totalProperties: 2847,
-    totalBookings: 8934,
-    totalRevenue: 2847500,
-    activeUsers: 3247,
-    pendingApprovals: 23,
-    reportedIssues: 8,
-    systemHealth: 98
+  // Dashboard state
+  const [stats, setStats] = useState({
+    totalUsers: 0,
+    totalUsersLastMonth: 0,
+    totalProperties: 0,
+    totalPropertiesLastMonth: 0,
+    totalBookings: 0,
+    totalBookingsLastMonth: 0,
+    totalRevenue: 0,
+    totalRevenueLastMonth: 0,
+    averageRating: 0,
+    averageRatingLastMonth: 0,
+    activeUsers: 0,
+    activeUsersLastMonth: 0
+  })
+  const [systemStatus, setSystemStatus] = useState({
+    systemHealth: 0,
+    pendingApprovals: 0,
+    reportedIssues: 0,
+    database: 'UNKNOWN',
+    externalApis: {},
+    fileStorage: 'UNKNOWN',
+    messageQueue: 'UNKNOWN',
+    cache: 'UNKNOWN',
+    uptime: '',
+    errorCount: 0
   })
 
-  const [recentUsers] = useState([
-    { id: '1', firstName: 'John', lastName: 'Doe', email: 'john@example.com', status: 'Active', joinedAt: '2024-01-15' },
-    { id: '2', firstName: 'Jane', lastName: 'Smith', email: 'jane@example.com', status: 'Active', joinedAt: '2024-01-14' },
-    { id: '3', firstName: 'Bob', lastName: 'Johnson', email: 'bob@example.com', status: 'Pending', joinedAt: '2024-01-13' },
-    { id: '4', firstName: 'Alice', lastName: 'Brown', email: 'alice@example.com', status: 'Active', joinedAt: '2024-01-12' },
-    { id: '5', firstName: 'Charlie', lastName: 'Wilson', email: 'charlie@example.com', status: 'Suspended', joinedAt: '2024-01-11' }
-  ])
+  // State for system status modal
+  const [showAllStatus, setShowAllStatus] = useState(false)
+  const [recentUsers, setRecentUsers] = useState<any[]>([])
+  const [systemLogs, setSystemLogs] = useState<any[]>([])
+  // Removed unused loading and error state
 
-  const [systemLogs] = useState([
-    { id: '1', type: 'info', message: 'User login: john@example.com', timestamp: '2024-01-15 10:30:00' },
-    { id: '2', type: 'warning', message: 'Failed login attempt from unknown IP', timestamp: '2024-01-15 10:25:00' },
-    { id: '3', type: 'error', message: 'Database connection timeout', timestamp: '2024-01-15 10:20:00' },
-    { id: '4', type: 'info', message: 'New property added: #2847', timestamp: '2024-01-15 10:15:00' },
-    { id: '5', type: 'success', message: 'Backup completed successfully', timestamp: '2024-01-15 10:00:00' }
-  ])
+  useEffect(() => {
+    const fetchDashboard = async () => {
+      try {
+        // Fetch stats
+        const statsRes = await apiFetch('/admin/dashboard')
+        setStats(statsRes.data || {})
+        // Fetch system status
+        const statusRes = await apiFetch('/admin/system-status')
+        setSystemStatus(statusRes.data || {})
+        // Fetch recent users
+        const usersRes = await apiFetch('/users?page=0&size=5')
+        setRecentUsers(Array.isArray(usersRes.data?.content) ? usersRes.data.content : [])
+        // Fetch system logs
+        const logsRes = await apiFetch('/admin/logs?page=0&size=5')
+        setSystemLogs(Array.isArray(logsRes.data) ? logsRes.data : [])
+      } catch (err: any) {
+        // Optionally handle error here if you want to show a message
+      }
+    }
+    fetchDashboard()
+  }, [])
+
+  // Helper to calculate percent change
+  const percentChange = (current: number, last: number) => {
+    if (typeof current !== 'number' || typeof last !== 'number' || last === 0) return 0;
+    return ((current - last) / last) * 100;
+  };
 
   return (
     <div className="p-6">
@@ -49,8 +85,11 @@ const Dashboard = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Users</p>
-              <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{stats.totalUsers.toLocaleString()}</p>
-              <p className="text-sm text-green-600 dark:text-green-400 mt-2">+12% from last month</p>
+              <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{typeof stats.totalUsers === 'number' ? stats.totalUsers.toLocaleString() : '0'}</p>
+              <p className={`text-sm mt-2 ${percentChange(stats.totalUsers, stats.totalUsersLastMonth) >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                {percentChange(stats.totalUsers, stats.totalUsersLastMonth) >= 0 ? '+' : ''}
+                {percentChange(stats.totalUsers, stats.totalUsersLastMonth).toFixed(1)}% from last month
+              </p>
             </div>
             <div className="p-3 bg-blue-100 dark:bg-blue-900 rounded-lg">
               <Users className="w-6 h-6 text-blue-600 dark:text-blue-300" />
@@ -62,8 +101,11 @@ const Dashboard = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Properties</p>
-              <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{stats.totalProperties.toLocaleString()}</p>
-              <p className="text-sm text-green-600 dark:text-green-400 mt-2">+8% from last month</p>
+              <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{typeof stats.totalProperties === 'number' ? stats.totalProperties.toLocaleString() : '0'}</p>
+              <p className={`text-sm mt-2 ${percentChange(stats.totalProperties, stats.totalPropertiesLastMonth) >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                {percentChange(stats.totalProperties, stats.totalPropertiesLastMonth) >= 0 ? '+' : ''}
+                {percentChange(stats.totalProperties, stats.totalPropertiesLastMonth).toFixed(1)}% from last month
+              </p>
             </div>
             <div className="p-3 bg-green-100 dark:bg-green-900 rounded-lg">
               <Home className="w-6 h-6 text-green-600 dark:text-green-300" />
@@ -75,8 +117,11 @@ const Dashboard = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Revenue</p>
-              <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">${(stats.totalRevenue / 1000000).toFixed(1)}M</p>
-              <p className="text-sm text-green-600 dark:text-green-400 mt-2">+23% from last month</p>
+              <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">${typeof stats.totalRevenue === 'number' ? (stats.totalRevenue / 1000000).toFixed(1) : '0.0'}M</p>
+              <p className={`text-sm mt-2 ${percentChange(stats.totalRevenue, stats.totalRevenueLastMonth) >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                {percentChange(stats.totalRevenue, stats.totalRevenueLastMonth) >= 0 ? '+' : ''}
+                {percentChange(stats.totalRevenue, stats.totalRevenueLastMonth).toFixed(1)}% from last month
+              </p>
             </div>
             <div className="p-3 bg-purple-100 dark:bg-purple-900 rounded-lg">
               <DollarSign className="w-6 h-6 text-purple-600 dark:text-purple-300" />
@@ -88,8 +133,11 @@ const Dashboard = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Active Users</p>
-              <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{stats.activeUsers.toLocaleString()}</p>
-              <p className="text-sm text-green-600 dark:text-green-400 mt-2">+5% from last month</p>
+              <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{typeof stats.activeUsers === 'number' ? stats.activeUsers.toLocaleString() : '0'}</p>
+              <p className={`text-sm mt-2 ${percentChange(stats.activeUsers, stats.activeUsersLastMonth) >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                {percentChange(stats.activeUsers, stats.activeUsersLastMonth) >= 0 ? '+' : ''}
+                {percentChange(stats.activeUsers, stats.activeUsersLastMonth).toFixed(1)}% from last month
+              </p>
             </div>
             <div className="p-3 bg-orange-100 dark:bg-orange-900 rounded-lg">
               <TrendingUp className="w-6 h-6 text-orange-600 dark:text-orange-300" />
@@ -125,25 +173,114 @@ const Dashboard = () => {
 
             {/* System Status */}
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">System Status</h3>
-          <div className="space-y-4">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">System Status</h3>
+            <button
+              className="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 focus:outline-none"
+              onClick={() => setShowAllStatus(true)}
+            >
+              View all
+            </button>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-600 dark:text-gray-400">Health</span>
               <div className="flex items-center">
-                <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-                <span className="text-sm font-medium text-green-600 dark:text-green-400">{stats.systemHealth}%</span>
+                <div className={`w-2 h-2 rounded-full mr-2 ${systemStatus.systemHealth >= 90 ? 'bg-green-500' : systemStatus.systemHealth >= 70 ? 'bg-yellow-500' : 'bg-red-500'}`}></div>
+                <span className="text-sm font-medium" style={{ color: systemStatus.systemHealth >= 90 ? '#16a34a' : systemStatus.systemHealth >= 70 ? '#eab308' : '#dc2626' }}>{typeof systemStatus.systemHealth === 'number' ? systemStatus.systemHealth : '0'}%</span>
               </div>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-600 dark:text-gray-400">Pending</span>
-              <span className="text-sm font-medium text-yellow-600 dark:text-yellow-400">{stats.pendingApprovals}</span>
+              <span className="text-sm font-medium text-yellow-600 dark:text-yellow-400">{typeof systemStatus.pendingApprovals === 'number' ? systemStatus.pendingApprovals : '0'}</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-600 dark:text-gray-400">Issues</span>
-              <span className="text-sm font-medium text-red-600 dark:text-red-400">{stats.reportedIssues}</span>
+              <span className="text-sm font-medium text-red-600 dark:text-red-400">{typeof systemStatus.reportedIssues === 'number' ? systemStatus.reportedIssues : '0'}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-600 dark:text-gray-400">Database</span>
+              <span className={`text-sm font-medium ${systemStatus.database === 'UP' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>{systemStatus.database}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-600 dark:text-gray-400">File Storage</span>
+              <span className={`text-sm font-medium ${systemStatus.fileStorage === 'UP' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>{systemStatus.fileStorage}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-600 dark:text-gray-400">Message Queue</span>
+              <span className={`text-sm font-medium ${systemStatus.messageQueue === 'UP' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>{systemStatus.messageQueue}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-600 dark:text-gray-400">Cache</span>
+              <span className={`text-sm font-medium ${systemStatus.cache === 'UP' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>{systemStatus.cache}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-600 dark:text-gray-400">Uptime</span>
+              <span className="text-sm font-medium text-blue-600 dark:text-blue-400">{systemStatus.uptime || '-'}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-600 dark:text-gray-400">Error Count</span>
+              <span className="text-sm font-medium text-red-600 dark:text-red-400">{typeof systemStatus.errorCount === 'number' ? systemStatus.errorCount : '0'}</span>
             </div>
           </div>
         </div>
+
+        {/* Modal for full metric card */}
+        {showAllStatus && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 w-full max-w-lg relative">
+              <button
+                className="absolute top-2 right-2 text-gray-500 hover:text-gray-900 dark:hover:text-white"
+                onClick={() => setShowAllStatus(false)}
+              >
+                &times;
+              </button>
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">System Status - Full Details</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+                {/* Repeat all metrics here for full view */}
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Health</span>
+                  <div className="flex items-center">
+                    <div className={`w-2 h-2 rounded-full mr-2 ${systemStatus.systemHealth >= 90 ? 'bg-green-500' : systemStatus.systemHealth >= 70 ? 'bg-yellow-500' : 'bg-red-500'}`}></div>
+                    <span className="text-sm font-medium" style={{ color: systemStatus.systemHealth >= 90 ? '#16a34a' : systemStatus.systemHealth >= 70 ? '#eab308' : '#dc2626' }}>{typeof systemStatus.systemHealth === 'number' ? systemStatus.systemHealth : '0'}%</span>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Pending</span>
+                  <span className="text-sm font-medium text-yellow-600 dark:text-yellow-400">{typeof systemStatus.pendingApprovals === 'number' ? systemStatus.pendingApprovals : '0'}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Issues</span>
+                  <span className="text-sm font-medium text-red-600 dark:text-red-400">{typeof systemStatus.reportedIssues === 'number' ? systemStatus.reportedIssues : '0'}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Database</span>
+                  <span className={`text-sm font-medium ${systemStatus.database === 'UP' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>{systemStatus.database}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">File Storage</span>
+                  <span className={`text-sm font-medium ${systemStatus.fileStorage === 'UP' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>{systemStatus.fileStorage}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Message Queue</span>
+                  <span className={`text-sm font-medium ${systemStatus.messageQueue === 'UP' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>{systemStatus.messageQueue}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Cache</span>
+                  <span className={`text-sm font-medium ${systemStatus.cache === 'UP' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>{systemStatus.cache}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Uptime</span>
+                  <span className="text-sm font-medium text-blue-600 dark:text-blue-400">{systemStatus.uptime || '-'}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Error Count</span>
+                  <span className="text-sm font-medium text-red-600 dark:text-red-400">{typeof systemStatus.errorCount === 'number' ? systemStatus.errorCount : '0'}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
           {/* Recent Activity & System Logs */}
@@ -160,33 +297,36 @@ const Dashboard = () => {
           </div>
           <div className="p-6">
             <div className="space-y-4">
-              {recentUsers.slice(0, 4).map((user) => (
-                <div key={user.id} className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900 rounded-full flex items-center justify-center">
-                      <span className="text-sm font-medium text-primary-600 dark:text-primary-400">
-                        {user.firstName.charAt(0)}{user.lastName.charAt(0)}
+              {recentUsers.slice(0, 4).map((user) => {
+                const status = user.isActive ? 'Active' : 'Pending';
+                return (
+                  <div key={user.id} className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900 rounded-full flex items-center justify-center">
+                        <span className="text-sm font-medium text-primary-600 dark:text-primary-400">
+                          {user.firstName?.charAt(0)}{user.lastName?.charAt(0)}
+                        </span>
+                      </div>
+                      <div className="ml-3">
+                        <p className="text-sm font-medium text-gray-900 dark:text-white">
+                          {user.firstName} {user.lastName}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">{user.email}</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
+                        status === 'Active' 
+                          ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                          : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                      }`}>
+                        {status}
                       </span>
-                    </div>
-                    <div className="ml-3">
-                      <p className="text-sm font-medium text-gray-900 dark:text-white">
-                        {user.firstName} {user.lastName}
-                      </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">{user.email}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{user.joinedAt ? (typeof user.joinedAt === 'string' ? user.joinedAt : new Date(user.joinedAt).toLocaleDateString()) : ''}</p>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
-                      user.status === 'Active' 
-                        ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                        : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-                    }`}>
-                      {user.status}
-                    </span>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{user.joinedAt}</p>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>
@@ -203,13 +343,14 @@ const Dashboard = () => {
           </div>
           <div className="p-6">
             <div className="space-y-4">
-              {systemLogs.slice(0, 4).map((log) => (
+              {systemLogs.slice(0, 4).map((log, idx) => (
                 <div key={log.id} className="flex items-start space-x-3">
                   <div className="mt-0.5">
-                    {log.type === 'error' && <AlertCircle className="w-4 h-4 text-red-500" />}
-                    {log.type === 'warning' && <AlertCircle className="w-4 h-4 text-yellow-500" />}
-                    {log.type === 'info' && <FileText className="w-4 h-4 text-blue-500" />}
-                    {log.type === 'success' && <CheckCircle className="w-4 h-4 text-green-500" />}
+                    <span className="font-bold mr-2 text-gray-700 dark:text-gray-200">{idx + 1}.</span>
+                    {log.type === 'error' && <AlertCircle className="w-4 h-4 text-red-500 inline-block" />}
+                    {log.type === 'warning' && <AlertCircle className="w-4 h-4 text-yellow-500 inline-block" />}
+                    {log.type === 'info' && <FileText className="w-4 h-4 text-blue-500 inline-block" />}
+                    {log.type === 'success' && <CheckCircle className="w-4 h-4 text-green-500 inline-block" />}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm text-gray-900 dark:text-white truncate">{log.message}</p>

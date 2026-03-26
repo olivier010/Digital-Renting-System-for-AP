@@ -12,7 +12,6 @@ import {
   MapPin, 
   DollarSign,
   Download,
-  Plus,
   Building2,
   Car,
   Landmark,
@@ -119,7 +118,8 @@ const Properties = () => {
   const stats = {
     total: properties.length,
     active: properties.filter(p => p.status === 'active').length,
-    pending: properties.filter(p => p.status === 'pending').length,
+    // Pending approval: properties that are NOT verified
+    pending: properties.filter(p => !p.verified).length,
     suspended: properties.filter(p => p.status === 'suspended').length,
     featured: properties.filter(p => p.featured).length,
     verified: properties.filter(p => p.verified).length,
@@ -273,10 +273,6 @@ const Properties = () => {
               <option value="suspended">Suspended</option>
             </select>
             
-            <button className="flex items-center px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-colors">
-              <Plus className="w-4 h-4 mr-2" />
-              Add Property
-            </button>
             
             <button className="flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
               <Download className="w-4 h-4 mr-2" />
