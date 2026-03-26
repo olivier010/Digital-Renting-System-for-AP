@@ -298,7 +298,29 @@ public class PropertyService {
         Property property = propertyRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Property", "id", id));
 
+        // Only ADMIN can toggle featured
+        User currentUserEntity = currentUser.getUser();
+        if (currentUserEntity == null || !"ADMIN".equals(currentUserEntity.getRole().name())) {
+            throw new UnauthorizedException("Only admins can mark properties as featured");
+        }
+
         property.setIsFeatured(!property.getIsFeatured());
+        property = propertyRepository.save(property);
+        return propertyMapper.toResponse(property);
+    }
+
+    @Transactional
+    public PropertyResponse toggleVerified(Long id) {
+        Property property = propertyRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Property", "id", id));
+
+        // Only ADMIN can verify
+        User currentUserEntity = currentUser.getUser();
+        if (currentUserEntity == null || !"ADMIN".equals(currentUserEntity.getRole().name())) {
+            throw new UnauthorizedException("Only admins can verify properties");
+        }
+
+        property.setIsVerified(!property.getIsVerified());
         property = propertyRepository.save(property);
         return propertyMapper.toResponse(property);
     }

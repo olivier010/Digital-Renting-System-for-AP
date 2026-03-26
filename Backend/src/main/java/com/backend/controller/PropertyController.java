@@ -132,9 +132,16 @@ public class PropertyController {
     }
 
     @PatchMapping("/{id}/featured")
-    @PreAuthorize("hasAnyRole('ADMIN', 'OWNER')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<PropertyResponse>> toggleFeatured(@PathVariable Long id) {
         PropertyResponse response = propertyService.toggleFeatured(id);
         return ResponseEntity.ok(ApiResponse.success("Property featured status toggled", response));
+    }
+
+    @PatchMapping("/{id}/verified")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<PropertyResponse>> toggleVerified(@PathVariable Long id) {
+        PropertyResponse response = propertyService.toggleVerified(id);
+        return ResponseEntity.ok(ApiResponse.success("Property verified status toggled", response));
     }
 }
