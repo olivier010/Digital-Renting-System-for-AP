@@ -15,16 +15,23 @@ public class DashboardResponse {
 
     // Admin dashboard stats
     private Long totalUsers;
+    private Long totalUsersLastMonth;
     private Long totalRenters;
     private Long totalOwners;
     private Long totalProperties;
+    private Long totalPropertiesLastMonth;
     private Long activeProperties;
     private Long pendingProperties;
     private Long totalBookings;
+    private Long totalBookingsLastMonth;
     private Long pendingBookings;
     private Long confirmedBookings;
     private Long completedBookings;
     private BigDecimal totalRevenue;
+    private BigDecimal totalRevenueLastMonth;
+    private Long activeUsers; // Only approved users (isActive=true)
+    private Double averageRating;
+    private Double averageRatingLastMonth;
 
     // Owner dashboard stats
     private Long myProperties;
@@ -32,8 +39,8 @@ public class DashboardResponse {
     private Long myBookings;
     private Long myPendingBookings;
     private BigDecimal myEarnings;
-    private Double averageRating;
-    private Long totalReviews;
+    private Double averageOwnerRating;
+    private Long totalOwnerReviews;
 
     // Renter dashboard stats
     private Long myTotalBookings;
@@ -42,4 +49,3 @@ public class DashboardResponse {
     private Long myReviews;
     private BigDecimal totalSpent;
 }
-

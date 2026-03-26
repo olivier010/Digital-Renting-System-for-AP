@@ -7,6 +7,7 @@ import com.backend.dto.request.UpdateUserRequest;
 import com.backend.dto.response.AuthResponse;
 import com.backend.dto.response.UserResponse;
 import com.backend.entity.User;
+import com.backend.entity.Log;
 import com.backend.enums.Role;
 import com.backend.exception.BadRequestException;
 import com.backend.exception.DuplicateResourceException;
@@ -35,6 +36,7 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final UserMapper userMapper;
     private final CurrentUser currentUser;
+    private final LogService logService;
 
     @Transactional
     public AuthResponse register(RegisterRequest request) {
@@ -64,6 +66,11 @@ public class AuthService {
                 .build();
 
         user = userRepository.save(user);
+        logService.saveLog(Log.builder()
+            .level("INFO")
+            .message("User registered: " + user.getEmail())
+            .timestamp(LocalDateTime.now())
+            .build());
         String token = jwtTokenProvider.generateToken(user.getId(), user.getEmail(), user.getRole().name());
 
         return AuthResponse.builder()
@@ -74,24 +81,35 @@ public class AuthService {
 
     @Transactional
     public AuthResponse login(LoginRequest request) {
-        Authentication authentication = authenticationManager.authenticate(
+        try {
+            Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
-        );
-
-        User user = userRepository.findByEmail(request.getEmail())
+            );
+            User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new ResourceNotFoundException("User", "email", request.getEmail()));
-        if (!user.getIsActive()) {
-            throw new BadRequestException("Account not yet approved by admin.");
-        }
-        user.setLastLogin(LocalDateTime.now());
-        userRepository.save(user);
-
-        String token = jwtTokenProvider.generateToken(authentication);
-
-        return AuthResponse.builder()
+            if (!user.getIsActive()) {
+                throw new BadRequestException("Account not yet approved by admin.");
+            }
+            user.setLastLogin(LocalDateTime.now());
+            userRepository.save(user);
+            String token = jwtTokenProvider.generateToken(authentication);
+            logService.saveLog(Log.builder()
+                .level("INFO")
+                .message("User login success: " + user.getEmail())
+                .timestamp(LocalDateTime.now())
+                .build());
+            return AuthResponse.builder()
                 .token(token)
                 .user(userMapper.toResponse(user))
                 .build();
+        } catch (Exception ex) {
+            logService.saveLog(Log.builder()
+                .level("WARN")
+                .message("User login failed: " + request.getEmail() + ", reason: " + ex.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build());
+            throw ex;
+        }
     }
 
     @Transactional(readOnly = true)

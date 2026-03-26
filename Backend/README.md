@@ -212,17 +212,8 @@ src/main/java/com/backend/
 | GET | `/api/users` | Admin | List all users |
 | PUT | `/api/users/{id}` | Admin | Update user |
 | DELETE | `/api/users/{id}` | Admin | Delete user |
-
-### Owner
-
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| GET | `/api/owner/dashboard` | Owner | Get owner dashboard |
-| GET | `/api/owner/properties` | Owner | Get owner's properties |
-| GET | `/api/owner/bookings` | Owner | Get owner's bookings |
-| GET | `/api/owner/earnings` | Owner | Get owner earnings summary |
-| GET | `/api/owner/earnings/transactions` | Owner | Get owner earnings transactions |
-| GET | `/api/owner/earnings/properties` | Owner | Get owner earnings by property |
+| GET | `/api/admin/logs` | Admin | Get all system logs |
+| GET | `/api/admin/system-status` | Admin | Get real-time system health status |
 
 #### Get Owner's Bookings
 
@@ -614,6 +605,67 @@ Authorization: Bearer <admin_token>
 PATCH /api/users/{id}/status?isActive=false
 Authorization: Bearer <admin_token>
 ```
+
+---
+
+### Admin - System Logs & Status
+
+#### Get System Logs
+```http
+GET /api/admin/logs
+Authorization: Bearer <admin_token>
+```
+**Description:**
+Returns a list of system log entries (level, message, timestamp, etc.).
+
+**Response Example:**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "level": "INFO",
+      "message": "User registered: admin@rentwise.com",
+      "timestamp": "2026-03-27T00:00:00"
+    },
+    {
+      "id": 2,
+      "level": "ERROR",
+      "message": "Unhandled exception: Database connection lost",
+      "timestamp": "2026-03-27T00:10:00"
+    }
+  ]
+}
+```
+
+#### Get System Status
+```http
+GET /api/admin/system-status
+Authorization: Bearer <admin_token>
+```
+**Description:**
+Returns real-time health status for core system components (database, external APIs, file storage, message queue, uptime, error count, etc.).
+
+**Response Example:**
+```json
+{
+  "success": true,
+  "data": {
+    "database": "UP",
+    "externalApis": {
+      "paymentGateway": "UP",
+      "emailService": "DOWN"
+    },
+    "fileStorage": "UP",
+    "messageQueue": "UP",
+    "uptime": "1:23:45",
+    "recentErrorCount": 2
+  }
+}
+```
+
+> **Note:** These endpoints are admin-only and require a valid JWT token with ADMIN role.
 
 ---
 

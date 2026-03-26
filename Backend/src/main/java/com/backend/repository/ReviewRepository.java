@@ -31,5 +31,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     // Find reviews for owner's properties
     @Query("SELECT r FROM Review r WHERE r.property.owner.id = :ownerId")
     Page<Review> findByPropertyOwnerId(@Param("ownerId") Long ownerId, Pageable pageable);
-}
 
+    @Query("SELECT AVG(r.overallRating) FROM Review r WHERE r.createdAt >= :start AND r.createdAt < :end")
+    Double averageRatingBetween(@Param("start") java.time.LocalDateTime start, @Param("end") java.time.LocalDateTime end);
+}

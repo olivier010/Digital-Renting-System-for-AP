@@ -37,5 +37,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     long countByRole(Role role);
 
     long countByIsActive(Boolean isActive);
-}
 
+    @Query("SELECT COUNT(u) FROM User u WHERE u.createdAt >= :start AND u.createdAt < :end")
+    long countRegisteredBetween(@Param("start") java.time.LocalDateTime start, @Param("end") java.time.LocalDateTime end);
+}

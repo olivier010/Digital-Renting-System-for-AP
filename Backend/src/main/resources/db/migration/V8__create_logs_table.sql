@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS log (
+    id BIGSERIAL PRIMARY KEY,
+    level VARCHAR(20) NOT NULL,
+    message TEXT NOT NULL,
+    timestamp TIMESTAMP NOT NULL
+);
+

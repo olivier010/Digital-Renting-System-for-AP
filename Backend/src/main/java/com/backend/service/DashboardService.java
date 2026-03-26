@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.YearMonth;
 
 @Service
 @RequiredArgsConstructor
@@ -28,20 +30,45 @@ public class DashboardService {
 
     @Transactional(readOnly = true)
     public DashboardResponse getAdminDashboard() {
+        // Calculate date ranges for current and previous month
+        LocalDateTime now = LocalDateTime.now();
+        YearMonth thisMonth = YearMonth.from(now);
+        YearMonth lastMonth = thisMonth.minusMonths(1);
+        LocalDateTime startOfThisMonth = thisMonth.atDay(1).atStartOfDay();
+        LocalDateTime startOfLastMonth = lastMonth.atDay(1).atStartOfDay();
+
+        // Users
+        long usersLastMonth = userRepository.countRegisteredBetween(startOfLastMonth, startOfThisMonth);
+        // Properties
+        long propertiesLastMonth = propertyRepository.countCreatedBetween(startOfLastMonth, startOfThisMonth);
+        // Bookings
+        long bookingsLastMonth = bookingRepository.countCreatedBetween(startOfLastMonth, startOfThisMonth);
+        // Revenue
+        BigDecimal revenueLastMonth = bookingRepository.calculateRevenueBetween(startOfLastMonth, startOfThisMonth);
+        // Ratings
+        Double avgRatingThisMonth = reviewRepository.averageRatingBetween(startOfThisMonth, now);
+        Double avgRatingLastMonth = reviewRepository.averageRatingBetween(startOfLastMonth, startOfThisMonth);
+
         return DashboardResponse.builder()
-                .totalUsers(userRepository.count())
-                .totalRenters(userRepository.countByRole(Role.RENTER))
-                .totalOwners(userRepository.countByRole(Role.OWNER))
-                .totalProperties(propertyRepository.count())
-                .activeProperties(propertyRepository.countByStatus(PropertyStatus.ACTIVE))
-                .pendingProperties(propertyRepository.countByStatus(PropertyStatus.PENDING))
-                .totalBookings(bookingRepository.count())
-                .pendingBookings(bookingRepository.countByStatus(BookingStatus.PENDING))
-                .confirmedBookings(bookingRepository.countByStatus(BookingStatus.CONFIRMED))
-                .completedBookings(bookingRepository.countByStatus(BookingStatus.COMPLETED))
-                .totalRevenue(bookingRepository.calculateTotalRevenue() != null ?
-                        bookingRepository.calculateTotalRevenue() : BigDecimal.ZERO)
-                .build();
+            .totalUsers(userRepository.count())
+            .totalUsersLastMonth(usersLastMonth)
+            .totalRenters(userRepository.countByRole(Role.RENTER))
+            .totalOwners(userRepository.countByRole(Role.OWNER))
+            .totalProperties(propertyRepository.count())
+            .totalPropertiesLastMonth(propertiesLastMonth)
+            .activeProperties(propertyRepository.countByStatus(PropertyStatus.ACTIVE))
+            .pendingProperties(propertyRepository.countByStatus(PropertyStatus.PENDING))
+            .totalBookings(bookingRepository.count())
+            .totalBookingsLastMonth(bookingsLastMonth)
+            .pendingBookings(bookingRepository.countByStatus(BookingStatus.PENDING))
+            .confirmedBookings(bookingRepository.countByStatus(BookingStatus.CONFIRMED))
+            .completedBookings(bookingRepository.countByStatus(BookingStatus.COMPLETED))
+            .totalRevenue(bookingRepository.calculateTotalRevenue() != null ? bookingRepository.calculateTotalRevenue() : BigDecimal.ZERO)
+            .totalRevenueLastMonth(revenueLastMonth != null ? revenueLastMonth : BigDecimal.ZERO)
+            .activeUsers(userRepository.countByIsActive(true))
+            .averageRating(avgRatingThisMonth != null ? avgRatingThisMonth : 0.0)
+            .averageRatingLastMonth(avgRatingLastMonth != null ? avgRatingLastMonth : 0.0)
+            .build();
     }
 
     @Transactional(readOnly = true)
@@ -56,14 +83,14 @@ public class DashboardService {
                 .myProperties(propertyRepository.countByOwnerId(ownerId))
                 .myActiveProperties(propertyRepository.countByOwnerIdAndStatus(ownerId, PropertyStatus.ACTIVE))
                 .myBookings(bookingRepository.countByPropertyOwnerId(ownerId))
-                .myPendingBookings((long) bookingRepository.findByPropertyOwnerId(ownerId,
+                .myPendingBookings(bookingRepository.findByPropertyOwnerId(ownerId,
                         PageRequest.of(0, Integer.MAX_VALUE))
                         .getContent().stream()
                         .filter(b -> b.getStatus() == BookingStatus.PENDING)
                         .count())
                 .myEarnings(earnings != null ? earnings : BigDecimal.ZERO)
-                .averageRating(avgRating)
-                .totalReviews(countOwnerReviews(ownerId))
+                .averageOwnerRating(avgRating)
+                .totalOwnerReviews(countOwnerReviews(ownerId))
                 .build();
     }
 
@@ -76,7 +103,7 @@ public class DashboardService {
 
         return DashboardResponse.builder()
                 .myTotalBookings(bookingRepository.countByRenterId(renterId))
-                .myActiveBookings((long) bookingRepository.findByRenterId(renterId,
+                .myActiveBookings(bookingRepository.findByRenterId(renterId,
                         PageRequest.of(0, Integer.MAX_VALUE))
                         .getContent().stream()
                         .filter(b -> b.getStatus() == BookingStatus.CONFIRMED || b.getStatus() == BookingStatus.PENDING)

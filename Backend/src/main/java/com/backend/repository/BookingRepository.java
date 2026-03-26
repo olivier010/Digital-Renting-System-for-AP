@@ -69,5 +69,10 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     // Find bookings that need reviews (completed but no review)
     @Query("SELECT b FROM Booking b WHERE b.renter.id = :renterId AND b.status = 'COMPLETED' AND b.review IS NULL")
     List<Booking> findBookingsAwaitingReview(@Param("renterId") Long renterId);
-}
 
+    @Query("SELECT COUNT(b) FROM Booking b WHERE b.createdAt >= :start AND b.createdAt < :end")
+    long countCreatedBetween(@Param("start") java.time.LocalDateTime start, @Param("end") java.time.LocalDateTime end);
+
+    @Query("SELECT SUM(b.totalPrice) FROM Booking b WHERE b.status = 'COMPLETED' AND b.createdAt >= :start AND b.createdAt < :end")
+    java.math.BigDecimal calculateRevenueBetween(@Param("start") java.time.LocalDateTime start, @Param("end") java.time.LocalDateTime end);
+}

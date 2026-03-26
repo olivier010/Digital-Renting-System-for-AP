@@ -2,13 +2,19 @@ package com.backend.controller;
 
 import com.backend.dto.response.ApiResponse;
 import com.backend.dto.response.DashboardResponse;
+import com.backend.dto.response.SystemStatusResponse;
 import com.backend.service.DashboardService;
+import com.backend.service.LogService;
+import com.backend.service.SystemStatusService;
+import com.backend.entity.Log;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -17,6 +23,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class AdminController {
 
     private final DashboardService dashboardService;
+    private final LogService logService;
+    private final SystemStatusService systemStatusService;
 
     @GetMapping("/dashboard")
     public ResponseEntity<ApiResponse<DashboardResponse>> getDashboard() {
@@ -40,8 +48,9 @@ public class AdminController {
     }
 
     @GetMapping("/logs")
-    public ResponseEntity<ApiResponse<Object>> getSystemLogs() {
-        return ResponseEntity.ok(ApiResponse.success("System logs endpoint", null));
+    public ResponseEntity<ApiResponse<List<Log>>> getSystemLogs() {
+        List<Log> logs = logService.getAllLogs();
+        return ResponseEntity.ok(ApiResponse.success(logs));
     }
 
     @GetMapping("/issues")
@@ -52,5 +61,11 @@ public class AdminController {
     @GetMapping("/settings")
     public ResponseEntity<ApiResponse<Object>> getSettings() {
         return ResponseEntity.ok(ApiResponse.success("Settings endpoint", null));
+    }
+
+    @GetMapping("/system-status")
+    public ResponseEntity<ApiResponse<SystemStatusResponse>> getSystemStatus() {
+        SystemStatusResponse status = systemStatusService.getSystemStatus();
+        return ResponseEntity.ok(ApiResponse.success(status));
     }
 }

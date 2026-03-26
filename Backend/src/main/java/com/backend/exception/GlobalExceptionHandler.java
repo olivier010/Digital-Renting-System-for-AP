@@ -1,6 +1,8 @@
 package com.backend.exception;
 
 import com.backend.dto.response.ApiResponse;
+import com.backend.service.LogService;
+import com.backend.entity.Log;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -10,11 +12,17 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+    private final LogService logService;
+
+    public GlobalExceptionHandler(LogService logService) {
+        this.logService = logService;
+    }
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiResponse<Void>> handleResourceNotFoundException(ResourceNotFoundException ex) {
@@ -64,8 +72,12 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleGenericException(Exception ex) {
+        logService.saveLog(Log.builder()
+                .level("ERROR")
+                .message("Unhandled exception: " + ex.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.error(500, "An unexpected error occurred: " + ex.getMessage()));
     }
 }
-
