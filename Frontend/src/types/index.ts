@@ -19,6 +19,7 @@ export interface Property {
   };
   createdAt: string;
   updatedAt: string;
+  isVerified?: boolean;
 }
 
 export interface User {

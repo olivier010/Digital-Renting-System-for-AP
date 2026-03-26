@@ -1,147 +1,108 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { apiFetch } from '../../utils/api'
 import { 
   Home, 
   Search, 
   Edit, 
   Trash2, 
   Eye, 
-  Ban, 
   CheckCircle, 
   AlertCircle, 
   Star, 
   MapPin, 
-  Bed, 
-  Bath, 
   DollarSign,
   Download,
   Plus,
-  ToggleLeft,
-  ToggleRight
+  Building2,
+  Car,
+  Landmark,
+  Store,
+  Package
 } from 'lucide-react'
+
+const categoryIcons: Record<string, typeof Home> = {
+  house: Home,
+  apartment: Building2,
+  car: Car,
+  land: Landmark,
+  commercial: Store,
+  other: Package,
+}
+
+interface Property {
+  id: number
+  title: string
+  type: string
+  location: string
+  owner: string
+  ownerEmail: string
+  status: string
+  price: number
+  bedrooms: number
+  bathrooms: number
+  sqft: number
+  rating: number
+  reviews: number
+  bookings: number
+  revenue: number
+  listedAt: string
+  lastBooked: string
+  images: string[]
+  verified: boolean
+  featured: boolean
+  amenities: string[]
+}
 
 const Properties = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [filterStatus, setFilterStatus] = useState('all')
   const [filterType, setFilterType] = useState('all')
-  const [selectedProperties, setSelectedProperties] = useState<number[]>([])
 
-  const [properties] = useState([
-    {
-      id: 1,
-      title: 'Luxury Downtown Apartment',
-      type: 'apartment',
-      location: 'New York, NY',
-      owner: 'Jane Smith',
-      ownerEmail: 'jane.smith@example.com',
-      status: 'active',
-      price: 250,
-      bedrooms: 2,
-      bathrooms: 2,
-      sqft: 1200,
-      rating: 4.8,
-      reviews: 24,
-      bookings: 45,
-      revenue: 11250,
-      listedAt: '2024-01-15',
-      lastBooked: '2024-03-14',
-      images: 12,
-      verified: true,
-      featured: true,
-      amenities: ['WiFi', 'Parking', 'Gym', 'Pool']
-    },
-    {
-      id: 2,
-      title: 'Cozy Beach House',
-      type: 'house',
-      location: 'Miami, FL',
-      owner: 'Alice Brown',
-      ownerEmail: 'alice.brown@example.com',
-      status: 'pending',
-      price: 350,
-      bedrooms: 3,
-      bathrooms: 2,
-      sqft: 1800,
-      rating: 4.6,
-      reviews: 18,
-      bookings: 0,
-      revenue: 0,
-      listedAt: '2024-03-14',
-      lastBooked: 'Never',
-      images: 8,
-      verified: false,
-      featured: false,
-      amenities: ['WiFi', 'Parking', 'Kitchen', 'Beach Access']
-    },
-    {
-      id: 3,
-      title: 'Modern Studio Loft',
-      type: 'studio',
-      location: 'Chicago, IL',
-      owner: 'John Doe',
-      ownerEmail: 'john.doe@example.com',
-      status: 'suspended',
-      price: 120,
-      bedrooms: 0,
-      bathrooms: 1,
-      sqft: 600,
-      rating: 4.2,
-      reviews: 12,
-      bookings: 28,
-      revenue: 3360,
-      listedAt: '2023-12-01',
-      lastBooked: '2024-02-28',
-      images: 6,
-      verified: true,
-      featured: false,
-      amenities: ['WiFi', 'Workspace', 'Kitchen']
-    },
-    {
-      id: 4,
-      title: 'Mountain View Cabin',
-      type: 'cabin',
-      location: 'Aspen, CO',
-      owner: 'Bob Wilson',
-      ownerEmail: 'bob.wilson@example.com',
-      status: 'active',
-      price: 450,
-      bedrooms: 4,
-      bathrooms: 3,
-      sqft: 2400,
-      rating: 4.9,
-      reviews: 36,
-      bookings: 18,
-      revenue: 8100,
-      listedAt: '2024-02-01',
-      lastBooked: '2024-03-12',
-      images: 15,
-      verified: true,
-      featured: true,
-      amenities: ['WiFi', 'Parking', 'Fireplace', 'Hot Tub', 'Kitchen']
-    },
-    {
-      id: 5,
-      title: 'Urban Condo with City Views',
-      type: 'condo',
-      location: 'Los Angeles, CA',
-      owner: 'Diana Martinez',
-      ownerEmail: 'diana.martinez@example.com',
-      status: 'active',
-      price: 280,
-      bedrooms: 1,
-      bathrooms: 1,
-      sqft: 800,
-      rating: 4.5,
-      reviews: 8,
-      bookings: 12,
-      revenue: 3360,
-      listedAt: '2024-02-15',
-      lastBooked: '2024-03-10',
-      images: 10,
-      verified: true,
-      featured: false,
-      amenities: ['WiFi', 'Gym', 'Pool', 'Parking']
+  const [properties, setProperties] = useState<Property[]>([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  // Fetch properties from backend
+  const fetchProperties = async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const res = await apiFetch('/properties?page=0&size=50')
+      // Map API property objects to expected frontend structure
+      const apiProperties = Array.isArray(res.data?.content) ? res.data.content.map((p: any) => ({
+        id: p.id,
+        title: p.title,
+        type: (p.category || '').toLowerCase(),
+        location: p.location,
+        owner: p.ownerName || 'Unknown Owner',
+        ownerEmail: p.ownerEmail || '',
+        status: (p.status || 'active').toLowerCase(),
+        price: p.price || 0,
+        bedrooms: p.bedrooms || 0,
+        bathrooms: p.bathrooms || 0,
+        sqft: p.squareFeet || 0,
+        rating: p.rating || 0,
+        reviews: p.reviewsCount || 0,
+        bookings: p.bookingsCount || 0,
+        revenue: p.totalRevenue || 0,
+        listedAt: p.createdAt ? new Date(p.createdAt).toLocaleDateString() : '',
+        lastBooked: p.lastBookedAt ? new Date(p.lastBookedAt).toLocaleDateString() : 'Never',
+        images: Array.isArray(p.images) ? p.images : [],
+        verified: p.isVerified || false,
+        featured: p.isFeatured || false,
+        amenities: p.amenities || []
+      })) : []
+      setProperties(apiProperties)
+    } catch (err: any) {
+      setError(err.message || 'Failed to fetch properties')
+    } finally {
+      setLoading(false)
     }
-  ])
+  }
+
+  useEffect(() => {
+    fetchProperties()
+  }, [])
 
   const filteredProperties = properties.filter(property => {
     const matchesSearch = searchTerm === '' || 
@@ -155,15 +116,6 @@ const Properties = () => {
     return matchesSearch && matchesStatus && matchesType
   })
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'active': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-      case 'pending': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-      case 'suspended': return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
-    }
-  }
-
   const stats = {
     total: properties.length,
     active: properties.filter(p => p.status === 'active').length,
@@ -175,36 +127,46 @@ const Properties = () => {
     totalBookings: properties.reduce((sum, p) => sum + p.bookings, 0)
   }
 
-  const handleSelectProperty = (propertyId: number) => {
-    setSelectedProperties(prev => 
-      prev.includes(propertyId) 
-        ? prev.filter(id => id !== propertyId)
-        : [...prev, propertyId]
-    )
-  }
-
   // Toggle featured status
-  const toggleFeatured = (propertyId: number) => {
-    // In a real app, this would make an API call
-    console.log('Toggle featured:', propertyId)
+  const toggleFeatured = async (propertyId: number) => {
+    try {
+      await apiFetch(`/properties/${propertyId}/featured`, { method: 'PATCH' })
+      // Update local state
+      setProperties(prev => 
+        prev.map(p => 
+          p.id === propertyId ? { ...p, featured: !p.featured } : p
+        )
+      )
+    } catch (err) {
+      alert('Failed to update featured status')
+    }
   }
 
   // Toggle verified status
-  const toggleVerified = (propertyId: number) => {
-    // In a real app, this would make an API call
-    console.log('Toggle verified:', propertyId)
-  }
-
-  // Toggle property status
-  const togglePropertyStatus = (propertyId: number) => {
-    // In a real app, this would make an API call
-    console.log('Toggle property status:', propertyId)
+  const toggleVerified = async (propertyId: number) => {
+    try {
+      await apiFetch(`/properties/${propertyId}/verified`, { method: 'PATCH' })
+      // Update local state
+      setProperties(prev => 
+        prev.map(p => 
+          p.id === propertyId ? { ...p, verified: !p.verified } : p
+        )
+      )
+    } catch (err) {
+      alert('Failed to update verified status')
+    }
   }
 
   // Delete property
-  const deleteProperty = (propertyId: number) => {
-    // In a real app, this would make an API call
-    console.log('Delete property:', propertyId)
+  const deleteProperty = async (propertyId: number) => {
+    if (!window.confirm('Are you sure you want to delete this property?')) return
+    try {
+      await apiFetch(`/properties/${propertyId}`, { method: 'DELETE' })
+      // Update local state
+      setProperties(prev => prev.filter(p => p.id !== propertyId))
+    } catch (err) {
+      alert('Failed to delete property')
+    }
   }
 
   return (
@@ -325,128 +287,158 @@ const Properties = () => {
       </div>
 
       {/* Properties Grid */}
-      {selectedProperties.length > 0 && (
-        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-blue-800 dark:text-blue-200">
-              {selectedProperties.length} propert{selectedProperties.length !== 1 ? 'ies' : 'y'} selected
-            </span>
-            <div className="flex items-center space-x-2">
-              <button className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300">
-                Approve Selected
-              </button>
-              <button className="text-sm text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300">
-                Delete Selected
-              </button>
-            </div>
-          </div>
+      {loading ? (
+        <div className="text-center py-12">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+          <p className="mt-4 text-gray-600 dark:text-gray-400">Loading properties...</p>
         </div>
-      )}
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredProperties.map((property) => (
-          <div key={property.id} className="bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
-            <div className="p-4">
-              <div className="flex items-center space-x-3 mb-3">
-                <div className="w-12 h-12 bg-gray-200 dark:bg-gray-600 rounded-lg flex items-center justify-center">
-                  <Home className="w-6 h-6 text-gray-400" />
-                </div>
-                <div className="flex-1">
-                  <p className="font-medium text-gray-900 dark:text-white">{property.title}</p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">{property.location}</p>
-                </div>
-              </div>
-              
-              <div className="flex items-center space-x-3 mb-3 text-xs">
-                <div className="flex items-center">
-                  <Star className="w-3 h-3 text-yellow-500 fill-current" />
-                  <span className="text-gray-600 dark:text-gray-400 ml-1">{property.rating} ({property.reviews})</span>
-                </div>
-                <span className="text-gray-500 dark:text-gray-400">• {property.bookings} bookings</span>
-                <span className="text-gray-500 dark:text-gray-400 capitalize">• {property.type}</span>
-              </div>
-
-              <div className="flex items-center justify-between mb-3">
-                <div>
-                  <p className="font-semibold text-gray-900 dark:text-white">${property.price}/night</p>
-                  <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(property.status)}`}>
-                    {property.status}
+      ) : error ? (
+        <div className="text-center py-12">
+          <div className="text-red-500 mb-4">
+            <AlertCircle className="w-16 h-16 mx-auto" />
+          </div>
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+            Error Loading Properties
+          </h3>
+          <p className="text-gray-600 dark:text-gray-400 mb-4">{error}</p>
+          <button 
+            onClick={fetchProperties}
+            className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        {filteredProperties.map((property) => {
+          const CategoryIcon = categoryIcons[property.type] || Package
+          return (
+            <div key={property.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-lg transition-all duration-200 group">
+              {/* Property Image */}
+              <div className="relative h-32 bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                {property.images && property.images.length > 0 ? (
+                  <img
+                    src={property.images[0].startsWith('/') ? `http://localhost:8080${property.images[0]}` : property.images[0]}
+                    alt={property.title}
+                    className="object-cover w-full h-full absolute top-0 left-0"
+                  />
+                ) : (
+                  <CategoryIcon className="w-8 h-8 text-gray-400 z-10" />
+                )}
+                {/* Status & Category Badges */}
+                <div className="absolute top-2 left-2 flex gap-1 z-20">
+                  <span className="flex items-center gap-0.5 bg-blue-600 text-white px-2 py-0.5 rounded-full text-xs font-medium">
+                    <CategoryIcon className="w-2.5 h-2.5" />
+                    {property.type}
                   </span>
                 </div>
+                {/* Featured & Verified Indicators */}
+                <div className="absolute top-2 right-2 flex flex-col gap-1 z-20">
+                  {property.featured && (
+                    <div className="bg-yellow-500 text-white p-1 rounded-full" title="Featured">
+                      <Star className="w-3 h-3 fill-current" />
+                    </div>
+                  )}
+                  {property.verified && (
+                    <div className="bg-blue-500 text-white p-1 rounded-full" title="Verified">
+                      <CheckCircle className="w-3 h-3" />
+                    </div>
+                  )}
+                </div>
               </div>
 
-              {/* Action Buttons - Same as Owner */}
-              <div className="flex items-center justify-between pt-2 border-t border-gray-200 dark:border-gray-600">
-                <button
-                  type="button"
-                  onClick={() => togglePropertyStatus(property.id)}
-                  className={`flex items-center text-xs px-2 py-1 rounded-full transition-colors ${
-                    property.status === 'active' 
-                      ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300' 
-                      : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400'
-                  }`}
-                >
-                  {property.status === 'active' ? (
-                    <>
-                      <ToggleRight className="w-3 h-3 mr-1" />
-                      Active
-                    </>
-                  ) : (
-                    <>
-                      <ToggleLeft className="w-3 h-3 mr-1" />
-                      Inactive
-                    </>
-                  )}
-                </button>
-                
-                <div className="flex items-center space-x-1">
-                  <button 
-                    onClick={() => toggleFeatured(property.id)}
-                    className={`p-1.5 transition-colors rounded hover:bg-gray-100 dark:hover:bg-gray-700 ${
-                      property.featured 
-                        ? 'text-yellow-500 hover:text-yellow-600 dark:hover:text-yellow-400' 
-                        : 'text-gray-400 hover:text-yellow-600 dark:hover:text-yellow-400'
-                    }`}
-                    title={property.featured ? 'Unmark as Featured' : 'Mark as Featured'}
-                  >
-                    <Star className="w-3.5 h-3.5" />
-                  </button>
-                  <button 
-                    onClick={() => toggleVerified(property.id)}
-                    className={`p-1.5 transition-colors rounded hover:bg-gray-100 dark:hover:bg-gray-700 ${
-                      property.verified 
-                        ? 'text-blue-500 hover:text-blue-600 dark:hover:text-blue-400' 
-                        : 'text-gray-400 hover:text-blue-600 dark:hover:text-blue-400'
-                    }`}
-                    title={property.verified ? 'Unmark as Verified' : 'Mark as Verified'}
-                  >
-                    <CheckCircle className="w-3.5 h-3.5" />
-                  </button>
-                  <button 
-                    className="p-1.5 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors rounded hover:bg-gray-100 dark:hover:bg-gray-700" 
-                    title="View"
-                  >
-                    <Eye className="w-3.5 h-3.5" />
-                  </button>
-                  <button 
-                    className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors rounded hover:bg-gray-100 dark:hover:bg-gray-700" 
-                    title="Edit"
-                  >
-                    <Edit className="w-3.5 h-3.5" />
-                  </button>
-                  <button 
-                    onClick={() => deleteProperty(property.id)}
-                    className="p-1.5 text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors rounded hover:bg-gray-100 dark:hover:bg-gray-700"
-                    title="Delete"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
+              {/* Property Info */}
+              <div className="p-3">
+                {/* Title & Price */}
+                <div className="mb-2">
+                  <h3 className="font-semibold text-gray-900 dark:text-white text-sm line-clamp-1 mb-1">
+                    {property.title}
+                  </h3>
+                  <div className="flex items-center justify-between">
+                    <span className="text-lg font-bold text-primary-600 dark:text-primary-400">
+                      ${property.price}
+                    </span>
+                    <span className="text-xs text-gray-500 dark:text-gray-400">/night</span>
+                  </div>
+                </div>
+
+                {/* Location */}
+                <div className="flex items-center text-xs text-gray-600 dark:text-gray-400 mb-2">
+                  <MapPin className="w-3 h-3 mr-1 flex-shrink-0" />
+                  <span className="line-clamp-1">{property.location}</span>
+                </div>
+
+                {/* Stats */}
+                <div className="flex items-center justify-between py-2 border-t border-gray-100 dark:border-gray-700">
+                  <div className="flex items-center text-xs text-gray-600 dark:text-gray-400">
+                    <div className="flex items-center mr-3">
+                      <div className="w-2 h-2 bg-green-500 rounded-full mr-1"></div>
+                      <span>{property.bookings}</span>
+                    </div>
+                    <div className="flex items-center">
+                      <Star className="w-3 h-3 text-yellow-500 fill-current mr-1" />
+                      <span>{property.rating}</span>
+                    </div>
+                  </div>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
+                    {property.reviews} reviews
+                  </span>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex items-center justify-between mt-3 pt-2 border-t border-gray-100 dark:border-gray-700">
+                  <div className="flex items-center space-x-1">
+                    <button 
+                      onClick={() => toggleFeatured(property.id)}
+                      className={`p-1.5 transition-colors rounded hover:bg-gray-100 dark:hover:bg-gray-700 ${
+                        property.featured 
+                          ? 'text-yellow-500 hover:text-yellow-600 dark:hover:text-yellow-400' 
+                          : 'text-gray-400 hover:text-yellow-600 dark:hover:text-yellow-400'
+                      }`}
+                      title={property.featured ? 'Unmark as Featured' : 'Mark as Featured'}
+                    >
+                      <Star className="w-3.5 h-3.5" />
+                    </button>
+                    <button 
+                      onClick={() => toggleVerified(property.id)}
+                      className={`p-1.5 transition-colors rounded hover:bg-gray-100 dark:hover:bg-gray-700 ${
+                        property.verified 
+                          ? 'text-blue-500 hover:text-blue-600 dark:hover:text-blue-400' 
+                          : 'text-gray-400 hover:text-blue-600 dark:hover:text-blue-400'
+                      }`}
+                      title={property.verified ? 'Unmark as Verified' : 'Mark as Verified'}
+                    >
+                      <CheckCircle className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                  <div className="flex items-center space-x-1">
+                    <button 
+                      className="p-1.5 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors rounded hover:bg-gray-100 dark:hover:bg-gray-700" 
+                      title="View"
+                    >
+                      <Eye className="w-3.5 h-3.5" />
+                    </button>
+                    <button 
+                      className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors rounded hover:bg-gray-100 dark:hover:bg-gray-700" 
+                      title="Edit"
+                    >
+                      <Edit className="w-3.5 h-3.5" />
+                    </button>
+                    <button 
+                      onClick={() => deleteProperty(property.id)}
+                      className="p-1.5 text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors rounded hover:bg-gray-100 dark:hover:bg-gray-700"
+                      title="Delete"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
-      </div>
+          )
+        })}
+        </div>
+      )}
     </div>
   )
 }

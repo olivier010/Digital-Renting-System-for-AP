@@ -32,8 +32,10 @@ const Properties = () => {
             ? p.images.map((img: string) => img && !img.startsWith('http') ? `http://localhost:8080${img}` : img)
             : [],
         }));
-        setProperties(apiProperties)
-        setFilteredProperties(apiProperties)
+        // Only show verified properties
+        const verifiedProperties = apiProperties.filter((p: any) => p.isVerified)
+        setProperties(verifiedProperties)
+        setFilteredProperties(verifiedProperties)
       } catch (err) {
         setProperties([])
         setFilteredProperties([])
@@ -49,6 +51,7 @@ const Properties = () => {
     setSearchQuery(query)
     setShowAllProperties(false) // Reset show all when searching
     let filtered = properties.filter(property => {
+      if (!property.isVerified) return false;
       if (query && !property.location.toLowerCase().includes(query.toLowerCase()) &&
           !property.title.toLowerCase().includes(query.toLowerCase()) &&
           !property.description.toLowerCase().includes(query.toLowerCase())) {

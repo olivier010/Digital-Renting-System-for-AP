@@ -95,30 +95,33 @@ const SearchProperties = () => {
         // API returns { data: { content: [ ... ] } }
         const items = res.data?.content || []
         // Map backend fields to frontend Property type
-        setProperties(items.map((p: any) => ({
-          id: p.id,
-          title: p.title,
-          description: p.description,
-          price: p.price,
-          location: p.location,
-          category: p.category,
-          images: Array.isArray(p.images)
-            ? p.images.map((img: string) => img && !img.startsWith('http') ? `http://localhost:8080${img}` : img)
-            : [],
-          available: p.isAvailable,
-          bookings: p.bookingsCount,
-          rating: p.rating,
-          reviews: p.reviewsCount,
-          status: p.status,
-          owner: {
-            id: p.owner?.id,
-            name: p.owner?.name,
-            email: p.owner?.email,
-            phone: p.owner?.phone,
-          },
-          createdAt: p.createdAt,
-          updatedAt: p.updatedAt,
-        })))
+        setProperties(items
+          .filter((p: any) => p.isVerified)
+          .map((p: any) => ({
+            id: p.id,
+            title: p.title,
+            description: p.description,
+            price: p.price,
+            location: p.location,
+            category: p.category,
+            images: Array.isArray(p.images)
+              ? p.images.map((img: string) => img && !img.startsWith('http') ? `http://localhost:8080${img}` : img)
+              : [],
+            available: p.isAvailable,
+            bookings: p.bookingsCount,
+            rating: p.rating,
+            reviews: p.reviewsCount,
+            status: p.status,
+            owner: {
+              id: p.owner?.id,
+              name: p.owner?.name,
+              email: p.owner?.email,
+              phone: p.owner?.phone,
+            },
+            createdAt: p.createdAt,
+            updatedAt: p.updatedAt,
+          }))
+        )
       } catch (err: any) {
         setError(err.message || 'Failed to fetch properties')
       } finally {

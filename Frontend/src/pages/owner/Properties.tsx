@@ -1,5 +1,6 @@
 
 import { useState, useEffect } from 'react'
+import { useAuth } from '../../contexts/AuthContext'
 import { Link } from 'react-router-dom'
 import { 
   Home, 
@@ -50,6 +51,7 @@ type Property = {
 const API_BASE_URL = 'http://localhost:8080/api';
 
 const Properties = () => {
+  const { user } = useAuth();
   // Toggle featured status
   const toggleFeatured = async (propertyId: number) => {
     const property = properties.find((p) => p.id === propertyId)
@@ -548,30 +550,34 @@ const Properties = () => {
                           </>
                         )}
                       </button>
-                      
                       <div className="flex items-center space-x-1">
-                        <button 
-                          onClick={() => toggleFeatured(property.id)}
-                          className={`p-1.5 transition-colors rounded hover:bg-gray-100 dark:hover:bg-gray-700 ${
-                            property.isFeatured 
-                              ? 'text-yellow-500 hover:text-yellow-600 dark:hover:text-yellow-400' 
-                              : 'text-gray-400 hover:text-yellow-600 dark:hover:text-yellow-400'
-                          }`}
-                          title={property.isFeatured ? 'Unmark as Featured' : 'Mark as Featured'}
-                        >
-                          <Star className="w-3.5 h-3.5" />
-                        </button>
-                        <button 
-                          onClick={() => toggleVerified(property.id)}
-                          className={`p-1.5 transition-colors rounded hover:bg-gray-100 dark:hover:bg-gray-700 ${
-                            property.isVerified 
-                              ? 'text-blue-500 hover:text-blue-600 dark:hover:text-blue-400' 
-                              : 'text-gray-400 hover:text-blue-600 dark:hover:text-blue-400'
-                          }`}
-                          title={property.isVerified ? 'Unmark as Verified' : 'Mark as Verified'}
-                        >
-                          <CheckCircle className="w-3.5 h-3.5" />
-                        </button>
+                        {/* Only show verify/featured buttons if user is admin */}
+                        {user?.type === 'admin' && (
+                          <>
+                            <button 
+                              onClick={() => toggleFeatured(property.id)}
+                              className={`p-1.5 transition-colors rounded hover:bg-gray-100 dark:hover:bg-gray-700 ${
+                                property.isFeatured 
+                                  ? 'text-yellow-500 hover:text-yellow-600 dark:hover:text-yellow-400' 
+                                  : 'text-gray-400 hover:text-yellow-600 dark:hover:text-yellow-400'
+                              }`}
+                              title={property.isFeatured ? 'Unmark as Featured' : 'Mark as Featured'}
+                            >
+                              <Star className="w-3.5 h-3.5" />
+                            </button>
+                            <button 
+                              onClick={() => toggleVerified(property.id)}
+                              className={`p-1.5 transition-colors rounded hover:bg-gray-100 dark:hover:bg-gray-700 ${
+                                property.isVerified 
+                                  ? 'text-blue-500 hover:text-blue-600 dark:hover:text-blue-400' 
+                                  : 'text-gray-400 hover:text-blue-600 dark:hover:text-blue-400'
+                              }`}
+                              title={property.isVerified ? 'Unmark as Verified' : 'Mark as Verified'}
+                            >
+                              <CheckCircle className="w-3.5 h-3.5" />
+                            </button>
+                          </>
+                        )}
                         <Link 
                           to={`/owner/properties/${property.id}`} 
                           className="p-1.5 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors rounded hover:bg-gray-100 dark:hover:bg-gray-700" 
