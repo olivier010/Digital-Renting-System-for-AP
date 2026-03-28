@@ -6,7 +6,6 @@ import {
   CheckCircle, 
   XCircle, 
   AlertCircle, 
-  DollarSign, 
   MapPin,
   Download,
   MessageSquare,
