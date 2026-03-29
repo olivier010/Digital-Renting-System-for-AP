@@ -24,7 +24,6 @@ const Reports = () => {
 
   const [overviewStats, setOverviewStats] = useState<any>(null)
 
-  const [revenueData, setRevenueData] = useState<any[]>([])
 
   const [systemLogs, setSystemLogs] = useState<any[]>([])
 
