@@ -223,39 +223,7 @@ const Reports = () => {
         )}
       </div>
 
-      {/* Revenue Chart */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-8">
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Revenue Trends</h3>
-          <div className="flex items-center space-x-2">
-            <button className="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300">
-              View Details
-            </button>
-          </div>
-        </div>
-        
-        <div className="h-64 flex items-center justify-center bg-gray-50 dark:bg-gray-700 rounded-lg">
-          <div className="text-center">
-            <BarChart3 className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-            <p className="text-gray-500 dark:text-gray-400">Revenue chart visualization</p>
-            <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">
-              {revenueData.map(d => d.month).join(' - ')}
-            </p>
-          </div>
-        </div>
-        
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
-          {revenueData.slice(0, 4).map((data, index) => (
-            <div key={index} className="text-center">
-              <p className="text-sm text-gray-600 dark:text-gray-400">{data.month}</p>
-              <p className="text-lg font-bold text-gray-900 dark:text-white">
-                ${(data.revenue / 1000).toFixed(0)}k
-              </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">{data.bookings} bookings</p>
-            </div>
-          ))}
-        </div>
-      </div>
+      {/* Revenue Chart (removed, no revenueData) */}
 
       {/* System Logs & Issues */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
