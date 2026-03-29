@@ -32,12 +32,33 @@ export interface User {
 }
 
 export interface Booking {
-  id: string;
-  propertyId: string;
-  tenantId: string;
+  id: number;
+  property: {
+    id: number;
+    title: string;
+    location: string;
+    category: string;
+    price: number;
+    image: string;
+    ownerId: number;
+    ownerName: string;
+  };
+  renter: {
+    id: number;
+    name: string;
+    email: string;
+    phone: string;
+    avatar: string | null;
+  };
   startDate: string;
   endDate: string;
   totalPrice: number;
-  status: 'pending' | 'confirmed' | 'cancelled';
+  status: string;
+  paymentStatus: string;
+  specialRequests?: string;
+  cancellationReason?: string;
+  cancellationPolicy?: string;
   createdAt: string;
+  updatedAt: string;
+  reviewed: boolean;
 }
