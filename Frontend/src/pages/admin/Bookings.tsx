@@ -438,31 +438,31 @@ const Bookings = () => {
                       )}
                     </div>
                   </td>
-                      {/* Booking Details Modal */}
-                      {viewBooking && (
-                        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-                          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg max-w-lg w-full p-6 relative">
-                            <button className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" onClick={() => setViewBooking(null)}>
-                              <span className="text-2xl">&times;</span>
-                            </button>
-                            <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Booking Details</h2>
-                            <div className="space-y-2 text-sm text-gray-900 dark:text-white">
-                              <div><span className="font-medium text-gray-900 dark:text-white">Booking No:</span> BK{String(viewBooking.id).padStart(4, '0')}</div>
-                              <div><span className="font-medium text-gray-900 dark:text-white">Status:</span> {viewBooking.status}</div>
-                              <div><span className="font-medium text-gray-900 dark:text-white">Payment Status:</span> {viewBooking.paymentStatus}</div>
-                              <div><span className="font-medium text-gray-900 dark:text-white">Property:</span> {viewBooking.property?.title} ({viewBooking.property?.location})</div>
-                              <div><span className="font-medium text-gray-900 dark:text-white">Owner:</span> {viewBooking.property?.ownerName} (ID: {viewBooking.property?.ownerId})</div>
-                              <div><span className="font-medium text-gray-900 dark:text-white">Renter:</span> {viewBooking.renter?.name} ({viewBooking.renter?.email})</div>
-                              <div><span className="font-medium text-gray-900 dark:text-white">Dates:</span> {viewBooking.startDate} to {viewBooking.endDate}</div>
-                              <div><span className="font-medium text-gray-900 dark:text-white">Total Price:</span> ${Number(viewBooking.totalPrice).toLocaleString()}</div>
-                              {viewBooking.specialRequests && <div><span className="font-medium text-gray-900 dark:text-white">Special Requests:</span> {viewBooking.specialRequests}</div>}
-                              {viewBooking.cancellationReason && <div><span className="font-medium text-gray-900 dark:text-white">Cancellation Reason:</span> {viewBooking.cancellationReason}</div>}
-                              <div><span className="font-medium text-gray-900 dark:text-white">Created At:</span> {viewBooking.createdAt}</div>
-                              <div><span className="font-medium text-gray-900 dark:text-white">Updated At:</span> {viewBooking.updatedAt}</div>
-                            </div>
-                          </div>
-                        </div>
-                      )}
+                            {/* Booking Details Modal - move outside table to avoid <div> in <tr> hydration error */}
+                            {viewBooking && (
+                              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+                                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg max-w-lg w-full p-6 relative">
+                                  <button className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" onClick={() => setViewBooking(null)}>
+                                    <span className="text-2xl">&times;</span>
+                                  </button>
+                                  <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Booking Details</h2>
+                                  <div className="space-y-2 text-sm text-gray-900 dark:text-white">
+                                    <div><span className="font-medium text-gray-900 dark:text-white">Booking No:</span> BK{String(viewBooking.id).padStart(4, '0')}</div>
+                                    <div><span className="font-medium text-gray-900 dark:text-white">Status:</span> {viewBooking.status}</div>
+                                    <div><span className="font-medium text-gray-900 dark:text-white">Payment Status:</span> {viewBooking.paymentStatus}</div>
+                                    <div><span className="font-medium text-gray-900 dark:text-white">Property:</span> {viewBooking.property?.title} ({viewBooking.property?.location})</div>
+                                    <div><span className="font-medium text-gray-900 dark:text-white">Owner:</span> {viewBooking.property?.ownerName} (ID: {viewBooking.property?.ownerId})</div>
+                                    <div><span className="font-medium text-gray-900 dark:text-white">Renter:</span> {viewBooking.renter?.name} ({viewBooking.renter?.email})</div>
+                                    <div><span className="font-medium text-gray-900 dark:text-white">Dates:</span> {viewBooking.startDate} to {viewBooking.endDate}</div>
+                                    <div><span className="font-medium text-gray-900 dark:text-white">Total Price:</span> ${Number(viewBooking.totalPrice).toLocaleString()}</div>
+                                    {viewBooking.specialRequests && <div><span className="font-medium text-gray-900 dark:text-white">Special Requests:</span> {viewBooking.specialRequests}</div>}
+                                    {viewBooking.cancellationReason && <div><span className="font-medium text-gray-900 dark:text-white">Cancellation Reason:</span> {viewBooking.cancellationReason}</div>}
+                                    <div><span className="font-medium text-gray-900 dark:text-white">Created At:</span> {viewBooking.createdAt}</div>
+                                    <div><span className="font-medium text-gray-900 dark:text-white">Updated At:</span> {viewBooking.updatedAt}</div>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
                 </tr>
               ))}
             </tbody>

@@ -343,21 +343,38 @@ const Dashboard = () => {
           </div>
           <div className="p-6">
             <div className="space-y-4">
-              {systemLogs.slice(0, 4).map((log, idx) => (
-                <div key={log.id} className="flex items-start space-x-3">
-                  <div className="mt-0.5">
-                    <span className="font-bold mr-2 text-gray-700 dark:text-gray-200">{idx + 1}.</span>
-                    {log.type === 'error' && <AlertCircle className="w-4 h-4 text-red-500 inline-block" />}
-                    {log.type === 'warning' && <AlertCircle className="w-4 h-4 text-yellow-500 inline-block" />}
-                    {log.type === 'info' && <FileText className="w-4 h-4 text-blue-500 inline-block" />}
-                    {log.type === 'success' && <CheckCircle className="w-4 h-4 text-green-500 inline-block" />}
+              {[...systemLogs]
+                .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+                .slice(0, 4)
+                .map((log) => (
+                  <div key={log.id} className="flex items-start space-x-3">
+                    <div className="mt-0.5">
+                      {log.level === 'ERROR' && <AlertCircle className="w-4 h-4 text-red-500 inline-block" />}
+                      {(log.level === 'WARN' || log.level === 'WARNING') && <AlertCircle className="w-4 h-4 text-yellow-500 inline-block" />}
+                      {log.level === 'INFO' && <FileText className="w-4 h-4 text-blue-500 inline-block" />}
+                      {log.level === 'DEBUG' && <CheckCircle className="w-4 h-4 text-green-500 inline-block" />}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between">
+                        <p className="text-sm text-gray-900 dark:text-white truncate">{log.message}</p>
+                        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ml-2 ${
+                          log.level === 'ERROR'
+                            ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                            : log.level === 'WARN' || log.level === 'WARNING'
+                            ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                            : log.level === 'INFO'
+                            ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+                            : log.level === 'DEBUG'
+                            ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                            : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
+                        }`}>
+                          {log.level}
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">{log.timestamp}</p>
+                    </div>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm text-gray-900 dark:text-white truncate">{log.message}</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">{log.timestamp}</p>
-                  </div>
-                </div>
-              ))}
+                ))}
             </div>
           </div>
         </div>

@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { apiFetch } from '../../utils/api'
 import { 
   BarChart3, 
   TrendingUp, 
@@ -21,52 +22,34 @@ const Reports = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('month')
   const [searchTerm, setSearchTerm] = useState('')
 
-  const [overviewStats] = useState({
-    totalUsers: 15420,
-    activeUsers: 3247,
-    totalProperties: 2847,
-    activeProperties: 2341,
-    totalBookings: 8934,
-    completedBookings: 7821,
-    totalRevenue: 2847500,
-    monthlyRevenue: 245000,
-    averageRating: 4.6,
-    responseRate: 92,
-    systemUptime: 99.9
-  })
+  const [overviewStats, setOverviewStats] = useState<any>(null)
 
-  const [revenueData] = useState([
-    { month: 'Jan', revenue: 185000, bookings: 680, users: 2840 },
-    { month: 'Feb', revenue: 220000, bookings: 750, users: 2950 },
-    { month: 'Mar', revenue: 245000, bookings: 820, users: 3120 },
-    { month: 'Apr', revenue: 198000, bookings: 690, users: 3050 },
-    { month: 'May', revenue: 265000, bookings: 880, users: 3280 },
-    { month: 'Jun', revenue: 289000, bookings: 920, users: 3420 }
-  ])
+  const [revenueData, setRevenueData] = useState<any[]>([])
 
-  const [systemLogs] = useState([
-    { id: 1, type: 'error', message: 'Database connection timeout', timestamp: '2024-03-15 10:20:00', severity: 'high', resolved: false },
-    { id: 2, type: 'warning', message: 'High memory usage detected', timestamp: '2024-03-15 10:15:00', severity: 'medium', resolved: true },
-    { id: 3, type: 'info', message: 'System backup completed successfully', timestamp: '2024-03-15 10:00:00', severity: 'low', resolved: true },
-    { id: 4, type: 'success', message: 'New user registration spike detected', timestamp: '2024-03-15 09:45:00', severity: 'low', resolved: true },
-    { id: 5, type: 'error', message: 'Payment gateway temporarily unavailable', timestamp: '2024-03-15 09:30:00', severity: 'high', resolved: true },
-    { id: 6, type: 'warning', message: 'Unusual login patterns detected', timestamp: '2024-03-15 09:15:00', severity: 'medium', resolved: false }
-  ])
+  const [systemLogs, setSystemLogs] = useState<any[]>([])
 
-  const [reportedIssues] = useState([
-    { id: 1, title: 'Property images not loading', type: 'Bug', reporter: 'User123', priority: 'high', status: 'investigating', created: '2024-03-15', assignedTo: 'Dev Team' },
-    { id: 2, title: 'Payment gateway error on mobile', type: 'Bug', reporter: 'Owner456', priority: 'high', status: 'in_progress', created: '2024-03-14', assignedTo: 'John Doe' },
-    { id: 3, title: 'Request for advanced search filters', type: 'Feature', reporter: 'User789', priority: 'medium', status: 'pending', created: '2024-03-14', assignedTo: 'Product Team' },
-    { id: 4, title: 'Improve booking calendar UX', type: 'Enhancement', reporter: 'Owner101', priority: 'medium', status: 'approved', created: '2024-03-13', assignedTo: 'Design Team' },
-    { id: 5, type: 'Security', title: 'Suspicious activity from IP range', reporter: 'System', priority: 'critical', status: 'resolved', created: '2024-03-12', assignedTo: 'Security Team' }
-  ])
+  const [reportedIssues] = useState<any[]>([])
 
-  const getLogSeverityColor = (severity: string) => {
-    switch (severity) {
-      case 'high': return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-      case 'medium': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-      case 'low': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
+  useEffect(() => {
+    // Fetch dashboard stats
+    apiFetch('/admin/dashboard')
+      .then(res => setOverviewStats(res.data))
+      .catch(() => setOverviewStats(null))
+    // Fetch logs
+    apiFetch('/admin/logs')
+      .then(res => setSystemLogs(res.data))
+      .catch(() => setSystemLogs([]))
+    // TODO: Fetch revenueData from backend if available
+  }, [])
+
+  const getLogLevelColor = (level: string) => {
+    switch ((level || '').toUpperCase()) {
+      case 'ERROR': return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
+      case 'WARN':
+      case 'WARNING': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
+      case 'INFO': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
+      case 'DEBUG': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
     }
   }
 
@@ -81,10 +64,15 @@ const Reports = () => {
     }
   }
 
-  const filteredLogs = systemLogs.filter(log => 
-    log.message.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    log.type.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  const [logsPage, setLogsPage] = useState(0);
+  const LOGS_PAGE_SIZE = 4;
+  const filteredLogs = systemLogs
+    .filter(log => 
+      log.message.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      log.type.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+  const paginatedLogs = filteredLogs.slice(logsPage * LOGS_PAGE_SIZE, (logsPage + 1) * LOGS_PAGE_SIZE);
 
   const filteredIssues = reportedIssues.filter(issue =>
     issue.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -141,77 +129,99 @@ const Reports = () => {
 
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Revenue</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                ${(overviewStats.totalRevenue / 1000000).toFixed(1)}M
-              </p>
-              <p className="text-sm text-green-600 dark:text-green-400 mt-2 flex items-center">
-                <TrendingUp className="w-4 h-4 mr-1" />
-                +12% from last {selectedPeriod}
-              </p>
+        {overviewStats && (
+          <>
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Revenue</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                    ${Number(overviewStats.totalRevenue).toLocaleString()}
+                  </p>
+                  <p className="text-sm text-green-600 dark:text-green-400 mt-2 flex items-center">
+                    <TrendingUp className="w-4 h-4 mr-1" />
+                    {(() => {
+                      const current = Number(overviewStats.totalRevenue);
+                      const last = Number(overviewStats.totalRevenueLastMonth);
+                      if (last === 0) return 'N/A from last month';
+                      const percent = ((current - last) / last) * 100;
+                      const sign = percent >= 0 ? '+' : '';
+                      return `${sign}${percent.toFixed(1)}% from last month`;
+                    })()}
+                  </p>
+                </div>
+                <div className="p-3 bg-green-100 dark:bg-green-900 rounded-lg">
+                  <DollarSign className="w-6 h-6 text-green-600 dark:text-green-300" />
+                </div>
+              </div>
             </div>
-            <div className="p-3 bg-green-100 dark:bg-green-900 rounded-lg">
-              <DollarSign className="w-6 h-6 text-green-600 dark:text-green-300" />
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Active Users</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                    {Number(overviewStats.activeUsers).toLocaleString()}
+                  </p>
+                  <p className="text-sm text-green-600 dark:text-green-400 mt-2 flex items-center">
+                    <TrendingUp className="w-4 h-4 mr-1" />
+                    {(() => {
+                      const current = Number(overviewStats.activeUsers);
+                      const last = Number(overviewStats.totalUsersLastMonth);
+                      if (last === 0) return 'N/A from last month';
+                      const percent = ((current - last) / last) * 100;
+                      const sign = percent >= 0 ? '+' : '';
+                      return `${sign}${percent.toFixed(1)}% from last month`;
+                    })()}
+                  </p>
+                </div>
+                <div className="p-3 bg-blue-100 dark:bg-blue-900 rounded-lg">
+                  <Users className="w-6 h-6 text-blue-600 dark:text-blue-300" />
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Active Users</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                {overviewStats.activeUsers.toLocaleString()}
-              </p>
-              <p className="text-sm text-green-600 dark:text-green-400 mt-2 flex items-center">
-                <TrendingUp className="w-4 h-4 mr-1" />
-                +8% from last {selectedPeriod}
-              </p>
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Bookings</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                    {Number(overviewStats.totalBookings).toLocaleString()}
+                  </p>
+                  <p className="text-sm text-green-600 dark:text-green-400 mt-2 flex items-center">
+                    <TrendingUp className="w-4 h-4 mr-1" />
+                    {(() => {
+                      const current = Number(overviewStats.totalBookings);
+                      const last = Number(overviewStats.totalBookingsLastMonth);
+                      if (last === 0) return 'N/A from last month';
+                      const percent = ((current - last) / last) * 100;
+                      const sign = percent >= 0 ? '+' : '';
+                      return `${sign}${percent.toFixed(1)}% from last month`;
+                    })()}
+                  </p>
+                </div>
+                <div className="p-3 bg-purple-100 dark:bg-purple-900 rounded-lg">
+                  <Calendar className="w-6 h-6 text-purple-600 dark:text-purple-300" />
+                </div>
+              </div>
             </div>
-            <div className="p-3 bg-blue-100 dark:bg-blue-900 rounded-lg">
-              <Users className="w-6 h-6 text-blue-600 dark:text-blue-300" />
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">System Uptime</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                    {Math.round(overviewStats.uptimePercentage)}%
+                  </p>
+                  <p className="text-sm text-green-600 dark:text-green-400 mt-2 flex items-center">
+                    <CheckCircle className="w-4 h-4 mr-1" />
+                    Excellent
+                  </p>
+                </div>
+                <div className="p-3 bg-orange-100 dark:bg-orange-900 rounded-lg">
+                  <Activity className="w-6 h-6 text-orange-600 dark:text-orange-300" />
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Bookings</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                {overviewStats.totalBookings.toLocaleString()}
-              </p>
-              <p className="text-sm text-green-600 dark:text-green-400 mt-2 flex items-center">
-                <TrendingUp className="w-4 h-4 mr-1" />
-                +15% from last {selectedPeriod}
-              </p>
-            </div>
-            <div className="p-3 bg-purple-100 dark:bg-purple-900 rounded-lg">
-              <Calendar className="w-6 h-6 text-purple-600 dark:text-purple-300" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">System Uptime</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                {overviewStats.systemUptime}%
-              </p>
-              <p className="text-sm text-green-600 dark:text-green-400 mt-2 flex items-center">
-                <CheckCircle className="w-4 h-4 mr-1" />
-                Excellent
-              </p>
-            </div>
-            <div className="p-3 bg-orange-100 dark:bg-orange-900 rounded-lg">
-              <Activity className="w-6 h-6 text-orange-600 dark:text-orange-300" />
-            </div>
-          </div>
-        </div>
+          </>
+        )}
       </div>
 
       {/* Revenue Chart */}
@@ -275,32 +285,43 @@ const Reports = () => {
           
           <div className="p-6">
             <div className="space-y-4">
-              {filteredLogs.slice(0, 6).map((log) => (
+              {paginatedLogs.map((log) => (
                 <div key={log.id} className="flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">
                   <div className="mt-0.5">
-                    {log.type === 'error' && <AlertCircle className="w-4 h-4 text-red-500" />}
-                    {log.type === 'warning' && <AlertCircle className="w-4 h-4 text-yellow-500" />}
-                    {log.type === 'info' && <FileText className="w-4 h-4 text-blue-500" />}
-                    {log.type === 'success' && <CheckCircle className="w-4 h-4 text-green-500" />}
+                    {log.level === 'ERROR' && <AlertCircle className="w-4 h-4 text-red-500" />}
+                    {log.level === 'WARN' || log.level === 'WARNING' ? <AlertCircle className="w-4 h-4 text-yellow-500" /> : null}
+                    {log.level === 'INFO' && <FileText className="w-4 h-4 text-blue-500" />}
+                    {log.level === 'DEBUG' && <CheckCircle className="w-4 h-4 text-green-500" />}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between">
                       <p className="text-sm text-gray-900 dark:text-white truncate">{log.message}</p>
-                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getLogSeverityColor(log.severity)}`}>
-                        {log.severity}
+                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getLogLevelColor(log.level)}`}>
+                        {log.level}
                       </span>
                     </div>
                     <div className="flex items-center justify-between mt-1">
-                      <p className="text-xs text-gray-500 dark:text-gray-400">{log.timestamp}</p>
-                      {log.resolved ? (
-                        <span className="text-xs text-green-600 dark:text-green-400">Resolved</span>
-                      ) : (
-                        <span className="text-xs text-red-600 dark:text-red-400">Open</span>
-                      )}
+                      <span className="text-xs text-gray-500 dark:text-gray-400">{log.timestamp}</span>
                     </div>
                   </div>
                 </div>
               ))}
+            </div>
+            <div className="flex justify-between mt-4">
+              <button
+                className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+                onClick={() => setLogsPage((p) => Math.max(0, p - 1))}
+                disabled={logsPage === 0}
+              >
+                Previous
+              </button>
+              <button
+                className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+                onClick={() => setLogsPage((p) => p + 1)}
+                disabled={((logsPage + 1) * LOGS_PAGE_SIZE) >= filteredLogs.length}
+              >
+                Next
+              </button>
             </div>
           </div>
         </div>
@@ -360,45 +381,53 @@ const Reports = () => {
       </div>
 
       {/* Performance Metrics */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Performance Metrics</h3>
-          <button className="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300">
-            View Full Report
-          </button>
+      {overviewStats && (
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Performance Metrics</h3>
+            <button className="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300">
+              View Full Report
+            </button>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="text-center">
+              <div className="flex items-center justify-center w-16 h-16 bg-green-100 dark:bg-green-900 rounded-full mx-auto mb-3">
+                <Target className="w-8 h-8 text-green-600 dark:text-green-300" />
+              </div>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{overviewStats.averageRating}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Average Rating</p>
+              <p className="text-xs text-green-600 dark:text-green-400 mt-1">
+                {(() => {
+                  const current = Number(overviewStats.averageRating);
+                  const last = Number(overviewStats.averageRatingLastMonth);
+                  if (last === 0) return 'N/A from last month';
+                  const percent = ((current - last) / last) * 100;
+                  const sign = percent >= 0 ? '+' : '';
+                  return `${sign}${percent.toFixed(1)}% from last month`;
+                })()}
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="flex items-center justify-center w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-full mx-auto mb-3">
+                <Zap className="w-8 h-8 text-blue-600 dark:text-blue-300" />
+              </div>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{overviewStats.responseRate ? overviewStats.responseRate + '%' : 'N/A'}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Response Rate</p>
+              <p className="text-xs text-green-600 dark:text-green-400 mt-1">+3% from last month</p>
+            </div>
+            <div className="text-center">
+              <div className="flex items-center justify-center w-16 h-16 bg-purple-100 dark:bg-purple-900 rounded-full mx-auto mb-3">
+                <PieChart className="w-8 h-8 text-purple-600 dark:text-purple-300" />
+              </div>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                {overviewStats.completedBookings && overviewStats.totalBookings ? Math.round((overviewStats.completedBookings / overviewStats.totalBookings) * 100) + '%' : 'N/A'}
+              </p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Completion Rate</p>
+              <p className="text-xs text-green-600 dark:text-green-400 mt-1">+5% from last month</p>
+            </div>
+          </div>
         </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="text-center">
-            <div className="flex items-center justify-center w-16 h-16 bg-green-100 dark:bg-green-900 rounded-full mx-auto mb-3">
-              <Target className="w-8 h-8 text-green-600 dark:text-green-300" />
-            </div>
-            <p className="text-2xl font-bold text-gray-900 dark:text-white">{overviewStats.averageRating}</p>
-            <p className="text-sm text-gray-600 dark:text-gray-400">Average Rating</p>
-            <p className="text-xs text-green-600 dark:text-green-400 mt-1">+0.2 from last month</p>
-          </div>
-          
-          <div className="text-center">
-            <div className="flex items-center justify-center w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-full mx-auto mb-3">
-              <Zap className="w-8 h-8 text-blue-600 dark:text-blue-300" />
-            </div>
-            <p className="text-2xl font-bold text-gray-900 dark:text-white">{overviewStats.responseRate}%</p>
-            <p className="text-sm text-gray-600 dark:text-gray-400">Response Rate</p>
-            <p className="text-xs text-green-600 dark:text-green-400 mt-1">+3% from last month</p>
-          </div>
-          
-          <div className="text-center">
-            <div className="flex items-center justify-center w-16 h-16 bg-purple-100 dark:bg-purple-900 rounded-full mx-auto mb-3">
-              <PieChart className="w-8 h-8 text-purple-600 dark:text-purple-300" />
-            </div>
-            <p className="text-2xl font-bold text-gray-900 dark:text-white">
-              {Math.round((overviewStats.completedBookings / overviewStats.totalBookings) * 100)}%
-            </p>
-            <p className="text-sm text-gray-600 dark:text-gray-400">Completion Rate</p>
-            <p className="text-xs text-green-600 dark:text-green-400 mt-1">+5% from last month</p>
-          </div>
-        </div>
-      </div>
+      )}
     </div>
   )
 }
