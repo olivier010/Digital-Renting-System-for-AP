@@ -34,4 +34,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     @Query("SELECT AVG(r.overallRating) FROM Review r WHERE r.createdAt >= :start AND r.createdAt < :end")
     Double averageRatingBetween(@Param("start") java.time.LocalDateTime start, @Param("end") java.time.LocalDateTime end);
+
+    @Query("SELECT COALESCE(AVG(r.overallRating), 0) FROM Review r WHERE r.property.owner.id = :ownerId AND r.createdAt >= :start AND r.createdAt < :end")
+    Double averageRatingByOwnerAndCreatedAtBetween(@Param("ownerId") Long ownerId, @Param("start") java.time.LocalDateTime start, @Param("end") java.time.LocalDateTime end);
 }

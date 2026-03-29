@@ -12,6 +12,8 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class SystemStatusService {
     // Inject your repositories/services as needed
+    private static final long REFERENCE_PERIOD_SECONDS = 24 * 60 * 60; // 24 hours
+    private static final long START_TIME_MILLIS = ManagementFactory.getRuntimeMXBean().getStartTime();
 
     public SystemStatusResponse getSystemStatus() {
         String dbStatus = checkDatabase() ? "UP" : "DOWN";
@@ -19,8 +21,8 @@ public class SystemStatusService {
         String fileStorageStatus = checkFileStorage() ? "UP" : "DOWN";
         String mqStatus = checkMessageQueue() ? "UP" : "DOWN";
         String uptime = getUptime();
-        // Set errorCount to 0 or stub (not a number as per user request)
         int errorCount = 0;
+        double uptimePercentage = calculateUptimePercentage();
 
         return new SystemStatusResponse(
                 dbStatus,
@@ -28,7 +30,8 @@ public class SystemStatusService {
                 fileStorageStatus,
                 mqStatus,
                 uptime,
-                errorCount
+                errorCount,
+                uptimePercentage
         );
     }
 
@@ -65,5 +68,21 @@ public class SystemStatusService {
         long uptimeMillis = ManagementFactory.getRuntimeMXBean().getUptime();
         Duration d = Duration.ofMillis(uptimeMillis);
         return String.format("%d:%02d:%02d", d.toHours(), d.toMinutesPart(), d.toSecondsPart());
+    }
+
+    private double calculateUptimePercentage() {
+        long nowMillis = System.currentTimeMillis();
+        long uptimeMillis = ManagementFactory.getRuntimeMXBean().getUptime();
+        long referencePeriodMillis = REFERENCE_PERIOD_SECONDS * 1000;
+        long periodStart = nowMillis - referencePeriodMillis;
+        long actualUptimeMillis;
+        if (START_TIME_MILLIS > periodStart) {
+            // System started within the reference period
+            actualUptimeMillis = nowMillis - START_TIME_MILLIS;
+        } else {
+            // System has been up for the whole reference period
+            actualUptimeMillis = referencePeriodMillis;
+        }
+        return (actualUptimeMillis * 100.0) / referencePeriodMillis;
     }
 }

@@ -13,5 +13,5 @@ public class SystemStatusResponse {
     private String messageQueue;
     private String uptime;
     private int recentErrorCount;
+    private double uptimePercentage;
 }
-

@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +28,7 @@ public class DashboardService {
     private final FavoriteRepository favoriteRepository;
     private final PaymentRepository paymentRepository;
     private final CurrentUser currentUser;
+    private final SystemStatusService systemStatusService;
 
     @Transactional(readOnly = true)
     public DashboardResponse getAdminDashboard() {
@@ -49,6 +51,7 @@ public class DashboardService {
         Double avgRatingThisMonth = reviewRepository.averageRatingBetween(startOfThisMonth, now);
         Double avgRatingLastMonth = reviewRepository.averageRatingBetween(startOfLastMonth, startOfThisMonth);
 
+        double uptimePercentage = systemStatusService.getSystemStatus().getUptimePercentage();
         return DashboardResponse.builder()
             .totalUsers(userRepository.count())
             .totalUsersLastMonth(usersLastMonth)
@@ -68,6 +71,7 @@ public class DashboardService {
             .activeUsers(userRepository.countByIsActive(true))
             .averageRating(avgRatingThisMonth != null ? avgRatingThisMonth : 0.0)
             .averageRatingLastMonth(avgRatingLastMonth != null ? avgRatingLastMonth : 0.0)
+            .uptimePercentage(uptimePercentage)
             .build();
     }
 
@@ -112,6 +116,59 @@ public class DashboardService {
                 .myReviews(reviewRepository.countByReviewerId(renterId))
                 .totalSpent(totalSpent != null ? totalSpent : BigDecimal.ZERO)
                 .build();
+    }
+
+    @Transactional(readOnly = true)
+    public DashboardResponse getOwnerDashboardMonthlyStats() {
+        User owner = currentUser.getUser();
+        Long ownerId = owner.getId();
+
+        LocalDateTime now = LocalDateTime.now();
+        YearMonth thisMonth = YearMonth.from(now);
+        YearMonth lastMonth = thisMonth.minusMonths(1);
+        LocalDateTime startOfThisMonth = thisMonth.atDay(1).atStartOfDay();
+        LocalDateTime startOfLastMonth = lastMonth.atDay(1).atStartOfDay();
+
+        // Properties
+        long propertiesThisMonth = propertyRepository.countByOwnerIdAndCreatedAtBetween(ownerId, startOfThisMonth, now);
+        long propertiesLastMonth = propertyRepository.countByOwnerIdAndCreatedAtBetween(ownerId, startOfLastMonth, startOfThisMonth);
+        // Bookings
+        long bookingsThisMonth = bookingRepository.countByOwnerIdAndCreatedAtBetween(ownerId, startOfThisMonth, now);
+        long bookingsLastMonth = bookingRepository.countByOwnerIdAndCreatedAtBetween(ownerId, startOfLastMonth, startOfThisMonth);
+        // Earnings
+        BigDecimal earningsThisMonth = bookingRepository.sumCompletedEarningsByOwnerAndCreatedAtBetween(ownerId, startOfThisMonth, now);
+        BigDecimal earningsLastMonth = bookingRepository.sumCompletedEarningsByOwnerAndCreatedAtBetween(ownerId, startOfLastMonth, startOfThisMonth);
+        // Ratings
+        Double avgRatingThisMonth = reviewRepository.averageRatingByOwnerAndCreatedAtBetween(ownerId, startOfThisMonth, now);
+        Double avgRatingLastMonth = reviewRepository.averageRatingByOwnerAndCreatedAtBetween(ownerId, startOfLastMonth, startOfThisMonth);
+
+        return DashboardResponse.builder()
+                .myPropertiesThisMonth(propertiesThisMonth)
+                .myPropertiesLastMonth(propertiesLastMonth)
+                .myBookingsThisMonth(bookingsThisMonth)
+                .myBookingsLastMonth(bookingsLastMonth)
+                .myEarningsThisMonth(earningsThisMonth != null ? earningsThisMonth : BigDecimal.ZERO)
+                .myEarningsLastMonth(earningsLastMonth != null ? earningsLastMonth : BigDecimal.ZERO)
+                .averageOwnerRatingThisMonth(avgRatingThisMonth != null ? avgRatingThisMonth : 0.0)
+                .averageOwnerRatingLastMonth(avgRatingLastMonth != null ? avgRatingLastMonth : 0.0)
+                .build();
+    }
+
+    @Transactional(readOnly = true)
+    public List<java.util.Map<String, Object>> getMonthlyRevenue() {
+        List<Object[]> results = bookingRepository.findMonthlyRevenue();
+        List<java.util.Map<String, Object>> monthlyRevenue = new java.util.ArrayList<>();
+        for (Object[] row : results) {
+            int year = ((Number) row[0]).intValue();
+            int month = ((Number) row[1]).intValue();
+            java.math.BigDecimal revenue = (java.math.BigDecimal) row[2];
+            String monthStr = String.format("%04d-%02d", year, month);
+            java.util.Map<String, Object> entry = new java.util.HashMap<>();
+            entry.put("month", monthStr);
+            entry.put("revenue", revenue);
+            monthlyRevenue.add(entry);
+        }
+        return monthlyRevenue;
     }
 
     private Double calculateOwnerAverageRating(Long ownerId) {

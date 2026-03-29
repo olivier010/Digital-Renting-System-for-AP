@@ -104,4 +104,10 @@ public class OwnerController {
         var propertyEarnings = paymentService.getOwnerPropertyEarnings(ownerId);
         return ResponseEntity.ok(ApiResponse.success(propertyEarnings));
     }
+
+    @GetMapping("/dashboard/monthly-stats")
+    public ResponseEntity<ApiResponse<DashboardResponse>> getDashboardMonthlyStats() {
+        DashboardResponse response = dashboardService.getOwnerDashboardMonthlyStats();
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
 }

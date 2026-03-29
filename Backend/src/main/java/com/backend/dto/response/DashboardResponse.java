@@ -32,6 +32,7 @@ public class DashboardResponse {
     private Long activeUsers; // Only approved users (isActive=true)
     private Double averageRating;
     private Double averageRatingLastMonth;
+    private Double uptimePercentage; // Admin system status
 
     // Owner dashboard stats
     private Long myProperties;
@@ -41,6 +42,16 @@ public class DashboardResponse {
     private BigDecimal myEarnings;
     private Double averageOwnerRating;
     private Long totalOwnerReviews;
+
+    // Owner dashboard monthly stats
+    private Long myPropertiesThisMonth;
+    private Long myPropertiesLastMonth;
+    private Long myBookingsThisMonth;
+    private Long myBookingsLastMonth;
+    private BigDecimal myEarningsThisMonth;
+    private BigDecimal myEarningsLastMonth;
+    private Double averageOwnerRatingThisMonth;
+    private Double averageOwnerRatingLastMonth;
 
     // Renter dashboard stats
     private Long myTotalBookings;

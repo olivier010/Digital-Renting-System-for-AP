@@ -62,4 +62,7 @@ public interface PropertyRepository extends JpaRepository<Property, Long>, JpaSp
 
     @Query("SELECT COUNT(p) FROM Property p WHERE p.createdAt >= :start AND p.createdAt < :end")
     long countCreatedBetween(@Param("start") java.time.LocalDateTime start, @Param("end") java.time.LocalDateTime end);
+
+    @Query("SELECT COUNT(p) FROM Property p WHERE p.owner.id = :ownerId AND p.createdAt >= :start AND p.createdAt < :end")
+    long countByOwnerIdAndCreatedAtBetween(@Param("ownerId") Long ownerId, @Param("start") java.time.LocalDateTime start, @Param("end") java.time.LocalDateTime end);
 }

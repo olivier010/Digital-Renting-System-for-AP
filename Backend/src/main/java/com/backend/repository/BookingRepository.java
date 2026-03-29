@@ -75,4 +75,13 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     @Query("SELECT SUM(b.totalPrice) FROM Booking b WHERE b.status = 'COMPLETED' AND b.createdAt >= :start AND b.createdAt < :end")
     java.math.BigDecimal calculateRevenueBetween(@Param("start") java.time.LocalDateTime start, @Param("end") java.time.LocalDateTime end);
+
+    @Query("SELECT COUNT(b) FROM Booking b WHERE b.property.owner.id = :ownerId AND b.createdAt >= :start AND b.createdAt < :end")
+    long countByOwnerIdAndCreatedAtBetween(@Param("ownerId") Long ownerId, @Param("start") java.time.LocalDateTime start, @Param("end") java.time.LocalDateTime end);
+
+    @Query("SELECT COALESCE(SUM(b.totalPrice), 0) FROM Booking b WHERE b.property.owner.id = :ownerId AND b.status = 'COMPLETED' AND b.createdAt >= :start AND b.createdAt < :end")
+    java.math.BigDecimal sumCompletedEarningsByOwnerAndCreatedAtBetween(@Param("ownerId") Long ownerId, @Param("start") java.time.LocalDateTime start, @Param("end") java.time.LocalDateTime end);
+
+    @Query("SELECT FUNCTION('YEAR', b.createdAt), FUNCTION('MONTH', b.createdAt), COALESCE(SUM(b.totalPrice), 0) FROM Booking b WHERE b.status = 'COMPLETED' GROUP BY FUNCTION('YEAR', b.createdAt), FUNCTION('MONTH', b.createdAt)")
+    List<Object[]> findMonthlyRevenue();
 }
