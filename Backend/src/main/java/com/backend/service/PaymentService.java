@@ -9,8 +9,11 @@ import com.backend.entity.Payment;
 import com.backend.entity.Property;
 import com.backend.entity.User;
 import com.backend.enums.BookingStatus;
+import com.backend.enums.NotificationEntityType;
+import com.backend.enums.NotificationType;
 import com.backend.enums.PaymentStatus;
 import com.backend.enums.PaymentType;
+import com.backend.enums.Role;
 import com.backend.exception.BadRequestException;
 import com.backend.exception.ResourceNotFoundException;
 import com.backend.exception.UnauthorizedException;
@@ -42,6 +45,7 @@ public class PaymentService {
     private final PaymentMapper paymentMapper;
     private final CurrentUser currentUser;
     private final PropertyRepository propertyRepository;
+    private final NotificationService notificationService;
 
     @Transactional(readOnly = true)
     public PageResponse<PaymentResponse> getCurrentUserPayments(PaymentStatus status, PaymentType type, int page, int size) {
@@ -77,22 +81,62 @@ public class PaymentService {
         try {
             type = PaymentType.valueOf(request.getType().toUpperCase());
         } catch (IllegalArgumentException e) {
+            notifyPaymentFailure(booking, renter, "Invalid payment type: " + request.getType());
             throw new BadRequestException("Invalid payment type");
         }
-        Payment payment = Payment.builder()
-                .booking(booking)
-                .renter(renter)
-                .type(type)
-                .amount(request.getAmount())
-                .method(request.getMethod())
-                .cardLastFour(request.getCardLastFour())
-                .invoiceId("INV-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase())
-                .status(PaymentStatus.COMPLETED)
-                .build();
-        payment = paymentRepository.save(payment);
-        booking.setPaymentStatus(PaymentStatus.COMPLETED);
-        booking.setStatus(BookingStatus.CONFIRMED);
-        bookingRepository.save(booking);
+        Payment payment;
+        try {
+            payment = Payment.builder()
+                    .booking(booking)
+                    .renter(renter)
+                    .type(type)
+                    .amount(request.getAmount())
+                    .method(request.getMethod())
+                    .cardLastFour(request.getCardLastFour())
+                    .invoiceId("INV-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase())
+                    .status(PaymentStatus.COMPLETED)
+                    .build();
+            payment = paymentRepository.save(payment);
+            booking.setPaymentStatus(PaymentStatus.COMPLETED);
+            booking.setStatus(BookingStatus.CONFIRMED);
+            bookingRepository.save(booking);
+        } catch (RuntimeException ex) {
+            notifyPaymentFailure(booking, renter, ex.getMessage());
+            throw ex;
+        }
+
+        User owner = booking.getProperty().getOwner();
+        notificationService.notifyUser(
+                renter,
+                NotificationType.PAYMENT_SUCCEEDED,
+                "Payment successful",
+                "Your payment for booking #" + booking.getId() + " was completed successfully.",
+                renter.getId(),
+                NotificationEntityType.PAYMENT,
+                payment.getId(),
+                "status=COMPLETED"
+        );
+        notificationService.notifyUser(
+                owner,
+                NotificationType.PAYMENT_SUCCEEDED,
+                "Payment received",
+                "A payment was completed for booking #" + booking.getId() + " on " + booking.getProperty().getTitle() + ".",
+                renter.getId(),
+                NotificationEntityType.PAYMENT,
+                payment.getId(),
+                "status=COMPLETED"
+        );
+        notificationService.notifyRole(
+                Role.ADMIN,
+                NotificationType.ADMIN_PAYMENT_MONITORING,
+                "Payment monitoring event",
+                "Payment #" + payment.getId() + " completed for booking #" + booking.getId() + ".",
+                renter.getId(),
+                NotificationEntityType.PAYMENT,
+                payment.getId(),
+                "status=COMPLETED"
+        );
+
         return paymentMapper.toResponse(payment);
     }
 
@@ -112,6 +156,40 @@ public class PaymentService {
         booking.setPaymentStatus(PaymentStatus.REFUNDED);
         booking.setStatus(BookingStatus.CANCELLED);
         bookingRepository.save(booking);
+
+        Long actorUserId = currentUser.getUserId();
+        User owner = booking.getProperty().getOwner();
+        notificationService.notifyUser(
+                payment.getRenter(),
+                NotificationType.PAYMENT_REFUNDED,
+                "Payment refunded",
+                "Your payment for booking #" + booking.getId() + " has been refunded.",
+                actorUserId,
+                NotificationEntityType.PAYMENT,
+                payment.getId(),
+                "status=REFUNDED"
+        );
+        notificationService.notifyUser(
+                owner,
+                NotificationType.PAYMENT_REFUNDED,
+                "Payment refunded",
+                "Payment for booking #" + booking.getId() + " was refunded.",
+                actorUserId,
+                NotificationEntityType.PAYMENT,
+                payment.getId(),
+                "status=REFUNDED"
+        );
+        notificationService.notifyRole(
+                Role.ADMIN,
+                NotificationType.ADMIN_PAYMENT_MONITORING,
+                "Payment monitoring event",
+                "Payment #" + payment.getId() + " was refunded.",
+                actorUserId,
+                NotificationEntityType.PAYMENT,
+                payment.getId(),
+                "status=REFUNDED"
+        );
+
         return paymentMapper.toResponse(payment);
     }
 
@@ -158,5 +236,43 @@ public class PaymentService {
                 .first(page.isFirst())
                 .last(page.isLast())
                 .build();
+    }
+
+    private void notifyPaymentFailure(Booking booking, User renter, String reason) {
+        User owner = booking.getProperty().getOwner();
+        String details = reason != null && !reason.isBlank() ? reason : "Payment processing failed";
+
+        notificationService.notifyUser(
+                renter,
+                NotificationType.PAYMENT_FAILED,
+                "Payment failed",
+                "Your payment for booking #" + booking.getId() + " failed. Reason: " + details,
+                renter.getId(),
+                NotificationEntityType.PAYMENT,
+                null,
+                "status=FAILED"
+        );
+
+        notificationService.notifyUser(
+                owner,
+                NotificationType.PAYMENT_FAILED,
+                "Payment failed",
+                "A payment attempt failed for booking #" + booking.getId() + " on " + booking.getProperty().getTitle() + ".",
+                renter.getId(),
+                NotificationEntityType.PAYMENT,
+                null,
+                "status=FAILED"
+        );
+
+        notificationService.notifyRole(
+                Role.ADMIN,
+                NotificationType.ADMIN_PAYMENT_MONITORING,
+                "Payment monitoring event",
+                "Payment failed for booking #" + booking.getId() + ". Reason: " + details,
+                renter.getId(),
+                NotificationEntityType.PAYMENT,
+                null,
+                "status=FAILED"
+        );
     }
 }

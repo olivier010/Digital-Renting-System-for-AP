@@ -8,6 +8,8 @@ import com.backend.entity.Booking;
 import com.backend.entity.Property;
 import com.backend.entity.User;
 import com.backend.enums.BookingStatus;
+import com.backend.enums.NotificationEntityType;
+import com.backend.enums.NotificationType;
 import com.backend.enums.PaymentStatus;
 import com.backend.enums.Role;
 import com.backend.exception.BadRequestException;
@@ -39,6 +41,7 @@ public class BookingService {
     private final PropertyRepository propertyRepository;
     private final BookingMapper bookingMapper;
     private final CurrentUser currentUser;
+    private final NotificationService notificationService;
 
     @Transactional(readOnly = true)
     public PageResponse<BookingResponse> getAllBookings(BookingStatus status, LocalDate startDate, LocalDate endDate, int page, int size) {
@@ -146,6 +149,28 @@ public class BookingService {
         property.setBookingsCount(property.getBookingsCount() + 1);
         propertyRepository.save(property);
 
+        notificationService.notifyUser(
+                property.getOwner(),
+                NotificationType.BOOKING_CREATED,
+                "New booking request",
+                "A new booking request was created for " + property.getTitle() + ".",
+                renter.getId(),
+                NotificationEntityType.BOOKING,
+                booking.getId(),
+                null
+        );
+
+        notificationService.notifyUser(
+                renter,
+                NotificationType.BOOKING_STATUS_CHANGED,
+                "Booking submitted",
+                "Your booking request is now PENDING for " + property.getTitle() + ".",
+                renter.getId(),
+                NotificationEntityType.BOOKING,
+                booking.getId(),
+                "status=PENDING"
+        );
+
         return bookingMapper.toResponse(booking);
     }
 
@@ -162,6 +187,7 @@ public class BookingService {
         if (request.getStartDate() != null) booking.setStartDate(request.getStartDate());
         if (request.getEndDate() != null) booking.setEndDate(request.getEndDate());
         if (request.getSpecialRequests() != null) booking.setSpecialRequests(request.getSpecialRequests());
+        BookingStatus previousStatus = booking.getStatus();
         if (request.getStatus() != null) {
             booking.setStatus(BookingStatus.valueOf(request.getStatus().toUpperCase()));
         }
@@ -174,6 +200,9 @@ public class BookingService {
         }
 
         booking = bookingRepository.save(booking);
+        if (request.getStatus() != null && previousStatus != booking.getStatus()) {
+            notifyBookingStatusChange(booking, user, request.getCancellationReason());
+        }
         return bookingMapper.toResponse(booking);
     }
 
@@ -193,6 +222,7 @@ public class BookingService {
         }
 
         booking = bookingRepository.save(booking);
+        notifyBookingStatusChange(booking, user, cancellationReason);
         return bookingMapper.toResponse(booking);
     }
 
@@ -220,5 +250,38 @@ public class BookingService {
         User user = currentUser.getUser();
         if (user == null) throw new UnauthorizedException("User not authenticated");
         return user.getId();
+    }
+
+    private void notifyBookingStatusChange(Booking booking, User actor, String cancellationReason) {
+        NotificationType notificationType = booking.getStatus() == BookingStatus.CANCELLED
+                ? NotificationType.BOOKING_CANCELLED
+                : NotificationType.BOOKING_STATUS_CHANGED;
+
+        String renterMessage = "Your booking status is now " + booking.getStatus().name() + ".";
+        if (booking.getStatus() == BookingStatus.CANCELLED && cancellationReason != null && !cancellationReason.isBlank()) {
+            renterMessage += " Reason: " + cancellationReason;
+        }
+
+        notificationService.notifyUser(
+                booking.getRenter(),
+                notificationType,
+                "Booking status updated",
+                renterMessage,
+                actor != null ? actor.getId() : null,
+                NotificationEntityType.BOOKING,
+                booking.getId(),
+                "status=" + booking.getStatus().name()
+        );
+
+        notificationService.notifyUser(
+                booking.getProperty().getOwner(),
+                notificationType,
+                "Booking status changed",
+                "Booking #" + booking.getId() + " for " + booking.getProperty().getTitle() + " is now " + booking.getStatus().name() + ".",
+                actor != null ? actor.getId() : null,
+                NotificationEntityType.BOOKING,
+                booking.getId(),
+                "status=" + booking.getStatus().name()
+        );
     }
 }

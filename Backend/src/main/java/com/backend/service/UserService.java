@@ -3,6 +3,8 @@ package com.backend.service;
 import com.backend.dto.response.PageResponse;
 import com.backend.dto.response.UserResponse;
 import com.backend.entity.User;
+import com.backend.enums.NotificationEntityType;
+import com.backend.enums.NotificationType;
 import com.backend.enums.Role;
 import com.backend.exception.ResourceNotFoundException;
 import com.backend.mapper.UserMapper;
@@ -21,6 +23,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final NotificationService notificationService;
 
     @Transactional(readOnly = true)
     public PageResponse<UserResponse> getAllUsers(Role role, Boolean isActive, String search, int page, int size, String sortBy) {
@@ -41,6 +44,7 @@ public class UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
 
+        Boolean previousStatus = user.getIsActive();
         if (role != null) {
             user.setRole(role);
         }
@@ -49,6 +53,22 @@ public class UserService {
         }
 
         user = userRepository.save(user);
+
+        if (isActive != null && (previousStatus == null || !previousStatus.equals(isActive))) {
+            notificationService.notifyUser(
+                    user,
+                    isActive ? NotificationType.USER_APPROVED : NotificationType.USER_REJECTED,
+                    isActive ? "Account approved" : "Account status updated",
+                    isActive
+                            ? "Your account has been approved. You can now log in."
+                            : "Your account is currently not active. Contact support for more details.",
+                    null,
+                    NotificationEntityType.USER,
+                    user.getId(),
+                    "isActive=" + isActive
+            );
+        }
+
         return userMapper.toResponse(user);
     }
 
@@ -65,8 +85,25 @@ public class UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
 
+        Boolean previousStatus = user.getIsActive();
         user.setIsActive(isActive);
         user = userRepository.save(user);
+
+        if (previousStatus == null || !previousStatus.equals(isActive)) {
+            notificationService.notifyUser(
+                    user,
+                    Boolean.TRUE.equals(isActive) ? NotificationType.USER_APPROVED : NotificationType.USER_REJECTED,
+                    Boolean.TRUE.equals(isActive) ? "Account approved" : "Account status updated",
+                    Boolean.TRUE.equals(isActive)
+                            ? "Your account has been approved. You can now log in."
+                            : "Your account is currently not active. Contact support for more details.",
+                    null,
+                    NotificationEntityType.USER,
+                    user.getId(),
+                    "isActive=" + isActive
+            );
+        }
+
         return userMapper.toResponse(user);
     }
 

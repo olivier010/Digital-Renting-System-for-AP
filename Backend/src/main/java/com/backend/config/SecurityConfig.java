@@ -40,6 +40,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Allow public access to static image resources
                         .requestMatchers("/uploads/**").permitAll()
+                        .requestMatchers("/error").permitAll()
                         // Public endpoints
                         .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
                         .requestMatchers("/api/contact").permitAll()
@@ -59,6 +60,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/bookings").hasRole("RENTER")
                         .requestMatchers(HttpMethod.POST, "/api/reviews").hasRole("RENTER")
                         .requestMatchers(HttpMethod.POST, "/api/payments").hasRole("RENTER")
+
+                        // Notification endpoints (service layer enforces authenticated current user ownership)
+                        .requestMatchers("/api/notifications", "/api/notifications/**").permitAll()
 
                         // Any authenticated user
                         .anyRequest().authenticated()

@@ -8,6 +8,8 @@ import com.backend.dto.response.AuthResponse;
 import com.backend.dto.response.UserResponse;
 import com.backend.entity.User;
 import com.backend.entity.Log;
+import com.backend.enums.NotificationEntityType;
+import com.backend.enums.NotificationType;
 import com.backend.enums.Role;
 import com.backend.exception.BadRequestException;
 import com.backend.exception.DuplicateResourceException;
@@ -37,6 +39,7 @@ public class AuthService {
     private final UserMapper userMapper;
     private final CurrentUser currentUser;
     private final LogService logService;
+    private final NotificationService notificationService;
 
     @Transactional
     public AuthResponse register(RegisterRequest request) {
@@ -71,6 +74,18 @@ public class AuthService {
             .message("User registered: " + user.getEmail())
             .timestamp(LocalDateTime.now())
             .build());
+
+        notificationService.notifyRole(
+                Role.ADMIN,
+                NotificationType.USER_PENDING_APPROVAL,
+                "New user pending approval",
+                "User " + user.getEmail() + " registered and is waiting for approval.",
+                user.getId(),
+                NotificationEntityType.USER,
+                user.getId(),
+                null
+        );
+
         String token = jwtTokenProvider.generateToken(user.getId(), user.getEmail(), user.getRole().name());
 
         return AuthResponse.builder()

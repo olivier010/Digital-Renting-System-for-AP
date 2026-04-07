@@ -91,6 +91,7 @@ src/main/java/com/backend/
 │   ├── BookingController.java
 │   ├── ContactController.java
 │   ├── FavoriteController.java
+│   ├── NotificationController.java
 │   ├── OwnerController.java
 │   ├── PaymentController.java
 │   ├── PropertyController.java
@@ -104,12 +105,16 @@ src/main/java/com/backend/
 ├── entity/                      # JPA Entities
 │   ├── Booking.java
 │   ├── Favorite.java
+│   ├── Log.java
+│   ├── Notification.java
 │   ├── Payment.java
 │   ├── Property.java
 │   ├── Review.java
 │   └── User.java
 ├── enums/                       # Enumerations
 │   ├── BookingStatus.java
+│   ├── NotificationEntityType.java
+│   ├── NotificationType.java
 │   ├── PaymentStatus.java
 │   ├── PaymentType.java
 │   ├── PropertyCategory.java
@@ -136,6 +141,8 @@ src/main/java/com/backend/
     ├── DashboardService.java
     ├── FavoriteService.java
     ├── FileUploadService.java
+    ├── LogService.java
+    ├── NotificationService.java
     ├── PaymentService.java
     ├── PropertyService.java
     ├── ReviewService.java
@@ -163,9 +170,10 @@ src/main/java/com/backend/
 | POST | `/api/properties` | Owner | Create new property |
 | PUT | `/api/properties/{id}` | Owner | Update property |
 | DELETE | `/api/properties/{id}` | Owner | Delete property |
+| PATCH | `/api/properties/{id}/featured` | Admin | Toggle featured flag |
+| PATCH | `/api/properties/{id}/verified?verified=true|false&reason=` | Admin | Verify/reject property |
 | GET | `/api/properties/featured` | Public | Get featured properties |
-| GET | `/api/properties/categories` | Public | Get property categories |
-| GET | `/api/properties/owner` | Owner | List all properties for the current owner |
+| GET | `/api/properties/owner/{ownerId}` | Owner/Admin | List properties by owner |
 
 ### Bookings
 
@@ -204,13 +212,25 @@ src/main/java/com/backend/
 | POST | `/api/payments` | Renter | Create payment |
 | POST | `/api/payments/{id}/refund` | Admin | Refund payment |
 
+### Notifications
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| GET | `/api/notifications` | Authenticated | List current user's notifications with filters |
+| GET | `/api/notifications/unread-count` | Authenticated | Get unread notification count |
+| PATCH | `/api/notifications/{id}/read` | Authenticated | Mark a notification as read |
+| PATCH | `/api/notifications/read-all` | Authenticated | Mark all current user's notifications as read |
+| DELETE | `/api/notifications/{id}` | Authenticated | Delete a notification |
+
 ### Admin
 
 | Method | Endpoint | Auth | Description |
 |--------|----------|------|-------------|
 | GET | `/api/admin/dashboard` | Admin | Get dashboard statistics |
+| GET | `/api/admin/reports/revenue` | Admin | Get monthly revenue report data |
 | GET | `/api/users` | Admin | List all users |
 | PUT | `/api/users/{id}` | Admin | Update user |
+| PATCH | `/api/users/{id}/status` | Admin | Approve/reject user account |
 | DELETE | `/api/users/{id}` | Admin | Delete user |
 | GET | `/api/admin/logs` | Admin | Get all system logs |
 | GET | `/api/admin/system-status` | Admin | Get real-time system health status |
@@ -605,6 +625,130 @@ Authorization: Bearer <admin_token>
 PATCH /api/users/{id}/status?isActive=false
 Authorization: Bearer <admin_token>
 ```
+
+---
+
+### Notifications
+
+#### List Notifications (Current User)
+```http
+GET /api/notifications?page=0&size=10&unread=true&type=BOOKING_STATUS_CHANGED&from=2026-04-01T00:00:00&to=2026-04-30T23:59:59
+Authorization: Bearer <token>
+```
+
+**Supported query params:**
+- `page`, `size`
+- `unread` (`true` or `false`)
+- `type` (e.g. `BOOKING_CREATED`, `BOOKING_STATUS_CHANGED`, `PAYMENT_SUCCEEDED`, `PAYMENT_FAILED`, `REVIEW_RECEIVED`, `PROPERTY_VERIFIED`, `USER_PENDING_APPROVAL`)
+- `from`, `to` (ISO date-time)
+
+> For booking notifications, statuses are `PENDING`, `CONFIRMED`, `CANCELLED`, `COMPLETED`.
+
+**Response Example:**
+```json
+{
+  "status": 200,
+  "message": "Success",
+  "data": {
+    "content": [
+      {
+        "id": 42,
+        "type": "BOOKING_STATUS_CHANGED",
+        "title": "Booking status updated",
+        "body": "Your booking status is now CONFIRMED.",
+        "isRead": false,
+        "createdAt": "2026-04-06T10:15:30",
+        "readAt": null,
+        "actorUserId": 7,
+        "entityType": "BOOKING",
+        "entityId": 101,
+        "metadata": "status=CONFIRMED"
+      }
+    ],
+    "page": 0,
+    "size": 10,
+    "totalElements": 1,
+    "totalPages": 1,
+    "first": true,
+    "last": true
+  },
+  "timestamp": "2026-04-06T10:16:00"
+}
+```
+
+#### Get Unread Count
+```http
+GET /api/notifications/unread-count
+Authorization: Bearer <token>
+```
+
+**Response Example:**
+```json
+{
+  "status": 200,
+  "message": "Success",
+  "data": {
+    "unreadCount": 5
+  },
+  "timestamp": "2026-04-06T10:20:00"
+}
+```
+
+#### Mark One Notification as Read
+```http
+PATCH /api/notifications/{id}/read
+Authorization: Bearer <token>
+```
+
+**Response Example:**
+```json
+{
+  "status": 200,
+  "message": "Notification marked as read",
+  "data": {
+    "id": 42,
+    "isRead": true,
+    "readAt": "2026-04-06T10:25:00"
+  },
+  "timestamp": "2026-04-06T10:25:00"
+}
+```
+
+#### Mark All Notifications as Read
+```http
+PATCH /api/notifications/read-all
+Authorization: Bearer <token>
+```
+
+**Response Example:**
+```json
+{
+  "status": 200,
+  "message": "All notifications marked as read",
+  "data": {
+    "updatedCount": 12
+  },
+  "timestamp": "2026-04-06T10:30:00"
+}
+```
+
+#### Delete Notification
+```http
+DELETE /api/notifications/{id}
+Authorization: Bearer <token>
+```
+
+**Response Example:**
+```json
+{
+  "status": 200,
+  "message": "Notification deleted successfully",
+  "data": null,
+  "timestamp": "2026-04-06T10:35:00"
+}
+```
+
+> **Security note:** users only see/update/delete their own notifications.
 
 ---
 

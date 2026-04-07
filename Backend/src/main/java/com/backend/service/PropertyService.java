@@ -7,8 +7,11 @@ import com.backend.dto.response.PropertyResponse;
 import com.backend.entity.Property;
 import com.backend.entity.PropertyImage;
 import com.backend.entity.User;
+import com.backend.enums.NotificationEntityType;
+import com.backend.enums.NotificationType;
 import com.backend.enums.PropertyCategory;
 import com.backend.enums.PropertyStatus;
+import com.backend.enums.Role;
 import com.backend.exception.BadRequestException;
 import com.backend.exception.ResourceNotFoundException;
 import com.backend.exception.UnauthorizedException;
@@ -25,13 +28,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -42,6 +43,7 @@ public class PropertyService {
     private final PropertyMapper propertyMapper;
     private final CurrentUser currentUser;
     private final PropertyImageRepository propertyImageRepository;
+    private final NotificationService notificationService;
 
     @Transactional(readOnly = true)
     public PageResponse<PropertyResponse> getAllProperties(PropertyCategory category, BigDecimal minPrice,
@@ -129,6 +131,18 @@ public class PropertyService {
         }
         // Refresh property to include images
         property = propertyRepository.findById(property.getId()).orElse(property);
+
+        notificationService.notifyRole(
+                Role.ADMIN,
+                NotificationType.PROPERTY_PENDING_VERIFICATION,
+                "Property pending verification",
+                "Property " + property.getTitle() + " is waiting for verification.",
+                owner.getId(),
+                NotificationEntityType.PROPERTY,
+                property.getId(),
+                null
+        );
+
         return propertyMapper.toResponse(property);
     }
 
@@ -199,6 +213,18 @@ public class PropertyService {
         }
         // Refresh property to include images
         property = propertyRepository.findById(property.getId()).orElse(property);
+
+        notificationService.notifyRole(
+                Role.ADMIN,
+                NotificationType.PROPERTY_PENDING_VERIFICATION,
+                "Property pending verification",
+                "Property " + property.getTitle() + " is waiting for verification.",
+                owner.getId(),
+                NotificationEntityType.PROPERTY,
+                property.getId(),
+                null
+        );
+
         return propertyMapper.toResponse(property);
     }
 
@@ -251,7 +277,7 @@ public class PropertyService {
         // Update images if provided
         if (request.getImages() != null) {
             // Remove old images
-            propertyImageRepository.findByPropertyId(property.getId()).forEach(propertyImageRepository::delete);
+            propertyImageRepository.deleteByPropertyId(property.getId());
             // Add new images
             for (String imageUrl : request.getImages()) {
                 PropertyImage image = PropertyImage.builder()
@@ -310,7 +336,7 @@ public class PropertyService {
     }
 
     @Transactional
-    public PropertyResponse toggleVerified(Long id) {
+    public PropertyResponse toggleVerified(Long id, Boolean verified, String reason) {
         Property property = propertyRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Property", "id", id));
 
@@ -320,8 +346,27 @@ public class PropertyService {
             throw new UnauthorizedException("Only admins can verify properties");
         }
 
-        property.setIsVerified(!property.getIsVerified());
+        boolean isVerified = verified != null ? verified : !property.getIsVerified();
+        property.setIsVerified(isVerified);
         property = propertyRepository.save(property);
+
+        NotificationType type = isVerified ? NotificationType.PROPERTY_VERIFIED : NotificationType.PROPERTY_REJECTED;
+        String body = isVerified
+                ? "Your property " + property.getTitle() + " has been verified by admin."
+                : "Your property " + property.getTitle() + " was rejected by admin." +
+                  (reason != null && !reason.isBlank() ? " Reason: " + reason : "");
+
+        notificationService.notifyUser(
+                property.getOwner(),
+                type,
+                isVerified ? "Property verified" : "Property rejected",
+                body,
+                currentUserEntity.getId(),
+                NotificationEntityType.PROPERTY,
+                property.getId(),
+                reason
+        );
+
         return propertyMapper.toResponse(property);
     }
 

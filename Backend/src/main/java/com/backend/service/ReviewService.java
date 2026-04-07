@@ -8,6 +8,8 @@ import com.backend.entity.Property;
 import com.backend.entity.Review;
 import com.backend.entity.User;
 import com.backend.enums.BookingStatus;
+import com.backend.enums.NotificationEntityType;
+import com.backend.enums.NotificationType;
 import com.backend.exception.BadRequestException;
 import com.backend.exception.DuplicateResourceException;
 import com.backend.exception.ResourceNotFoundException;
@@ -38,6 +40,7 @@ public class ReviewService {
     private final PropertyRepository propertyRepository;
     private final ReviewMapper reviewMapper;
     private final CurrentUser currentUser;
+    private final NotificationService notificationService;
 
     @Transactional(readOnly = true)
     public PageResponse<ReviewResponse> getPropertyReviews(Long propertyId, int page, int size) {
@@ -119,6 +122,17 @@ public class ReviewService {
 
         // Update property rating
         updatePropertyRating(property.getId());
+
+        notificationService.notifyUser(
+                property.getOwner(),
+                NotificationType.REVIEW_RECEIVED,
+                "New review received",
+                "Your property " + property.getTitle() + " received a new " + request.getOverallRating() + "-star review.",
+                reviewer.getId(),
+                NotificationEntityType.REVIEW,
+                review.getId(),
+                null
+        );
 
         return reviewMapper.toResponse(review);
     }

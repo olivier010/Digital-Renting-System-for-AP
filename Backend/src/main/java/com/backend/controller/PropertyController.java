@@ -140,8 +140,11 @@ public class PropertyController {
 
     @PatchMapping("/{id}/verified")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<PropertyResponse>> toggleVerified(@PathVariable Long id) {
-        PropertyResponse response = propertyService.toggleVerified(id);
-        return ResponseEntity.ok(ApiResponse.success("Property verified status toggled", response));
+    public ResponseEntity<ApiResponse<PropertyResponse>> toggleVerified(
+            @PathVariable Long id,
+            @RequestParam(required = false) Boolean verified,
+            @RequestParam(required = false) String reason) {
+        PropertyResponse response = propertyService.toggleVerified(id, verified, reason);
+        return ResponseEntity.ok(ApiResponse.success("Property verification status updated", response));
     }
 }
