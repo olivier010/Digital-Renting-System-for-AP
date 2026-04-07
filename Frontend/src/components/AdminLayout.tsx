@@ -1,9 +1,11 @@
 import type { ReactNode } from 'react'
 import { useState, useEffect } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { Shield, Settings as SettingsIcon, LogOut, Menu, X, Home, Users, Building, FileText, BarChart } from 'lucide-react'
+import { Shield, Settings as SettingsIcon, LogOut, Menu, X, Home, Users, Building, FileText, BarChart, Bell } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import Loading from './ui/Loading'
+import NotificationModal from './NotificationModal'
+import { apiFetch } from '../utils/api'
 import AdminRoutes from '../pages/admin/AdminRoutes'
 
 interface AdminLayoutProps {
@@ -15,11 +17,26 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const navigate = useNavigate()
   const location = useLocation()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [notificationOpen, setNotificationOpen] = useState(false)
+  const [unreadCount, setUnreadCount] = useState(0)
 
   // Close sidebar when route changes on mobile
   useEffect(() => {
     setSidebarOpen(false)
   }, [location.pathname, location.search])
+
+  const refreshUnreadCount = async () => {
+    try {
+      const res = await apiFetch('/notifications/unread-count')
+      setUnreadCount(res.data?.unreadCount || 0)
+    } catch {
+      setUnreadCount(0)
+    }
+  }
+
+  useEffect(() => {
+    refreshUnreadCount()
+  }, [location.pathname])
 
   const handleLogout = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -196,11 +213,18 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
             </div>
 
             <div className="flex items-center space-x-4">
-              <div className="hidden sm:flex items-center space-x-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span className="text-sm text-gray-600 dark:text-gray-400">
-                  System Online
-                </span>
+              <div className="relative">
+                <button
+                  className="p-2 text-gray-400 hover:text-gray-500 relative"
+                  onClick={() => setNotificationOpen(true)}
+                >
+                  <Bell className="w-5 h-5" />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-red-500 text-white text-[10px] font-semibold leading-5 text-center shadow-sm">
+                      {unreadCount > 99 ? '99+' : unreadCount}
+                    </span>
+                  )}
+                </button>
               </div>
               <Link
                 to="/"
@@ -217,6 +241,16 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           {children || <AdminRoutes />}
         </main>
       </div>
+
+      <NotificationModal
+        isOpen={notificationOpen}
+        onClose={() => {
+          setNotificationOpen(false)
+          refreshUnreadCount()
+        }}
+        title="Admin Notifications"
+        onNotificationsUpdated={refreshUnreadCount}
+      />
     </div>
   )
 }

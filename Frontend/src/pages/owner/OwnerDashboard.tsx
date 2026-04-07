@@ -10,7 +10,6 @@ import {
   Edit, 
   Plus, 
   MoreVertical, 
-  Bell
 } from 'lucide-react'
 
 
@@ -23,6 +22,68 @@ const OwnerDashboard = () => {
   const [recentBookings, setRecentBookings] = useState<any[]>([])
   const [properties, setProperties] = useState<any[]>([])
   const [notifications, setNotifications] = useState<any[]>([])
+
+  const formatRelativeTime = (timestamp: string) => {
+    const date = new Date(timestamp)
+    const now = new Date()
+    const diffMs = now.getTime() - date.getTime()
+    const mins = Math.floor(diffMs / (1000 * 60))
+
+    if (mins < 1) return 'just now'
+    if (mins < 60) return `${mins}m ago`
+
+    const hours = Math.floor(mins / 60)
+    if (hours < 24) return `${hours}h ago`
+
+    const days = Math.floor(hours / 24)
+    if (days < 7) return `${days}d ago`
+
+    return date.toLocaleDateString()
+  }
+
+  const fetchNotifications = async () => {
+    const pageSize = 20
+    let page = 0
+    let totalPages = 1
+    let items: any[] = []
+
+    while (page < totalPages) {
+      const notificationRes = await apiFetch(`/notifications?page=${page}&size=${pageSize}`)
+      const pageItems = notificationRes.data?.content || []
+      items = items.concat(pageItems)
+      totalPages = notificationRes.data?.totalPages || 1
+      page += 1
+    }
+
+    items = items.sort((a: any, b: any) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime())
+
+    setNotifications(items.map((n: any) => ({
+      id: n.id,
+      title: n.title || 'Notification',
+      message: n.body || n.title || 'You have a new notification',
+      time: n.createdAt ? formatRelativeTime(n.createdAt) : 'just now',
+      read: Boolean(n.isRead)
+    })))
+  }
+
+  const markAllNotificationsAsRead = async () => {
+    try {
+      await apiFetch('/notifications/read-all', { method: 'PATCH' })
+      setNotifications(prev => prev.map((n) => ({ ...n, read: true })))
+    } catch {
+      // no-op
+    }
+  }
+
+  const markNotificationAsRead = async (id: number) => {
+    try {
+      await apiFetch(`/notifications/${id}/read`, { method: 'PATCH' })
+      setNotifications(prev => prev.map((n) => n.id === id ? { ...n, read: true } : n))
+    } catch {
+      // no-op
+    }
+  }
+
   // ...existing code...
 
   useEffect(() => {
@@ -68,8 +129,7 @@ const OwnerDashboard = () => {
           rating: b.rating || null,
         })) : [];
         setRecentBookings(apiBookings)
-        // Notifications (simulate empty for now)
-        setNotifications([])
+        await fetchNotifications()
       } catch (err: any) {
         // ...existing code...
       }
@@ -92,7 +152,7 @@ const OwnerDashboard = () => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Enhanced Header */}
-      <div className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
+      <div className="bg-transparent">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div>
@@ -100,12 +160,6 @@ const OwnerDashboard = () => {
               <p className="text-gray-600 dark:text-gray-400 mt-1">Welcome back! Here's what's happening with your properties</p>
             </div>
             <div className="flex items-center space-x-4">
-              <div className="relative">
-                <button className="p-2 text-gray-400 hover:text-gray-500 relative">
-                  <Bell className="w-6 h-6" />
-                  <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-                </button>
-              </div>
               <Link
                 to="/owner/add-property"
                 className="bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center space-x-2"
@@ -364,33 +418,81 @@ const OwnerDashboard = () => {
         </div>
 
         {/* Notifications Section */}
-        <div className="mt-8 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <div className="mt-8 p-0">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Recent Notifications</h2>
-            <button className="text-primary-600 hover:text-primary-500 dark:text-primary-400 text-sm font-medium">
+            <button
+              className="text-primary-600 hover:text-primary-500 dark:text-primary-400 text-sm font-medium"
+              onClick={markAllNotificationsAsRead}
+            >
               Mark all as read
             </button>
           </div>
-          <div className="space-y-3">
+          <style>{`
+            @keyframes ownerNotificationsMarquee {
+              0% { transform: translateY(0); }
+              100% { transform: translateY(-50%); }
+            }
+          `}</style>
+          <div className="relative h-80 overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700 bg-white/40 dark:bg-gray-800/40 p-3">
             {notifications.length === 0 ? (
               <div className="text-gray-400 text-center">No notifications</div>
-            ) : notifications.map((notification) => (
-              <div key={notification.id} className={`flex items-center justify-between p-3 rounded-lg ${notification.read ? 'bg-gray-50 dark:bg-gray-700' : 'bg-blue-50 dark:bg-blue-900/20'}`}>
-                <div className="flex items-center space-x-3">
-                  <div className={`w-2 h-2 rounded-full ${notification.read ? 'bg-gray-300' : 'bg-blue-500'}`}></div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">{notification.message}</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">{notification.time}</p>
-                  </div>
-                </div>
-                <button className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
-                  <MoreVertical className="w-4 h-4" />
-                </button>
+            ) : (
+              <div
+                className="absolute left-0 top-0 w-full space-y-3"
+                style={{
+                  animation: notifications.length > 1
+                    ? 'ownerNotificationsMarquee 30s linear infinite'
+                    : undefined,
+                }}
+              >
+                {notifications.map((notification) => (
+                  <button
+                    key={notification.id}
+                    type="button"
+                    onClick={() => markNotificationAsRead(notification.id)}
+                    className={`w-full text-left flex items-center justify-between p-3 rounded-lg ${notification.read ? 'bg-gray-50 dark:bg-gray-700' : 'bg-blue-50 dark:bg-blue-900/20'}`}
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div className={`w-2 h-2 rounded-full ${notification.read ? 'bg-gray-300' : 'bg-blue-500'}`}></div>
+                      <div>
+                        <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">{notification.title}</p>
+                        <p className="text-sm font-medium text-gray-900 dark:text-white">{notification.message}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">{notification.time}</p>
+                      </div>
+                    </div>
+                    <span className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                      <MoreVertical className="w-4 h-4" />
+                    </span>
+                  </button>
+                ))}
+
+                {notifications.map((notification) => (
+                  <button
+                    key={`${notification.id}-clone`}
+                    type="button"
+                    onClick={() => markNotificationAsRead(notification.id)}
+                    className={`w-full text-left flex items-center justify-between p-3 rounded-lg ${notification.read ? 'bg-gray-50 dark:bg-gray-700' : 'bg-blue-50 dark:bg-blue-900/20'}`}
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div className={`w-2 h-2 rounded-full ${notification.read ? 'bg-gray-300' : 'bg-blue-500'}`}></div>
+                      <div>
+                        <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">{notification.title}</p>
+                        <p className="text-sm font-medium text-gray-900 dark:text-white">{notification.message}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">{notification.time}</p>
+                      </div>
+                    </div>
+                    <span className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                      <MoreVertical className="w-4 h-4" />
+                    </span>
+                  </button>
+                ))}
               </div>
-            ))}
+            )}
           </div>
         </div>
       </div>
+
     </div>
   )
 }

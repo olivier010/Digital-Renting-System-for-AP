@@ -25,7 +25,7 @@ function App() {
             <Routes>
               {/* Admin Routes - No Navbar */}
               <Route path="/admin/*" element={<AdminRoute />} />
-              <Route path="/dashboard" element={<AdminRoute />} /> {/* Legacy redirect */}
+              <Route path="/dashboard/*" element={<AdminRoute />} /> {/* Legacy redirect */}
               
               {/* Public Routes - With Navbar */}
               <Route path="/" element={<><Navbar /><main><Home /></main></>} />

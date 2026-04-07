@@ -36,6 +36,7 @@ type FavoriteProperty = {
 type Notification = {
   id: number;
   type: string;
+  title: string;
   message: string;
   time: string;
   read: boolean;
@@ -77,6 +78,59 @@ const RenterDashboard = () => {
   const [upcomingTrips, setUpcomingTrips] = useState<Trip[]>([])
 
   const [notifications, setNotifications] = useState<Notification[]>([])
+
+  const formatRelativeTime = (timestamp: string) => {
+    const date = new Date(timestamp)
+    const now = new Date()
+    const diffMs = now.getTime() - date.getTime()
+    const mins = Math.floor(diffMs / (1000 * 60))
+
+    if (mins < 1) return 'just now'
+    if (mins < 60) return `${mins}m ago`
+
+    const hours = Math.floor(mins / 60)
+    if (hours < 24) return `${hours}h ago`
+
+    const days = Math.floor(hours / 24)
+    if (days < 7) return `${days}d ago`
+
+    return date.toLocaleDateString()
+  }
+
+  const fetchNotifications = async () => {
+    const notificationRes = await apiFetch('/notifications?page=0&size=5')
+    const items = (notificationRes.data?.content || [])
+      .sort((a: any, b: any) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime())
+      .slice(0, 3)
+
+    setNotifications(items.map((n: any) => ({
+      id: n.id,
+      type: n.type,
+      title: n.title || 'Notification',
+      message: n.body || n.title || 'You have a new notification',
+      time: n.createdAt ? formatRelativeTime(n.createdAt) : 'just now',
+      read: Boolean(n.isRead)
+    })))
+  }
+
+  const markAllNotificationsAsRead = async () => {
+    try {
+      await apiFetch('/notifications/read-all', { method: 'PATCH' })
+      setNotifications(prev => prev.map((n) => ({ ...n, read: true })))
+    } catch {
+      // no-op
+    }
+  }
+
+  const markNotificationAsRead = async (id: number) => {
+    try {
+      await apiFetch(`/notifications/${id}/read`, { method: 'PATCH' })
+      setNotifications(prev => prev.map((n) => n.id === id ? { ...n, read: true } : n))
+    } catch {
+      // no-op
+    }
+  }
+
   useEffect(() => {
     async function fetchDashboard() {
       try {
@@ -136,8 +190,7 @@ const RenterDashboard = () => {
           availability: f.property?.isAvailable ? 'Available' : 'Occupied'
         })));
         // Removed undefined bookingsRes reference
-        // Notifications (mock for now)
-        setNotifications([]);
+        await fetchNotifications();
       } catch (err) {
         // Optionally handle error
       }
@@ -157,9 +210,15 @@ const RenterDashboard = () => {
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
-      case 'booking_confirmed': return <CheckCircle className="w-4 h-4 text-green-600" />
-      case 'checkin_reminder': return <Calendar className="w-4 h-4 text-blue-600" />
-      case 'review_request': return <Star className="w-4 h-4 text-yellow-600" />
+      case 'BOOKING_STATUS_CHANGED':
+      case 'BOOKING_CREATED':
+        return <Calendar className="w-4 h-4 text-blue-600" />
+      case 'PAYMENT_SUCCEEDED':
+      case 'PAYMENT_REFUNDED':
+      case 'PAYMENT_FAILED':
+        return <CreditCard className="w-4 h-4 text-green-600" />
+      case 'REVIEW_RECEIVED':
+        return <Star className="w-4 h-4 text-yellow-600" />
       default: return <AlertCircle className="w-4 h-4 text-gray-600" />
     }
   }
@@ -407,18 +466,32 @@ const RenterDashboard = () => {
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
             <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Notifications</h2>
-              <button className="text-primary-600 hover:text-primary-500 dark:text-primary-400 text-sm font-medium">
+              <button
+                className="text-primary-600 hover:text-primary-500 dark:text-primary-400 text-sm font-medium"
+                onClick={markAllNotificationsAsRead}
+              >
                 Mark all read
               </button>
             </div>
             <div className="p-6">
               <div className="space-y-3">
+                {notifications.length === 0 && (
+                  <div className="text-gray-400 text-center">No notifications</div>
+                )}
                 {notifications.map((notification) => (
-                  <div key={notification.id} className={`flex items-start space-x-3 p-3 rounded-lg ${notification.read ? 'bg-gray-50 dark:bg-gray-700' : 'bg-blue-50 dark:bg-blue-900/20'}`}>
+                  <button
+                    key={notification.id}
+                    type="button"
+                    onClick={() => markNotificationAsRead(notification.id)}
+                    className={`w-full text-left flex items-start space-x-3 p-3 rounded-lg ${notification.read ? 'bg-gray-50 dark:bg-gray-700' : 'bg-blue-50 dark:bg-blue-900/20'}`}
+                  >
                     <div className="flex-shrink-0 mt-0.5">
                       {getNotificationIcon(notification.type)}
                     </div>
                     <div className="flex-1 min-w-0">
+                      <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">
+                        {notification.title}
+                      </p>
                       <p className="text-sm font-medium text-gray-900 dark:text-white">
                         {notification.message}
                       </p>
@@ -426,7 +499,7 @@ const RenterDashboard = () => {
                         {notification.time}
                       </p>
                     </div>
-                  </div>
+                  </button>
                 ))}
               </div>
             </div>

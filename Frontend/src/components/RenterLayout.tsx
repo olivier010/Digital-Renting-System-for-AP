@@ -4,6 +4,8 @@ import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { Home, Calendar, Settings, LogOut, Menu, X, Heart, Search, Bell, FileText, CreditCard } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import Loading from './ui/Loading'
+import NotificationModal from './NotificationModal'
+import { apiFetch } from '../utils/api'
 import RenterRoutes from '../pages/renter/RenterRoutes'
 
 interface RenterLayoutProps {
@@ -15,11 +17,26 @@ const RenterLayout: React.FC<RenterLayoutProps> = ({ children }) => {
   const navigate = useNavigate()
   const location = useLocation()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [notificationOpen, setNotificationOpen] = useState(false)
+  const [unreadCount, setUnreadCount] = useState(0)
 
   // Close sidebar when route changes on mobile
   useEffect(() => {
     setSidebarOpen(false)
   }, [location.pathname, location.search])
+
+  const refreshUnreadCount = async () => {
+    try {
+      const res = await apiFetch('/notifications/unread-count')
+      setUnreadCount(res.data?.unreadCount || 0)
+    } catch {
+      setUnreadCount(0)
+    }
+  }
+
+  useEffect(() => {
+    refreshUnreadCount()
+  }, [location.pathname])
 
   const handleLogout = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -216,9 +233,16 @@ const RenterLayout: React.FC<RenterLayoutProps> = ({ children }) => {
                 </span>
               </div>
               <div className="relative">
-                <button className="p-2 text-gray-400 hover:text-gray-500 relative">
+                <button
+                  className="p-2 text-gray-400 hover:text-gray-500 relative"
+                  onClick={() => setNotificationOpen(true)}
+                >
                   <Bell className="w-5 h-5" />
-                  <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-red-500 text-white text-[10px] font-semibold leading-5 text-center shadow-sm">
+                      {unreadCount > 99 ? '99+' : unreadCount}
+                    </span>
+                  )}
                 </button>
               </div>
             </div>
@@ -230,6 +254,16 @@ const RenterLayout: React.FC<RenterLayoutProps> = ({ children }) => {
           {children || <RenterRoutes />}
         </main>
       </div>
+
+      <NotificationModal
+        isOpen={notificationOpen}
+        onClose={() => {
+          setNotificationOpen(false)
+          refreshUnreadCount()
+        }}
+        title="Renter Notifications"
+        onNotificationsUpdated={refreshUnreadCount}
+      />
     </div>
   )
 }

@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react'
 import { apiFetch } from '../../utils/api'
 import { Link } from 'react-router-dom'
-import { Users, Home, TrendingUp, DollarSign, AlertCircle, CheckCircle, FileText, BarChart, Settings } from 'lucide-react'
+import { Users, Home, TrendingUp, DollarSign, AlertCircle, CheckCircle, FileText, BarChart, Settings, Bell } from 'lucide-react'
 
 const Dashboard = () => {
   // Dashboard state
@@ -37,7 +37,62 @@ const Dashboard = () => {
   const [showAllStatus, setShowAllStatus] = useState(false)
   const [recentUsers, setRecentUsers] = useState<any[]>([])
   const [systemLogs, setSystemLogs] = useState<any[]>([])
+  const [notifications, setNotifications] = useState<any[]>([])
   // Removed unused loading and error state
+
+  const formatRelativeTime = (timestamp: string) => {
+    const date = new Date(timestamp)
+    const now = new Date()
+    const diffMs = now.getTime() - date.getTime()
+    const mins = Math.floor(diffMs / (1000 * 60))
+
+    if (mins < 1) return 'just now'
+    if (mins < 60) return `${mins}m ago`
+
+    const hours = Math.floor(mins / 60)
+    if (hours < 24) return `${hours}h ago`
+
+    const days = Math.floor(hours / 24)
+    if (days < 7) return `${days}d ago`
+
+    return date.toLocaleDateString()
+  }
+
+  const fetchNotifications = async () => {
+    try {
+      const notificationRes = await apiFetch('/notifications?page=0&size=6')
+      const items = (notificationRes.data?.content || [])
+        .sort((a: any, b: any) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime())
+        .slice(0, 3)
+      setNotifications(items.map((n: any) => ({
+        id: n.id,
+        title: n.title || 'Notification',
+        message: n.body || n.title || 'You have a new notification',
+        time: n.createdAt ? formatRelativeTime(n.createdAt) : 'just now',
+        read: Boolean(n.isRead)
+      })))
+    } catch {
+      setNotifications([])
+    }
+  }
+
+  const markAllNotificationsAsRead = async () => {
+    try {
+      await apiFetch('/notifications/read-all', { method: 'PATCH' })
+      setNotifications(prev => prev.map((n) => ({ ...n, read: true })))
+    } catch {
+      // no-op
+    }
+  }
+
+  const markNotificationAsRead = async (id: number) => {
+    try {
+      await apiFetch(`/notifications/${id}/read`, { method: 'PATCH' })
+      setNotifications(prev => prev.map((n) => n.id === id ? { ...n, read: true } : n))
+    } catch {
+      // no-op
+    }
+  }
 
   useEffect(() => {
     const fetchDashboard = async () => {
@@ -54,6 +109,7 @@ const Dashboard = () => {
         // Fetch system logs
         const logsRes = await apiFetch('/admin/logs?page=0&size=5')
         setSystemLogs(Array.isArray(logsRes.data) ? logsRes.data : [])
+        await fetchNotifications()
       } catch (err: any) {
         // Optionally handle error here if you want to show a message
       }
@@ -71,12 +127,14 @@ const Dashboard = () => {
     <div className="p-6">
       {/* Page Title */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-          Admin Dashboard
-        </h1>
-        <p className="text-gray-600 dark:text-gray-400">
-          Manage your rental platform
-        </p>
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+            Admin Dashboard
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400">
+            Manage your rental platform
+          </p>
+        </div>
       </div>
 
       {/* Key Metrics */}
@@ -283,6 +341,45 @@ const Dashboard = () => {
         )}
       </div>
 
+      {/* Notifications */}
+      <div className="mt-10 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+        <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Bell className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Admin Notifications</h3>
+          </div>
+          <button
+            className="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300"
+            onClick={markAllNotificationsAsRead}
+          >
+            Mark all as read
+          </button>
+        </div>
+        <div className="p-6">
+          <div className="space-y-3">
+            {notifications.length === 0 ? (
+              <div className="text-gray-400 text-center">No notifications</div>
+            ) : notifications.map((notification) => (
+              <button
+                key={notification.id}
+                type="button"
+                onClick={() => markNotificationAsRead(notification.id)}
+                className={`w-full text-left flex items-center justify-between p-3 rounded-lg ${notification.read ? 'bg-gray-50 dark:bg-gray-700' : 'bg-blue-50 dark:bg-blue-900/20'}`}
+              >
+                <div className="flex items-center gap-3">
+                  <div className={`w-2 h-2 rounded-full ${notification.read ? 'bg-gray-300' : 'bg-blue-500'}`}></div>
+                  <div>
+                    <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">{notification.title}</p>
+                    <p className="text-sm text-gray-900 dark:text-white">{notification.message}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{notification.time}</p>
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
           {/* Recent Activity & System Logs */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-10">
         {/* Recent Users */}
@@ -379,6 +476,7 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+
     </div>
   )
 }

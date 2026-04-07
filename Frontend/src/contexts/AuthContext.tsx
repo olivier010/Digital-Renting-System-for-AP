@@ -74,24 +74,49 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     error: null
   })
 
-  // Simulate checking for existing session on app load
+  const clearStoredAuth = () => {
+    localStorage.removeItem('rentwise_user')
+    localStorage.removeItem('rentwise_token')
+    sessionStorage.removeItem('rentwise_user')
+    sessionStorage.removeItem('rentwise_token')
+  }
+
+  // Validate existing session on app load.
   useEffect(() => {
-    const checkAuthSession = () => {
-      const savedUser = localStorage.getItem('rentwise_user')
-      const savedToken = localStorage.getItem('rentwise_token')
+    const checkAuthSession = async () => {
+      const savedUser = localStorage.getItem('rentwise_user') || sessionStorage.getItem('rentwise_user')
+      const savedToken = localStorage.getItem('rentwise_token') || sessionStorage.getItem('rentwise_token')
       
       if (savedUser && savedToken) {
         try {
           const user = JSON.parse(savedUser)
+
+          const meRes = await fetch('http://localhost:8080/api/auth/me', {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${savedToken}`
+            }
+          })
+
+          if (!meRes.ok) {
+            clearStoredAuth()
+            setAuthState({
+              user: null,
+              isAuthenticated: false,
+              isLoading: false,
+              error: null
+            })
+            return
+          }
+
           setAuthState({
             user,
             isAuthenticated: true,
             isLoading: false,
             error: null
           })
-        } catch (error) {
-          localStorage.removeItem('rentwise_user')
-          localStorage.removeItem('rentwise_token')
+        } catch {
+          clearStoredAuth()
           setAuthState({
             user: null,
             isAuthenticated: false,
@@ -104,9 +129,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
     }
 
-    // Simulate network delay
-    const timer = setTimeout(checkAuthSession, 1000)
-    return () => clearTimeout(timer)
+    void checkAuthSession()
   }, [])
 
   // Implement login with backend API
@@ -135,6 +158,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         type: (user.type || user.role || '').toLowerCase(),
         role: undefined // Optionally remove role if not needed
       }
+
+      // Keep only one active session source to avoid stale token conflicts.
+      clearStoredAuth()
+
       if (credentials.rememberMe) {
         localStorage.setItem('rentwise_user', JSON.stringify(normalizedUser))
         localStorage.setItem('rentwise_token', token)
