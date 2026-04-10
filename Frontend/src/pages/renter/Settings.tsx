@@ -1,87 +1,362 @@
-import { useState } from 'react'
-import { User, Mail, Phone, MapPin, Lock, Bell, CreditCard, Shield, Globe, Save, Eye, EyeOff, Camera, Trash2, Download } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
+import { User, Mail, Phone, Lock, CreditCard, Globe, Save, Eye, EyeOff, Trash2 } from 'lucide-react'
+import { useAuth } from '../../contexts/AuthContext'
+import { apiFetch } from '../../utils/api'
+import { useTheme } from '../../contexts/ThemeContext'
+import UserDataReportDownloadButton from '../../components/reports/UserDataReportDownloadButton'
+
+interface ProfileData {
+  firstName: string
+  lastName: string
+  email: string
+  phone: string
+}
+
+interface PasswordData {
+  currentPassword: string
+  newPassword: string
+  confirmPassword: string
+}
+
+interface PaymentMethod {
+  id: number
+  brand: string
+  last4: string
+  expiryMonth: string
+  expiryYear: string
+  cardHolderName?: string | null
+  isDefault: boolean
+  isActive?: boolean
+  createdAt?: string
+  updatedAt?: string
+}
 
 const Settings = () => {
+  const { user, updateUser, logout } = useAuth()
+  const { theme, toggleTheme } = useTheme()
+
   const [activeTab, setActiveTab] = useState('profile')
   const [showPassword, setShowPassword] = useState(false)
-  const [darkMode, setDarkMode] = useState(false)
+  const isDarkMode = theme === 'dark'
 
-  const [profileData, setProfileData] = useState({
-    firstName: 'John',
-    lastName: 'Doe',
-    email: 'john.doe@example.com',
-    phone: '+1 (555) 123-4567',
-    bio: 'Passionate traveler and digital nomad. Love exploring new places and meeting interesting people.',
-    location: 'San Francisco, CA',
-    languages: ['English', 'Spanish', 'French'],
-    work: 'Software Engineer',
-    avatar: null
+  const [profileData, setProfileData] = useState<ProfileData>({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: ''
   })
 
-  const [notificationSettings, setNotificationSettings] = useState({
-    emailNotifications: true,
-    pushNotifications: true,
-    bookingReminders: true,
-    priceAlerts: true,
-    newMessages: true,
-    marketingEmails: false,
-    reviewReminders: true,
-    weeklyDigest: false
-  })
-
-  const [privacySettings, setPrivacySettings] = useState({
-    profileVisibility: 'public',
-    showEmail: false,
-    showPhone: false,
-    allowHostContact: true,
-    twoFactorAuth: false,
-    loginAlerts: true,
-    dataSharing: false
-  })
-
-  const [passwordData, setPasswordData] = useState({
+  const [passwordData, setPasswordData] = useState<PasswordData>({
     currentPassword: '',
     newPassword: '',
     confirmPassword: ''
   })
 
-  const tabs = [
-    { id: 'profile', label: 'Profile', icon: User },
-    { id: 'notifications', label: 'Notifications', icon: Bell },
-    { id: 'privacy', label: 'Privacy & Security', icon: Shield },
-    { id: 'payment', label: 'Payment Methods', icon: CreditCard },
-    { id: 'preferences', label: 'Preferences', icon: Globe }
-  ]
+  const [isProfileLoading, setIsProfileLoading] = useState(true)
+  const [isSavingProfile, setIsSavingProfile] = useState(false)
+  const [isChangingPassword, setIsChangingPassword] = useState(false)
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [deletePassword, setDeletePassword] = useState('')
+  const [showDeletePassword, setShowDeletePassword] = useState(false)
+  const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
+  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([])
+  const [isLoadingPaymentMethods, setIsLoadingPaymentMethods] = useState(true)
+  const [isAddingCard, setIsAddingCard] = useState(false)
+  const [showAddCardForm, setShowAddCardForm] = useState(false)
+  const [newCard, setNewCard] = useState({
+    brand: 'VISA',
+    last4: '',
+    expiryMonth: '',
+    expiryYear: '',
+    cardHolderName: ''
+  })
 
-  const handleSaveProfile = () => {
-    console.log('Saving profile:', profileData)
-    // API call to save profile
+  const tabs = useMemo(
+    () => [
+      { id: 'profile', label: 'Profile', icon: User },
+      { id: 'security', label: 'Security', icon: Lock },
+      { id: 'payment', label: 'Payment Methods', icon: CreditCard },
+      { id: 'preferences', label: 'Preferences', icon: Globe }
+    ],
+    []
+  )
+
+  useEffect(() => {
+    const loadProfile = async () => {
+      setIsProfileLoading(true)
+      setFeedback(null)
+
+      try {
+        const response = await apiFetch('/auth/me')
+        const profile = response?.data ?? {}
+
+        setProfileData({
+          firstName: profile.firstName ?? user?.firstName ?? '',
+          lastName: profile.lastName ?? user?.lastName ?? '',
+          email: profile.email ?? user?.email ?? '',
+          phone: profile.phone ?? user?.phone ?? ''
+        })
+      } catch (error) {
+        setProfileData({
+          firstName: user?.firstName ?? '',
+          lastName: user?.lastName ?? '',
+          email: user?.email ?? '',
+          phone: user?.phone ?? ''
+        })
+        setFeedback({
+          type: 'error',
+          message: error instanceof Error ? error.message : 'Failed to load profile data'
+        })
+      } finally {
+        setIsProfileLoading(false)
+      }
+    }
+
+    void loadProfile()
+  }, [user])
+
+  useEffect(() => {
+    const loadPaymentMethods = async () => {
+      setIsLoadingPaymentMethods(true)
+      try {
+        const response = await apiFetch('/payment-methods')
+        const methods = (response?.data ?? []) as PaymentMethod[]
+        setPaymentMethods(Array.isArray(methods) ? methods : [])
+      } catch (error) {
+        setFeedback({
+          type: 'error',
+          message: error instanceof Error ? error.message : 'Failed to load payment methods'
+        })
+        setPaymentMethods([])
+      } finally {
+        setIsLoadingPaymentMethods(false)
+      }
+    }
+
+    void loadPaymentMethods()
+  }, [])
+
+  const handleSaveProfile = async () => {
+    setIsSavingProfile(true)
+    setFeedback(null)
+
+    try {
+      const response = await apiFetch('/auth/me', {
+        method: 'PUT',
+        body: JSON.stringify({
+          firstName: profileData.firstName,
+          lastName: profileData.lastName,
+          phone: profileData.phone
+        })
+      })
+
+      const updatedUser = response?.data
+      if (updatedUser) {
+        updateUser({
+          firstName: updatedUser.firstName,
+          lastName: updatedUser.lastName,
+          email: updatedUser.email,
+          phone: updatedUser.phone
+        })
+
+        setProfileData(prev => ({
+          ...prev,
+          firstName: updatedUser.firstName ?? prev.firstName,
+          lastName: updatedUser.lastName ?? prev.lastName,
+          email: updatedUser.email ?? prev.email,
+          phone: updatedUser.phone ?? prev.phone
+        }))
+      }
+
+      setFeedback({ type: 'success', message: 'Profile updated successfully.' })
+    } catch (error) {
+      setFeedback({
+        type: 'error',
+        message: error instanceof Error ? error.message : 'Failed to update profile'
+      })
+    } finally {
+      setIsSavingProfile(false)
+    }
   }
 
-  const handleSaveNotifications = () => {
-    console.log('Saving notifications:', notificationSettings)
-    // API call to save notification settings
+  const handleChangePassword = async () => {
+    setFeedback(null)
+
+    if (!passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword) {
+      setFeedback({ type: 'error', message: 'All password fields are required.' })
+      return
+    }
+
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      setFeedback({ type: 'error', message: 'New password and confirm password do not match.' })
+      return
+    }
+
+    setIsChangingPassword(true)
+    try {
+      await apiFetch('/auth/password', {
+        method: 'PUT',
+        body: JSON.stringify(passwordData)
+      })
+
+      setPasswordData({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: ''
+      })
+      setFeedback({ type: 'success', message: 'Password changed successfully.' })
+    } catch (error) {
+      setFeedback({
+        type: 'error',
+        message: error instanceof Error ? error.message : 'Failed to change password'
+      })
+    } finally {
+      setIsChangingPassword(false)
+    }
   }
 
-  const handleChangePassword = () => {
-    console.log('Changing password:', passwordData)
-    // API call to change password
+  const handleAddCard = async () => {
+    if (!newCard.last4 || newCard.last4.length !== 4 || !newCard.expiryMonth || !newCard.expiryYear) {
+      setFeedback({ type: 'error', message: 'Enter valid card details (last 4 digits and expiry).' })
+      return
+    }
+
+    const cleanLast4 = newCard.last4.replace(/\D/g, '').slice(-4)
+    if (cleanLast4.length !== 4) {
+      setFeedback({ type: 'error', message: 'Card last 4 digits must be numeric.' })
+      return
+    }
+
+    setIsAddingCard(true)
+    try {
+      const response = await apiFetch('/payment-methods', {
+        method: 'POST',
+        body: JSON.stringify({
+          brand: newCard.brand,
+          last4: cleanLast4,
+          expiryMonth: newCard.expiryMonth,
+          expiryYear: newCard.expiryYear,
+          cardHolderName: newCard.cardHolderName || null,
+          isDefault: paymentMethods.length === 0
+        })
+      })
+
+      const created = response?.data as PaymentMethod | undefined
+      if (created) {
+        setPaymentMethods(prev => [...prev.filter(card => !created.isDefault || !card.isDefault), created])
+      }
+      setNewCard({ brand: 'VISA', last4: '', expiryMonth: '', expiryYear: '', cardHolderName: '' })
+      setShowAddCardForm(false)
+      setFeedback({ type: 'success', message: 'Payment method added.' })
+    } catch (error) {
+      setFeedback({
+        type: 'error',
+        message: error instanceof Error ? error.message : 'Failed to add payment method'
+      })
+    } finally {
+      setIsAddingCard(false)
+    }
+  }
+
+  const handleDeleteCard = async (id: number) => {
+    try {
+      await apiFetch(`/payment-methods/${id}`, { method: 'DELETE' })
+      setPaymentMethods(prev => {
+        const next = prev.filter(card => card.id !== id)
+        if (next.length > 0 && !next.some(card => card.isDefault)) {
+          next[0] = { ...next[0], isDefault: true }
+        }
+        return next
+      })
+      setFeedback({ type: 'success', message: 'Payment method removed.' })
+    } catch (error) {
+      setFeedback({
+        type: 'error',
+        message: error instanceof Error ? error.message : 'Failed to remove payment method'
+      })
+    }
+  }
+
+  const handleSetDefaultCard = async (id: number) => {
+    try {
+      await apiFetch(`/payment-methods/${id}/default`, { method: 'PATCH' })
+      setPaymentMethods(prev =>
+        prev.map(card => ({
+          ...card,
+          isDefault: card.id === id
+        }))
+      )
+      setFeedback({ type: 'success', message: 'Default payment method updated.' })
+    } catch (error) {
+      setFeedback({
+        type: 'error',
+        message: error instanceof Error ? error.message : 'Failed to update default payment method'
+      })
+    }
+  }
+
+  const openDeleteModal = () => {
+    setDeletePassword('')
+    setShowDeletePassword(false)
+    setShowDeleteModal(true)
+  }
+
+  const closeDeleteModal = () => {
+    if (isDeletingAccount) {
+      return
+    }
+    setShowDeleteModal(false)
+    setDeletePassword('')
+    setShowDeletePassword(false)
+  }
+
+  const handleDeleteAccount = async () => {
+    if (!deletePassword.trim()) {
+      setFeedback({ type: 'error', message: 'Current password is required to delete your account.' })
+      return
+    }
+
+    setIsDeletingAccount(true)
+    setFeedback(null)
+    try {
+      await apiFetch('/auth/me', {
+        method: 'DELETE',
+        body: JSON.stringify({ currentPassword: deletePassword })
+      })
+
+      logout()
+      window.location.href = '/'
+    } catch (error) {
+      setFeedback({
+        type: 'error',
+        message: error instanceof Error ? error.message : 'Failed to delete your account'
+      })
+    } finally {
+      setIsDeletingAccount(false)
+    }
   }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-          Settings
-        </h1>
-        <p className="text-gray-600 dark:text-gray-400">
-          Manage your account settings and preferences
-        </p>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Settings</h1>
+        <p className="text-gray-600 dark:text-gray-400">Manage your account settings and preferences</p>
       </div>
 
+      {feedback && (
+        <div
+          className={`mb-6 rounded-lg border px-4 py-3 text-sm ${
+            feedback.type === 'success'
+              ? 'border-green-200 bg-green-50 text-green-800 dark:border-green-700 dark:bg-green-900/20 dark:text-green-200'
+              : 'border-red-200 bg-red-50 text-red-800 dark:border-red-700 dark:bg-red-900/20 dark:text-red-200'
+          }`}
+        >
+          {feedback.message}
+        </div>
+      )}
+
       <div className="flex flex-col lg:flex-row gap-8">
-        {/* Sidebar */}
         <div className="lg:w-64">
           <nav className="space-y-1">
             {tabs.map((tab) => {
@@ -104,276 +379,95 @@ const Settings = () => {
           </nav>
         </div>
 
-        {/* Content */}
         <div className="flex-1">
-          {/* Profile Settings */}
           {activeTab === 'profile' && (
             <div className="space-y-6">
               <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
                 <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Profile Information</h2>
-                
-                {/* Avatar Upload */}
-                <div className="flex items-center space-x-6 mb-6">
-                  <div className="relative">
-                    <div className="w-24 h-24 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center text-3xl text-gray-500 dark:text-gray-400">
-                      {profileData.avatar ? (
-                        <img src={profileData.avatar} alt="Avatar" className="w-full h-full rounded-full object-cover" />
-                      ) : (
-                        <User />
-                      )}
-                    </div>
-                    <button className="absolute bottom-0 right-0 p-2 bg-primary-600 text-white rounded-full hover:bg-primary-700 transition-colors">
-                      <Camera className="w-4 h-4" />
-                    </button>
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-white">Profile Picture</h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Upload a new avatar. JPG, PNG or GIF. Max 2MB.
-                    </p>
-                  </div>
-                </div>
 
-                {/* Form Fields */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      First Name
-                    </label>
-                    <input
-                      type="text"
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                      value={profileData.firstName}
-                      onChange={(e) => setProfileData({...profileData, firstName: e.target.value})}
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Last Name
-                    </label>
-                    <input
-                      type="text"
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                      value={profileData.lastName}
-                      onChange={(e) => setProfileData({...profileData, lastName: e.target.value})}
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Email
-                    </label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                      <input
-                        type="email"
-                        className="w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                        value={profileData.email}
-                        onChange={(e) => setProfileData({...profileData, email: e.target.value})}
-                      />
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Phone
-                    </label>
-                    <div className="relative">
-                      <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                      <input
-                        type="tel"
-                        className="w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                        value={profileData.phone}
-                        onChange={(e) => setProfileData({...profileData, phone: e.target.value})}
-                      />
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Location
-                    </label>
-                    <div className="relative">
-                      <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                      <input
-                        type="text"
-                        className="w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                        value={profileData.location}
-                        onChange={(e) => setProfileData({...profileData, location: e.target.value})}
-                      />
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Work
-                    </label>
-                    <input
-                      type="text"
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                      value={profileData.work}
-                      onChange={(e) => setProfileData({...profileData, work: e.target.value})}
-                    />
-                  </div>
-                </div>
-                
-                <div className="mt-6">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Bio
-                  </label>
-                  <textarea
-                    rows={4}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                    placeholder="Tell us about yourself..."
-                    value={profileData.bio}
-                    onChange={(e) => setProfileData({...profileData, bio: e.target.value})}
-                  />
-                </div>
-                
-                <div className="mt-6">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Languages
-                  </label>
-                  <input
-                    type="text"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                    placeholder="English, Spanish, French..."
-                    value={profileData.languages.join(', ')}
-                    onChange={(e) => setProfileData({...profileData, languages: e.target.value.split(',').map(lang => lang.trim())})}
-                  />
-                </div>
-                
-                <div className="flex justify-end mt-6">
-                  <button
-                    onClick={handleSaveProfile}
-                    className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-colors flex items-center"
-                  >
-                    <Save className="w-4 h-4 mr-2" />
-                    Save Profile
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Notification Settings */}
-          {activeTab === 'notifications' && (
-            <div className="space-y-6">
-              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Notification Preferences</h2>
-                
-                <div className="space-y-4">
-                  {Object.entries(notificationSettings).map(([key, value]) => (
-                    <div key={key} className="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-700 last:border-0">
+                {isProfileLoading ? (
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Loading profile...</p>
+                ) : (
+                  <>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
-                        <p className="font-medium text-gray-900 dark:text-white">
-                          {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
-                        </p>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          {key === 'emailNotifications' && 'Receive email notifications about your account activity'}
-                          {key === 'pushNotifications' && 'Receive push notifications in your browser'}
-                          {key === 'bookingReminders' && 'Get reminded about upcoming bookings'}
-                          {key === 'priceAlerts' && 'Receive notifications when prices change for saved properties'}
-                          {key === 'newMessages' && 'Get notified when you receive new messages'}
-                          {key === 'marketingEmails' && 'Receive marketing emails and special offers'}
-                          {key === 'reviewReminders' && 'Get reminded to leave reviews after your stay'}
-                          {key === 'weeklyDigest' && 'Receive a weekly summary of your activity'}
-                        </p>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">First Name</label>
+                        <input
+                          type="text"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                          value={profileData.firstName}
+                          onChange={(e) => setProfileData({ ...profileData, firstName: e.target.value })}
+                        />
                       </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Last Name</label>
+                        <input
+                          type="text"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                          value={profileData.lastName}
+                          onChange={(e) => setProfileData({ ...profileData, lastName: e.target.value })}
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email</label>
+                        <div className="relative">
+                          <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                          <input
+                            type="email"
+                            readOnly
+                            className="w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300"
+                            value={profileData.email}
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Phone</label>
+                        <div className="relative">
+                          <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                          <input
+                            type="tel"
+                            className="w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                            value={profileData.phone}
+                            onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex justify-end mt-6">
                       <button
-                        onClick={() => setNotificationSettings({...notificationSettings, [key]: !value})}
-                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                          value ? 'bg-primary-600' : 'bg-gray-200 dark:bg-gray-700'
-                        }`}
+                        onClick={handleSaveProfile}
+                        disabled={isSavingProfile}
+                        className="px-4 py-2 bg-primary-600 hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors flex items-center"
                       >
-                        <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                          value ? 'translate-x-6' : 'translate-x-1'
-                        }`} />
+                        <Save className="w-4 h-4 mr-2" />
+                        {isSavingProfile ? 'Saving...' : 'Save Profile'}
                       </button>
                     </div>
-                  ))}
-                </div>
-                
-                <div className="flex justify-end mt-6">
-                  <button
-                    onClick={handleSaveNotifications}
-                    className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-colors flex items-center"
-                  >
-                    <Save className="w-4 h-4 mr-2" />
-                    Save Notifications
-                  </button>
-                </div>
+                  </>
+                )}
               </div>
             </div>
           )}
 
-          {/* Privacy & Security */}
-          {activeTab === 'privacy' && (
+          {activeTab === 'security' && (
             <div className="space-y-6">
               <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Privacy Settings</h2>
-                
-                <div className="space-y-4">
-                  {Object.entries(privacySettings).map(([key, value]) => (
-                    <div key={key} className="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-700 last:border-0">
-                      <div>
-                        <p className="font-medium text-gray-900 dark:text-white">
-                          {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
-                        </p>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          {key === 'profileVisibility' && 'Control who can see your profile'}
-                          {key === 'showEmail' && 'Display your email address on your public profile'}
-                          {key === 'showPhone' && 'Display your phone number on your public profile'}
-                          {key === 'allowHostContact' && 'Allow hosts to contact you directly'}
-                          {key === 'twoFactorAuth' && 'Add an extra layer of security to your account'}
-                          {key === 'loginAlerts' && 'Get notified when someone logs into your account'}
-                          {key === 'dataSharing' && 'Share your data with trusted partners for better service'}
-                        </p>
-                      </div>
-                      {key === 'profileVisibility' ? (
-                        <select
-                          value={value as string}
-                          onChange={(e) => setPrivacySettings({...privacySettings, [key]: e.target.value})}
-                          className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
-                        >
-                          <option value="public">Public</option>
-                          <option value="friends">Friends Only</option>
-                          <option value="private">Private</option>
-                        </select>
-                      ) : (
-                        <button
-                          onClick={() => setPrivacySettings({...privacySettings, [key]: !value})}
-                          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                            value ? 'bg-primary-600' : 'bg-gray-200 dark:bg-gray-700'
-                          }`}
-                        >
-                          <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                            value ? 'translate-x-6' : 'translate-x-1'
-                          }`} />
-                        </button>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-              
-              {/* Change Password */}
-              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
                 <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Change Password</h2>
-                
+
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Current Password
-                    </label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Current Password</label>
                     <div className="relative">
                       <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                       <input
                         type={showPassword ? 'text' : 'password'}
                         className="w-full pl-10 pr-10 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                         value={passwordData.currentPassword}
-                        onChange={(e) => setPasswordData({...passwordData, currentPassword: e.target.value})}
+                        onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
                       />
                       <button
                         onClick={() => setShowPassword(!showPassword)}
@@ -383,183 +477,201 @@ const Settings = () => {
                       </button>
                     </div>
                   </div>
-                  
+
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      New Password
-                    </label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">New Password</label>
                     <input
                       type={showPassword ? 'text' : 'password'}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                       value={passwordData.newPassword}
-                      onChange={(e) => setPasswordData({...passwordData, newPassword: e.target.value})}
+                      onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
                     />
                   </div>
-                  
+
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Confirm New Password
-                    </label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Confirm New Password</label>
                     <input
                       type={showPassword ? 'text' : 'password'}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                       value={passwordData.confirmPassword}
-                      onChange={(e) => setPasswordData({...passwordData, confirmPassword: e.target.value})}
+                      onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
                     />
                   </div>
                 </div>
-                
+
                 <div className="flex justify-end mt-6">
                   <button
                     onClick={handleChangePassword}
-                    className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-colors flex items-center"
+                    disabled={isChangingPassword}
+                    className="px-4 py-2 bg-primary-600 hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors flex items-center"
                   >
                     <Save className="w-4 h-4 mr-2" />
-                    Update Password
+                    {isChangingPassword ? 'Updating...' : 'Update Password'}
                   </button>
                 </div>
               </div>
             </div>
           )}
 
-          {/* Payment Methods */}
           {activeTab === 'payment' && (
             <div className="space-y-6">
               <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Payment Methods</h2>
-                  <button className="text-primary-600 hover:text-primary-500 dark:text-primary-400 text-sm font-medium">
-                    Add New Card
+                  <button
+                    onClick={() => setShowAddCardForm(!showAddCardForm)}
+                    className="text-primary-600 hover:text-primary-500 dark:text-primary-400 text-sm font-medium"
+                  >
+                    {showAddCardForm ? 'Cancel' : 'Add New Card'}
                   </button>
                 </div>
-                
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
-                    <div className="flex items-center space-x-3">
-                      <span className="text-2xl">💳</span>
-                      <div>
-                        <p className="font-medium text-gray-900 dark:text-white">
-                          Visa •••• 4242
-                        </p>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          Expires 12/2025
-                        </p>
-                      </div>
+
+                {showAddCardForm && (
+                  <div className="mb-6 p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-900/30">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                      <select
+                        value={newCard.brand}
+                        onChange={(e) => setNewCard({ ...newCard, brand: e.target.value })}
+                        className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      >
+                        <option value="VISA">Visa</option>
+                        <option value="MASTERCARD">Mastercard</option>
+                        <option value="AMEX">Amex</option>
+                      </select>
+                      <input
+                        type="text"
+                        placeholder="Last 4"
+                        maxLength={4}
+                        value={newCard.last4}
+                        onChange={(e) => setNewCard({ ...newCard, last4: e.target.value.replace(/\D/g, '') })}
+                        className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      />
+                      <input
+                        type="text"
+                        placeholder="MM"
+                        maxLength={2}
+                        value={newCard.expiryMonth}
+                        onChange={(e) => setNewCard({ ...newCard, expiryMonth: e.target.value.replace(/\D/g, '') })}
+                        className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      />
+                      <input
+                        type="text"
+                        placeholder="YYYY"
+                        maxLength={4}
+                        value={newCard.expiryYear}
+                        onChange={(e) => setNewCard({ ...newCard, expiryYear: e.target.value.replace(/\D/g, '') })}
+                        className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      />
                     </div>
-                    <div className="flex items-center space-x-2">
-                      <span className="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs rounded-full">
-                        Default
-                      </span>
-                      <button className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
-                        <Trash2 className="w-4 h-4" />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
+                      <input
+                        type="text"
+                        placeholder="Cardholder Name (Optional)"
+                        value={newCard.cardHolderName}
+                        onChange={(e) => setNewCard({ ...newCard, cardHolderName: e.target.value })}
+                        className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      />
+                    </div>
+                    <div className="flex justify-end mt-3">
+                      <button
+                        onClick={handleAddCard}
+                        disabled={isAddingCard}
+                        className="px-4 py-2 bg-primary-600 hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors"
+                      >
+                        {isAddingCard ? 'Saving...' : 'Save Card'}
                       </button>
                     </div>
                   </div>
-                  
-                  <div className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
-                    <div className="flex items-center space-x-3">
-                      <span className="text-2xl">💳</span>
-                      <div>
-                        <p className="font-medium text-gray-900 dark:text-white">
-                          Mastercard •••• 5555
-                        </p>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          Expires 08/2024
-                        </p>
+                )}
+
+                <div className="space-y-4">
+                  {isLoadingPaymentMethods ? (
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Loading payment methods...</p>
+                  ) : paymentMethods.length === 0 ? (
+                    <p className="text-sm text-gray-500 dark:text-gray-400">No payment methods saved yet.</p>
+                  ) : (
+                    paymentMethods.map((method) => (
+                      <div key={method.id} className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                        <div className="flex items-center space-x-3">
+                          <span className="text-2xl">💳</span>
+                          <div>
+                            <p className="font-medium text-gray-900 dark:text-white">{method.brand} •••• {method.last4}</p>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">Expires {method.expiryMonth}/{method.expiryYear}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          {method.isDefault ? (
+                            <span className="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs rounded-full">Default</span>
+                          ) : (
+                            <button
+                              onClick={() => handleSetDefaultCard(method.id)}
+                              className="text-xs px-2 py-1 border border-gray-300 dark:border-gray-600 rounded text-gray-700 dark:text-gray-300"
+                            >
+                              Set Default
+                            </button>
+                          )}
+                          <button
+                            onClick={() => handleDeleteCard(method.id)}
+                            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                    <button className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
+                    ))
+                  )}
                 </div>
               </div>
             </div>
           )}
 
-          {/* Preferences */}
           {activeTab === 'preferences' && (
             <div className="space-y-6">
               <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
                 <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Preferences</h2>
-                
+
                 <div className="space-y-6">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="font-medium text-gray-900 dark:text-white">Dark Mode</p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Use dark theme across the platform
-                      </p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Use dark theme across the platform</p>
                     </div>
                     <button
-                      onClick={() => setDarkMode(!darkMode)}
+                      onClick={toggleTheme}
                       className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                        darkMode ? 'bg-primary-600' : 'bg-gray-200 dark:bg-gray-700'
+                        isDarkMode ? 'bg-primary-600' : 'bg-gray-200 dark:bg-gray-700'
                       }`}
                     >
-                      <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                        darkMode ? 'translate-x-6' : 'translate-x-1'
-                      }`} />
+                      <span
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                          isDarkMode ? 'translate-x-6' : 'translate-x-1'
+                        }`}
+                      />
                     </button>
                   </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium text-gray-900 dark:text-white">Language</p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Choose your preferred language
-                      </p>
-                    </div>
-                    <select className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm">
-                      <option>English</option>
-                      <option>Spanish</option>
-                      <option>French</option>
-                      <option>German</option>
-                    </select>
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium text-gray-900 dark:text-white">Currency</p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Display prices in your preferred currency
-                      </p>
-                    </div>
-                    <select className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm">
-                      <option>USD ($)</option>
-                      <option>EUR (€)</option>
-                      <option>GBP (£)</option>
-                      <option>CAD ($)</option>
-                    </select>
-                  </div>
+
                 </div>
               </div>
-              
-              {/* Data Management */}
+
               <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
                 <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Data Management</h2>
-                
+
                 <div className="space-y-4">
-                  <button className="w-full flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                    <div className="flex items-center space-x-3">
-                      <Download className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                      <div className="text-left">
-                        <p className="font-medium text-gray-900 dark:text-white">Download Your Data</p>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          Get a copy of all your data
-                        </p>
-                      </div>
-                    </div>
-                  </button>
-                  
-                  <button className="w-full flex items-center justify-between p-4 border border-red-200 dark:border-red-700 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
+                  <UserDataReportDownloadButton
+                    onSuccess={(message) => setFeedback({ type: 'success', message })}
+                    onError={(message) => setFeedback({ type: 'error', message })}
+                  />
+
+                  <button
+                    onClick={openDeleteModal}
+                    disabled={isDeletingAccount}
+                    className="w-full flex items-center justify-between p-4 border border-red-200 dark:border-red-700 rounded-lg hover:bg-red-50 disabled:opacity-60 disabled:cursor-not-allowed dark:hover:bg-red-900/20 transition-colors"
+                  >
                     <div className="flex items-center space-x-3">
                       <Trash2 className="w-5 h-5 text-red-600 dark:text-red-400" />
                       <div className="text-left">
-                        <p className="font-medium text-red-600 dark:text-red-400">Delete Account</p>
-                        <p className="text-sm text-red-500 dark:text-red-400">
-                          Permanently delete your account and all data
-                        </p>
+                        <p className="font-medium text-red-600 dark:text-red-400">{isDeletingAccount ? 'Deleting Account...' : 'Delete Account'}</p>
+                        <p className="text-sm text-red-500 dark:text-red-400">Permanently delete your account and all data</p>
                       </div>
                     </div>
                   </button>
@@ -569,6 +681,56 @@ const Settings = () => {
           )}
         </div>
       </div>
+
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+          <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl dark:bg-gray-800">
+            <h3 className="text-lg font-semibold text-red-600 dark:text-red-400">Delete Account Permanently</h3>
+            <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
+              This action cannot be undone. Please enter your current password to confirm account deletion.
+            </p>
+
+            <div className="mt-5">
+              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Current Password</label>
+              <div className="relative">
+                <input
+                  type={showDeletePassword ? 'text' : 'password'}
+                  value={deletePassword}
+                  onChange={(e) => setDeletePassword(e.target.value)}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 pr-10 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  placeholder="Enter current password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowDeletePassword((prev) => !prev)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                >
+                  {showDeletePassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+            </div>
+
+            <div className="mt-6 flex items-center justify-end gap-3">
+              <button
+                type="button"
+                onClick={closeDeleteModal}
+                disabled={isDeletingAccount}
+                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 disabled:opacity-60 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteAccount}
+                disabled={isDeletingAccount}
+                className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-60"
+              >
+                {isDeletingAccount ? 'Deleting...' : 'Delete Permanently'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
