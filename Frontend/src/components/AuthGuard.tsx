@@ -41,12 +41,17 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({
     const redirectMap: Record<UserType, string> = {
       admin: '/dashboard',
       owner: '/owner/dashboard',
-      renter: '/profile'
+      renter: '/renter/dashboard'
     }
+
+    const resolvedType: UserType =
+      user?.type === 'admin' || user?.type === 'owner' || user?.type === 'renter'
+        ? user.type
+        : 'renter'
     
     return (
       <Navigate 
-        to={redirectMap[user!.type]} 
+        to={redirectMap[resolvedType]} 
         replace 
       />
     )

@@ -107,7 +107,7 @@ const RenterLayout: React.FC<RenterLayoutProps> = ({ children }) => {
       current: currentTab === 'reviews'
     },
     {
-      name: 'Profile Settings',
+      name: 'Settings',
       href: '/renter/settings',
       icon: Settings,
       current: currentTab === 'settings'

@@ -1,13 +1,19 @@
 import { Link, useLocation } from 'react-router-dom'
 import { useState } from 'react'
 import { useTheme } from '../contexts/ThemeContext'
+import { useAuth } from '../contexts/AuthContext'
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const { theme, toggleTheme } = useTheme()
+  const { isAuthenticated, user } = useAuth()
   const location = useLocation()
 
   const isActive = (path: string) => location.pathname === path
+  const dashboardPath =
+    user?.type === 'admin' ? '/dashboard' :
+    user?.type === 'owner' ? '/owner/dashboard' :
+    '/renter/dashboard'
 
   return (
     <nav className="bg-white dark:bg-gray-900 shadow-sm sticky top-0 z-50 backdrop-blur-lg bg-opacity-95 dark:bg-opacity-95">
@@ -77,18 +83,29 @@ const Navbar = () => {
             </button>
             
             {/* Auth Buttons */}
-            <Link 
-              to="/login" 
-              className="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 font-medium transition-colors"
-            >
-              Login
-            </Link>
-            <Link 
-              to="/register" 
-              className="bg-accent-500 text-white px-4 py-2 rounded-lg hover:bg-accent-600 transition-all duration-200 transform hover:scale-105"
-            >
-              Register
-            </Link>
+            {isAuthenticated ? (
+              <Link
+                to={dashboardPath}
+                className="bg-accent-500 text-white px-4 py-2 rounded-lg hover:bg-accent-600 transition-all duration-200 transform hover:scale-105"
+              >
+                Open Portal
+              </Link>
+            ) : (
+              <>
+                <Link 
+                  to="/login" 
+                  className="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 font-medium transition-colors"
+                >
+                  Login
+                </Link>
+                <Link 
+                  to="/register" 
+                  className="bg-accent-500 text-white px-4 py-2 rounded-lg hover:bg-accent-600 transition-all duration-200 transform hover:scale-105"
+                >
+                  Register
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -169,20 +186,32 @@ const Navbar = () => {
                   )}
                 </button>
                 
-                <Link 
-                  to="/login" 
-                  className="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 font-medium transition-colors text-center"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Login
-                </Link>
-                <Link 
-                  to="/register" 
-                  className="bg-accent-500 text-white px-4 py-2 rounded-lg hover:bg-accent-600 transition-colors text-center"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Register
-                </Link>
+                {isAuthenticated ? (
+                  <Link
+                    to={dashboardPath}
+                    className="bg-accent-500 text-white px-4 py-2 rounded-lg hover:bg-accent-600 transition-colors text-center"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Open Portal
+                  </Link>
+                ) : (
+                  <>
+                    <Link 
+                      to="/login" 
+                      className="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 font-medium transition-colors text-center"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Login
+                    </Link>
+                    <Link 
+                      to="/register" 
+                      className="bg-accent-500 text-white px-4 py-2 rounded-lg hover:bg-accent-600 transition-colors text-center"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Register
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
           </div>

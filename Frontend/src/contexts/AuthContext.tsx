@@ -66,6 +66,19 @@ interface AuthProviderProps {
   children: ReactNode
 }
 
+const normalizeUserType = (rawType: unknown): UserType => {
+  const type = String(rawType || '').toLowerCase()
+  if (type === 'admin' || type === 'owner' || type === 'renter') {
+    return type
+  }
+  return 'renter'
+}
+
+const normalizeUser = (user: any): User => ({
+  ...user,
+  type: normalizeUserType(user?.type || user?.role || user?.userType)
+})
+
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [authState, setAuthState] = useState<AuthState>({
     user: null,
@@ -89,7 +102,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       if (savedUser && savedToken) {
         try {
-          const user = JSON.parse(savedUser)
+          const parsedUser = JSON.parse(savedUser)
+          const normalizedUser = normalizeUser(parsedUser)
 
           const meRes = await fetch('http://localhost:8080/api/auth/me', {
             headers: {
@@ -110,11 +124,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           }
 
           setAuthState({
-            user,
+            user: normalizedUser,
             isAuthenticated: true,
             isLoading: false,
             error: null
           })
+
+          // Persist normalized auth data to avoid future role/type mismatches.
+          const hasLocalSession = Boolean(localStorage.getItem('rentwise_user'))
+          const storage = hasLocalSession ? localStorage : sessionStorage
+          storage.setItem('rentwise_user', JSON.stringify(normalizedUser))
         } catch {
           clearStoredAuth()
           setAuthState({
@@ -152,12 +171,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // Backend wraps token and user in data property
       const { token, user } = result.data || {}
       if (!token || !user) throw new Error('Invalid response from server')
-      // Normalize user type/role to lowercase for frontend compatibility
-      const normalizedUser = {
-        ...user,
-        type: (user.type || user.role || '').toLowerCase(),
-        role: undefined // Optionally remove role if not needed
-      }
+      const normalizedUser = normalizeUser(user)
 
       // Keep only one active session source to avoid stale token conflicts.
       clearStoredAuth()

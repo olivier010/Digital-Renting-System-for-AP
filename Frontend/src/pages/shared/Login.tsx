@@ -24,8 +24,10 @@ const Login = () => {
       if (from) {
         navigate(from, { replace: true })
       } else {
+        const resolvedUserType = String((user as any).type || (user as any).role || (user as any).userType || '').toLowerCase()
+
         // Redirect based on user type
-        switch (user.type) {
+        switch (resolvedUserType) {
           case 'admin':
             navigate('/dashboard', { replace: true })
             break
@@ -36,7 +38,7 @@ const Login = () => {
             navigate('/renter/dashboard', { replace: true })
             break
           default:
-            navigate('/profile', { replace: true })
+            navigate('/renter/dashboard', { replace: true })
         }
       }
     }
