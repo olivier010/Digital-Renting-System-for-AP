@@ -580,6 +580,74 @@ Content-Type: application/json
 
 ### Payments
 
+#### Get User Payments (Authenticated)
+```http
+GET /api/payments?page=0&size=10&status=COMPLETED&type=BOOKING_PAYMENT
+Authorization: Bearer <token>
+```
+
+**Response Example:**
+```json
+{
+  "success": true,
+  "data": {
+    "content": [
+      {
+        "id": 1,
+        "bookingId": 5,
+        "amount": 2500.00,
+        "type": "BOOKING_PAYMENT",
+        "method": "CREDIT_CARD",
+        "status": "COMPLETED",
+        "cardLastFour": "4242",
+        "propertyInfo": {
+          "propertyId": 1,
+          "propertyTitle": "Modern 2-Bedroom Apartment",
+          "location": "123 Main Street, New York, NY 10001"
+        },
+        "createdAt": "2026-04-06T14:30:00",
+        "updatedAt": "2026-04-06T14:30:00"
+      }
+    ],
+    "page": 0,
+    "size": 10,
+    "totalElements": 1,
+    "totalPages": 1
+  },
+  "timestamp": "2026-04-06T15:00:00"
+}
+```
+
+#### Get Payment Details (Authenticated)
+```http
+GET /api/payments/{id}
+Authorization: Bearer <token>
+```
+
+**Response Example:**
+```json
+{
+  "success": true,
+  "data": {
+    "id": 1,
+    "bookingId": 5,
+    "amount": 2500.00,
+    "type": "BOOKING_PAYMENT",
+    "method": "CREDIT_CARD",
+    "status": "COMPLETED",
+    "cardLastFour": "4242",
+    "propertyInfo": {
+      "propertyId": 1,
+      "propertyTitle": "Modern 2-Bedroom Apartment",
+      "location": "123 Main Street, New York, NY 10001"
+    },
+    "createdAt": "2026-04-06T14:30:00",
+    "updatedAt": "2026-04-06T14:30:00"
+  },
+  "timestamp": "2026-04-06T15:00:00"
+}
+```
+
 #### Create Payment (Renter only)
 ```http
 POST /api/payments
@@ -594,8 +662,34 @@ Content-Type: application/json
   "cardLastFour": "4242"
 }
 ```
+
+**Response Example:**
+```json
+{
+  "success": true,
+  "data": {
+    "id": 1,
+    "bookingId": 1,
+    "amount": 2500.00,
+    "type": "BOOKING_PAYMENT",
+    "method": "CREDIT_CARD",
+    "status": "COMPLETED",
+    "cardLastFour": "4242",
+    "propertyInfo": {
+      "propertyId": 1,
+      "propertyTitle": "Modern 2-Bedroom Apartment",
+      "location": "123 Main Street, New York, NY 10001"
+    },
+    "createdAt": "2026-04-06T14:30:00",
+    "updatedAt": "2026-04-06T14:30:00"
+  },
+  "timestamp": "2026-04-06T14:30:00"
+}
+```
+
 > **Payment Types:** `BOOKING_PAYMENT`, `SECURITY_DEPOSIT`, `SERVICE_FEE`
 > **Payment Methods:** `CREDIT_CARD`, `DEBIT_CARD`, `BANK_TRANSFER`, `PAYPAL`
+> **Payment Status:** `PENDING`, `COMPLETED`, `FAILED`, `REFUNDED`
 
 #### Refund Payment (Admin only)
 ```http
@@ -608,6 +702,31 @@ Content-Type: application/json
   "refundAmount": 2500.00
 }
 ```
+
+**Response Example:**
+```json
+{
+  "success": true,
+  "data": {
+    "id": 1,
+    "bookingId": 1,
+    "amount": 2500.00,
+    "type": "BOOKING_PAYMENT",
+    "method": "CREDIT_CARD",
+    "status": "REFUNDED",
+    "cardLastFour": "4242",
+    "propertyInfo": {
+      "propertyId": 1,
+      "propertyTitle": "Modern 2-Bedroom Apartment",
+      "location": "123 Main Street, New York, NY 10001"
+    },
+    "createdAt": "2026-04-06T14:30:00",
+    "updatedAt": "2026-04-06T16:00:00"
+  },
+  "timestamp": "2026-04-06T16:00:00"
+}
+```
+
 > **Note:** `refundAmount` is optional. If not provided, full amount will be refunded.
 
 ---
