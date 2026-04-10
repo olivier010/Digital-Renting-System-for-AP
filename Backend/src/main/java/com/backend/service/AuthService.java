@@ -1,10 +1,12 @@
 package com.backend.service;
 
 import com.backend.dto.request.ChangePasswordRequest;
+import com.backend.dto.request.DeleteAccountRequest;
 import com.backend.dto.request.LoginRequest;
 import com.backend.dto.request.RegisterRequest;
 import com.backend.dto.request.UpdateUserRequest;
 import com.backend.dto.response.AuthResponse;
+import com.backend.dto.response.UserDataExportResponse;
 import com.backend.dto.response.UserResponse;
 import com.backend.entity.User;
 import com.backend.entity.Log;
@@ -15,6 +17,13 @@ import com.backend.exception.BadRequestException;
 import com.backend.exception.DuplicateResourceException;
 import com.backend.exception.ResourceNotFoundException;
 import com.backend.mapper.UserMapper;
+import com.backend.repository.BookingRepository;
+import com.backend.repository.FavoriteRepository;
+import com.backend.repository.NotificationRepository;
+import com.backend.repository.PaymentMethodRepository;
+import com.backend.repository.PaymentRepository;
+import com.backend.repository.PropertyRepository;
+import com.backend.repository.ReviewRepository;
 import com.backend.repository.UserRepository;
 import com.backend.security.CurrentUser;
 import com.backend.security.JwtTokenProvider;
@@ -40,6 +49,13 @@ public class AuthService {
     private final CurrentUser currentUser;
     private final LogService logService;
     private final NotificationService notificationService;
+    private final BookingRepository bookingRepository;
+    private final FavoriteRepository favoriteRepository;
+    private final ReviewRepository reviewRepository;
+    private final PaymentRepository paymentRepository;
+    private final PaymentMethodRepository paymentMethodRepository;
+    private final PropertyRepository propertyRepository;
+    private final NotificationRepository notificationRepository;
 
     @Transactional
     public AuthResponse register(RegisterRequest request) {
@@ -168,5 +184,60 @@ public class AuthService {
 
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
+    }
+
+    @Transactional(readOnly = true)
+    public UserDataExportResponse exportCurrentUserData() {
+        User user = currentUser.getUser();
+        if (user == null) {
+            throw new ResourceNotFoundException("User not found");
+        }
+
+        Long propertiesCount = propertyRepository.countByOwnerId(user.getId());
+        Long bookingsCount = user.getRole() == Role.OWNER
+                ? bookingRepository.countByPropertyOwnerId(user.getId())
+                : bookingRepository.countByRenterId(user.getId());
+
+        Long favoritesCount = favoriteRepository.countByRenterId(user.getId());
+        Long reviewsCount = reviewRepository.countByReviewerId(user.getId());
+        Long paymentsCount = paymentRepository.countByRenterId(user.getId());
+        Long paymentMethodsCount = paymentMethodRepository.countByUserIdAndIsActiveTrue(user.getId());
+        Long notificationsCount = notificationRepository.countByRecipientUserId(user.getId());
+
+        UserDataExportResponse.DataSummary summary = UserDataExportResponse.DataSummary.builder()
+                .propertiesCount(propertiesCount)
+                .bookingsCount(bookingsCount)
+                .favoritesCount(favoritesCount)
+                .reviewsCount(reviewsCount)
+                .paymentsCount(paymentsCount)
+                .paymentMethodsCount(paymentMethodsCount)
+                .notificationsCount(notificationsCount)
+                .build();
+
+        return UserDataExportResponse.builder()
+                .user(userMapper.toResponse(user))
+                .summary(summary)
+                .exportedAt(LocalDateTime.now())
+                .build();
+    }
+
+    @Transactional
+    public void deleteCurrentUser(DeleteAccountRequest request) {
+        User user = currentUser.getUser();
+        if (user == null) {
+            throw new ResourceNotFoundException("User not found");
+        }
+
+        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+            throw new BadRequestException("Current password is incorrect");
+        }
+
+        logService.saveLog(Log.builder()
+                .level("WARN")
+                .message("User deleted own account: " + user.getEmail())
+                .timestamp(LocalDateTime.now())
+                .build());
+
+        userRepository.delete(user);
     }
 }

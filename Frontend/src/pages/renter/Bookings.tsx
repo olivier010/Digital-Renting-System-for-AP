@@ -6,6 +6,11 @@ const Bookings = () => {
   const [activeTab, setActiveTab] = useState('upcoming')
   const [searchTerm, setSearchTerm] = useState('')
   const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set())
+  const [cancellingBookingId, setCancellingBookingId] = useState<number | null>(null)
+  const [cancelMessage, setCancelMessage] = useState<string | null>(null)
+  const [showCancelModal, setShowCancelModal] = useState(false)
+  const [selectedBookingForCancel, setSelectedBookingForCancel] = useState<any | null>(null)
+  const [cancelReasonInput, setCancelReasonInput] = useState('')
 
   const [bookings, setBookings] = useState<any[]>([])
   // Removed unused loading and error state
@@ -113,6 +118,53 @@ const Bookings = () => {
       return newSet;
     });
   };
+
+  const openCancelModal = (booking: any) => {
+    setCancelMessage(null)
+    setSelectedBookingForCancel(booking)
+    setCancelReasonInput('')
+    setShowCancelModal(true)
+  }
+
+  const closeCancelModal = () => {
+    setShowCancelModal(false)
+    setSelectedBookingForCancel(null)
+    setCancelReasonInput('')
+  }
+
+  const handleCancelBooking = async () => {
+    if (!selectedBookingForCancel) return
+    setCancelMessage(null)
+    const reason = cancelReasonInput.trim()
+    setCancellingBookingId(Number(selectedBookingForCancel.id))
+
+    try {
+      const response = await apiFetch(`/renter/bookings/${selectedBookingForCancel.id}/cancel`, {
+        method: 'PATCH',
+        body: JSON.stringify({ cancellationReason: reason })
+      })
+
+      const updated = response?.data
+      setBookings((prev) =>
+        prev.map((item) =>
+          item.id === selectedBookingForCancel.id
+            ? {
+                ...item,
+                status: updated?.status || 'CANCELLED',
+                cancellationReason: updated?.cancellationReason || reason || item.cancellationReason
+              }
+            : item
+        )
+      )
+
+      setCancelMessage('Booking cancelled successfully.')
+      closeCancelModal()
+    } catch (err) {
+      setCancelMessage(err instanceof Error ? err.message : 'Failed to cancel booking')
+    } finally {
+      setCancellingBookingId(null)
+    }
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -292,7 +344,7 @@ const Bookings = () => {
                     )}
 
                     {/* Cancellation Reason */}
-                    {booking.status === 'cancelled' && booking.cancellationReason && (
+                    {(booking.status || '').toLowerCase() === 'cancelled' && booking.cancellationReason && (
                       <div className="flex items-start text-sm text-red-600 dark:text-red-400">
                         <XCircle className="w-4 h-4 mr-2 flex-shrink-0 mt-0.5" />
                         <div>
@@ -304,7 +356,7 @@ const Bookings = () => {
 
                     {/* Action Buttons */}
                     <div className="flex space-x-2 pt-2">
-                      {booking.status === 'confirmed' && (
+                      {(booking.status || '').toLowerCase() === 'confirmed' && (
                         <>
                           <button className="flex-1 px-3 py-2 bg-primary-600 hover:bg-primary-700 text-white text-xs rounded-lg font-medium transition-colors">
                             View Details
@@ -314,6 +366,15 @@ const Bookings = () => {
                           </button>
                         </>
                       )}
+                      {((booking.status || '').toLowerCase() === 'pending' || (booking.status || '').toLowerCase() === 'confirmed') && (booking.paymentStatus || '').toLowerCase() !== 'completed' && (
+                        <button
+                          onClick={() => openCancelModal(booking)}
+                          disabled={cancellingBookingId === booking.id}
+                          className="flex-1 px-3 py-2 border border-red-300 text-red-700 dark:text-red-300 dark:border-red-700 text-xs rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {cancellingBookingId === booking.id ? 'Cancelling...' : 'Cancel Booking'}
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -322,6 +383,53 @@ const Bookings = () => {
           ))
         )}
       </div>
+
+      {cancelMessage && (
+        <div className="mt-6 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800 dark:border-blue-700 dark:bg-blue-900/20 dark:text-blue-200">
+          {cancelMessage}
+        </div>
+      )}
+
+      {showCancelModal && selectedBookingForCancel && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl dark:bg-gray-800">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Cancel Booking</h3>
+            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+              Are you sure you want to cancel booking #{selectedBookingForCancel.id}? You can add a reason below.
+            </p>
+
+            <div className="mt-4">
+              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Cancellation Reason (optional)
+              </label>
+              <textarea
+                value={cancelReasonInput}
+                onChange={(e) => setCancelReasonInput(e.target.value)}
+                rows={4}
+                placeholder="Tell us why you are cancelling..."
+                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-primary-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+              />
+            </div>
+
+            <div className="mt-5 flex justify-end space-x-3">
+              <button
+                onClick={closeCancelModal}
+                disabled={cancellingBookingId === selectedBookingForCancel.id}
+                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+              >
+                Keep Booking
+              </button>
+              <button
+                onClick={handleCancelBooking}
+                disabled={cancellingBookingId === selectedBookingForCancel.id}
+                className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {cancellingBookingId === selectedBookingForCancel.id ? 'Cancelling...' : 'Confirm Cancel'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

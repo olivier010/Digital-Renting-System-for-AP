@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { apiFetch } from '../../utils/api'
 import { Link } from 'react-router-dom'
 import { Users, Home, TrendingUp, DollarSign, AlertCircle, CheckCircle, FileText, BarChart, Settings, Bell } from 'lucide-react'
@@ -40,25 +40,25 @@ const Dashboard = () => {
   const [notifications, setNotifications] = useState<any[]>([])
   // Removed unused loading and error state
 
-  const formatRelativeTime = (timestamp: string) => {
-    const date = new Date(timestamp)
-    const now = new Date()
-    const diffMs = now.getTime() - date.getTime()
-    const mins = Math.floor(diffMs / (1000 * 60))
+  const fetchNotifications = useCallback(async () => {
+    const formatRelativeTime = (timestamp: string) => {
+      const date = new Date(timestamp)
+      const now = new Date()
+      const diffMs = now.getTime() - date.getTime()
+      const mins = Math.floor(diffMs / (1000 * 60))
 
-    if (mins < 1) return 'just now'
-    if (mins < 60) return `${mins}m ago`
+      if (mins < 1) return 'just now'
+      if (mins < 60) return `${mins}m ago`
 
-    const hours = Math.floor(mins / 60)
-    if (hours < 24) return `${hours}h ago`
+      const hours = Math.floor(mins / 60)
+      if (hours < 24) return `${hours}h ago`
 
-    const days = Math.floor(hours / 24)
-    if (days < 7) return `${days}d ago`
+      const days = Math.floor(hours / 24)
+      if (days < 7) return `${days}d ago`
 
-    return date.toLocaleDateString()
-  }
+      return date.toLocaleDateString()
+    }
 
-  const fetchNotifications = async () => {
     try {
       const notificationRes = await apiFetch('/notifications?page=0&size=6')
       const items = (notificationRes.data?.content || [])
@@ -74,7 +74,7 @@ const Dashboard = () => {
     } catch {
       setNotifications([])
     }
-  }
+  }, [])
 
   const markAllNotificationsAsRead = async () => {
     try {
@@ -115,7 +115,7 @@ const Dashboard = () => {
       }
     }
     fetchDashboard()
-  }, [])
+  }, [fetchNotifications])
 
   // Helper to calculate percent change
   const percentChange = (current: number, last: number) => {

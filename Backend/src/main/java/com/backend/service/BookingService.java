@@ -226,6 +226,38 @@ public class BookingService {
         return bookingMapper.toResponse(booking);
     }
 
+    @Transactional
+    public BookingResponse cancelBookingByRenter(Long id, String cancellationReason) {
+        Booking booking = bookingRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Booking", "id", id));
+
+        User user = currentUser.getUser();
+        if (!booking.getRenter().getId().equals(user.getId())) {
+            throw new UnauthorizedException("You can only cancel your own booking");
+        }
+
+        if (booking.getStatus() == BookingStatus.CANCELLED) {
+            throw new BadRequestException("Booking is already cancelled");
+        }
+
+        if (booking.getStatus() == BookingStatus.COMPLETED) {
+            throw new BadRequestException("Completed bookings cannot be cancelled");
+        }
+
+        if (booking.getPaymentStatus() == PaymentStatus.COMPLETED) {
+            throw new BadRequestException("Paid bookings must be refunded via payment workflow");
+        }
+
+        booking.setStatus(BookingStatus.CANCELLED);
+        if (cancellationReason != null && !cancellationReason.isBlank()) {
+            booking.setCancellationReason(cancellationReason.trim());
+        }
+
+        booking = bookingRepository.save(booking);
+        notifyBookingStatusChange(booking, user, cancellationReason);
+        return bookingMapper.toResponse(booking);
+    }
+
     @Transactional(readOnly = true)
     public List<BookingResponse> getBookingsAwaitingReview(Long renterId) {
         return bookingRepository.findBookingsAwaitingReview(renterId)

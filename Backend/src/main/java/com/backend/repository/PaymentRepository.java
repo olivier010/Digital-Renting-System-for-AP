@@ -16,6 +16,8 @@ import java.util.List;
 @Repository
 public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
+    long countByRenterId(Long renterId);
+
     Page<Payment> findByRenterId(Long renterId, Pageable pageable);
 
     Page<Payment> findByBookingId(Long bookingId, Pageable pageable);

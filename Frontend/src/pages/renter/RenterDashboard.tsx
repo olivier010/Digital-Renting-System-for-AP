@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 // Type definitions
 type Booking = {
   id: number;
@@ -41,6 +41,12 @@ type Notification = {
   time: string;
   read: boolean;
 };
+type BookingStatusCounts = {
+  pending: number;
+  confirmed: number;
+  completed: number;
+  cancelled: number;
+};
 import { apiFetch } from '../../utils/api'
 import { Link } from 'react-router-dom'
 import { 
@@ -78,26 +84,32 @@ const RenterDashboard = () => {
   const [upcomingTrips, setUpcomingTrips] = useState<Trip[]>([])
 
   const [notifications, setNotifications] = useState<Notification[]>([])
+  const [bookingStatusCounts, setBookingStatusCounts] = useState<BookingStatusCounts>({
+    pending: 0,
+    confirmed: 0,
+    completed: 0,
+    cancelled: 0
+  })
 
-  const formatRelativeTime = (timestamp: string) => {
-    const date = new Date(timestamp)
-    const now = new Date()
-    const diffMs = now.getTime() - date.getTime()
-    const mins = Math.floor(diffMs / (1000 * 60))
+  const fetchNotifications = useCallback(async () => {
+    const formatRelativeTime = (timestamp: string) => {
+      const date = new Date(timestamp)
+      const now = new Date()
+      const diffMs = now.getTime() - date.getTime()
+      const mins = Math.floor(diffMs / (1000 * 60))
 
-    if (mins < 1) return 'just now'
-    if (mins < 60) return `${mins}m ago`
+      if (mins < 1) return 'just now'
+      if (mins < 60) return `${mins}m ago`
 
-    const hours = Math.floor(mins / 60)
-    if (hours < 24) return `${hours}h ago`
+      const hours = Math.floor(mins / 60)
+      if (hours < 24) return `${hours}h ago`
 
-    const days = Math.floor(hours / 24)
-    if (days < 7) return `${days}d ago`
+      const days = Math.floor(hours / 24)
+      if (days < 7) return `${days}d ago`
 
-    return date.toLocaleDateString()
-  }
+      return date.toLocaleDateString()
+    }
 
-  const fetchNotifications = async () => {
     const notificationRes = await apiFetch('/notifications?page=0&size=5')
     const items = (notificationRes.data?.content || [])
       .sort((a: any, b: any) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime())
@@ -111,7 +123,7 @@ const RenterDashboard = () => {
       time: n.createdAt ? formatRelativeTime(n.createdAt) : 'just now',
       read: Boolean(n.isRead)
     })))
-  }
+  }, [])
 
   const markAllNotificationsAsRead = async () => {
     try {
@@ -129,6 +141,20 @@ const RenterDashboard = () => {
     } catch {
       // no-op
     }
+  }
+
+  const getBookingStatusBreakdown = (items: any[]): BookingStatusCounts => {
+    return items.reduce(
+      (acc, booking) => {
+        const status = (booking.status || '').toLowerCase()
+        if (status === 'pending') acc.pending += 1
+        else if (status === 'confirmed') acc.confirmed += 1
+        else if (status === 'completed') acc.completed += 1
+        else if (status === 'cancelled') acc.cancelled += 1
+        return acc
+      },
+      { pending: 0, confirmed: 0, completed: 0, cancelled: 0 }
+    )
   }
 
   useEffect(() => {
@@ -176,6 +202,12 @@ const RenterDashboard = () => {
           host: b.property?.ownerName || '',
           hostImage: b.property?.image ? (b.property.image.startsWith('http') ? b.property.image : `http://localhost:8080${b.property.image}`) : ''
         })));
+
+        // Booking status chart data (all renter bookings)
+        const allBookingsRes = await apiFetch('/renter/bookings?page=0&size=200')
+        const allBookings = allBookingsRes.data?.content || []
+        setBookingStatusCounts(getBookingStatusBreakdown(allBookings))
+
         // Favorites
         const favRes = await apiFetch('/favorites');
         setFavoriteProperties((favRes.data?.content || []).map((f: any) => ({
@@ -196,7 +228,7 @@ const RenterDashboard = () => {
       }
     }
     fetchDashboard();
-  }, []);
+  }, [fetchNotifications]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -222,6 +254,28 @@ const RenterDashboard = () => {
       default: return <AlertCircle className="w-4 h-4 text-gray-600" />
     }
   }
+
+  const shouldMarqueeNotifications = notifications.length > 1
+  const marqueeNotifications = shouldMarqueeNotifications
+    ? [...notifications, ...notifications]
+    : notifications
+
+  const totalChartBookings =
+    bookingStatusCounts.pending +
+    bookingStatusCounts.confirmed +
+    bookingStatusCounts.completed +
+    bookingStatusCounts.cancelled
+
+  const pendingPct = totalChartBookings ? (bookingStatusCounts.pending / totalChartBookings) * 100 : 0
+  const confirmedPct = totalChartBookings ? (bookingStatusCounts.confirmed / totalChartBookings) * 100 : 0
+  const completedPct = totalChartBookings ? (bookingStatusCounts.completed / totalChartBookings) * 100 : 0
+
+  const donutBackground = `conic-gradient(
+    #f59e0b 0% ${pendingPct}%,
+    #10b981 ${pendingPct}% ${pendingPct + confirmedPct}%,
+    #3b82f6 ${pendingPct + confirmedPct}% ${pendingPct + confirmedPct + completedPct}%,
+    #ef4444 ${pendingPct + confirmedPct + completedPct}% 100%
+  )`
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -350,6 +404,57 @@ const RenterDashboard = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Upcoming Trips */}
         <div className="lg:col-span-2 space-y-8">
+          {/* Booking Status Chart */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Booking Status Overview</h2>
+              <Link to="/renter/bookings" className="text-primary-600 hover:text-primary-500 dark:text-primary-400 text-sm font-medium flex items-center">
+                Open Bookings
+                <ChevronRight className="w-4 h-4 ml-1" />
+              </Link>
+            </div>
+
+            {totalChartBookings === 0 ? (
+              <div className="rounded-lg bg-gray-50 dark:bg-gray-700 p-6 text-sm text-gray-500 dark:text-gray-400">
+                No booking data yet to visualize.
+              </div>
+            ) : (
+              <div className="flex flex-col md:flex-row md:items-center gap-6">
+                <div className="relative h-44 w-44 mx-auto md:mx-0">
+                  <div
+                    className="h-44 w-44 rounded-full"
+                    style={{ background: donutBackground }}
+                    aria-label="Booking status chart"
+                    role="img"
+                  />
+                  <div className="absolute inset-0 m-auto flex h-24 w-24 flex-col items-center justify-center rounded-full bg-white text-center dark:bg-gray-800">
+                    <span className="text-2xl font-bold text-gray-900 dark:text-white">{totalChartBookings}</span>
+                    <span className="text-xs text-gray-500 dark:text-gray-400">Bookings</span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 flex-1">
+                  <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-3 dark:border-yellow-800 dark:bg-yellow-900/20">
+                    <p className="text-xs uppercase tracking-wide text-yellow-700 dark:text-yellow-300">Pending</p>
+                    <p className="text-xl font-semibold text-yellow-800 dark:text-yellow-200">{bookingStatusCounts.pending}</p>
+                  </div>
+                  <div className="rounded-lg border border-green-200 bg-green-50 p-3 dark:border-green-800 dark:bg-green-900/20">
+                    <p className="text-xs uppercase tracking-wide text-green-700 dark:text-green-300">Confirmed</p>
+                    <p className="text-xl font-semibold text-green-800 dark:text-green-200">{bookingStatusCounts.confirmed}</p>
+                  </div>
+                  <div className="rounded-lg border border-blue-200 bg-blue-50 p-3 dark:border-blue-800 dark:bg-blue-900/20">
+                    <p className="text-xs uppercase tracking-wide text-blue-700 dark:text-blue-300">Completed</p>
+                    <p className="text-xl font-semibold text-blue-800 dark:text-blue-200">{bookingStatusCounts.completed}</p>
+                  </div>
+                  <div className="rounded-lg border border-red-200 bg-red-50 p-3 dark:border-red-800 dark:bg-red-900/20">
+                    <p className="text-xs uppercase tracking-wide text-red-700 dark:text-red-300">Cancelled</p>
+                    <p className="text-xl font-semibold text-red-800 dark:text-red-200">{bookingStatusCounts.cancelled}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
             <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Upcoming Trips</h2>
@@ -474,13 +579,14 @@ const RenterDashboard = () => {
               </button>
             </div>
             <div className="p-6">
-              <div className="space-y-3">
+              <div className={shouldMarqueeNotifications ? 'notification-marquee-viewport' : ''}>
+                <div className={shouldMarqueeNotifications ? 'notification-marquee-track pr-1' : 'space-y-3'}>
                 {notifications.length === 0 && (
                   <div className="text-gray-400 text-center">No notifications</div>
                 )}
-                {notifications.map((notification) => (
+                {marqueeNotifications.map((notification, idx) => (
                   <button
-                    key={notification.id}
+                    key={`${notification.id}-${idx}`}
                     type="button"
                     onClick={() => markNotificationAsRead(notification.id)}
                     className={`w-full text-left flex items-start space-x-3 p-3 rounded-lg ${notification.read ? 'bg-gray-50 dark:bg-gray-700' : 'bg-blue-50 dark:bg-blue-900/20'}`}
@@ -501,6 +607,7 @@ const RenterDashboard = () => {
                     </div>
                   </button>
                 ))}
+                </div>
               </div>
             </div>
           </div>
