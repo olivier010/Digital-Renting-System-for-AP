@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { 
   Home, 
@@ -23,29 +23,60 @@ const OwnerDashboard = () => {
   const [properties, setProperties] = useState<any[]>([])
   const [notifications, setNotifications] = useState<any[]>([])
 
-  const formatRelativeTime = (timestamp: string) => {
-    const date = new Date(timestamp)
-    const now = new Date()
-    const diffMs = now.getTime() - date.getTime()
-    const mins = Math.floor(diffMs / (1000 * 60))
+  const calculateRatingMetrics = (propertyItems: any[]) => {
+    const safeItems = Array.isArray(propertyItems) ? propertyItems : []
+    const totalReviews = safeItems.reduce((sum, p) => sum + Number(p.reviewsCount || 0), 0)
 
-    if (mins < 1) return 'just now'
-    if (mins < 60) return `${mins}m ago`
+    if (totalReviews > 0) {
+      const weightedSum = safeItems.reduce(
+        (sum, p) => sum + Number(p.rating || 0) * Number(p.reviewsCount || 0),
+        0
+      )
+      return {
+        averageRating: Number((weightedSum / totalReviews).toFixed(1)),
+        totalReviews
+      }
+    }
 
-    const hours = Math.floor(mins / 60)
-    if (hours < 24) return `${hours}h ago`
+    const rated = safeItems.filter((p) => Number(p.rating || 0) > 0)
+    if (rated.length === 0) {
+      return { averageRating: 0, totalReviews: 0 }
+    }
 
-    const days = Math.floor(hours / 24)
-    if (days < 7) return `${days}d ago`
-
-    return date.toLocaleDateString()
+    const avg = rated.reduce((sum, p) => sum + Number(p.rating || 0), 0) / rated.length
+    return {
+      averageRating: Number(avg.toFixed(1)),
+      totalReviews: 0
+    }
   }
 
-  const fetchNotifications = async () => {
+  const computedRatingMetrics = calculateRatingMetrics(properties)
+  const averageRatingValue = Number(stats?.averageRating ?? computedRatingMetrics.averageRating ?? 0)
+  const totalReviewsValue = Number(stats?.totalReviews ?? computedRatingMetrics.totalReviews ?? 0)
+
+  const fetchNotifications = useCallback(async () => {
     const pageSize = 20
     let page = 0
     let totalPages = 1
     let items: any[] = []
+
+    const formatRelativeTime = (timestamp: string) => {
+      const date = new Date(timestamp)
+      const now = new Date()
+      const diffMs = now.getTime() - date.getTime()
+      const mins = Math.floor(diffMs / (1000 * 60))
+
+      if (mins < 1) return 'just now'
+      if (mins < 60) return `${mins}m ago`
+
+      const hours = Math.floor(mins / 60)
+      if (hours < 24) return `${hours}h ago`
+
+      const days = Math.floor(hours / 24)
+      if (days < 7) return `${days}d ago`
+
+      return date.toLocaleDateString()
+    }
 
     while (page < totalPages) {
       const notificationRes = await apiFetch(`/notifications?page=${page}&size=${pageSize}`)
@@ -64,7 +95,7 @@ const OwnerDashboard = () => {
       time: n.createdAt ? formatRelativeTime(n.createdAt) : 'just now',
       read: Boolean(n.isRead)
     })))
-  }
+  }, [])
 
   const markAllNotificationsAsRead = async () => {
     try {
@@ -96,9 +127,10 @@ const OwnerDashboard = () => {
         // Revenue chart data (simulate from dashboard for now)
         setRevenueData((dashRes.data?.revenueChart || []))
         // Properties
-        const propRes = await apiFetch('/owner/properties?page=0&size=3')
+        const propRes = await apiFetch('/owner/properties?page=0&size=100')
         // Map API property objects to expected frontend structure
-        const apiProperties = Array.isArray(propRes.data?.content) ? propRes.data.content.map((p: any) => ({
+        const allApiProperties = Array.isArray(propRes.data?.content) ? propRes.data.content : []
+        const apiProperties = allApiProperties.map((p: any) => ({
           id: p.id,
           title: p.title,
           category: (p.category || '').toLowerCase(),
@@ -112,8 +144,8 @@ const OwnerDashboard = () => {
           images: Array.isArray(p.images)
             ? p.images.map((img: string) => img.startsWith('http') ? img : `http://localhost:8080${img}`)
             : [],
-        })) : [];
-        setProperties(apiProperties)
+        }));
+        setProperties(apiProperties.slice(0, 3))
         // Bookings
         const bookRes = await apiFetch('/owner/bookings?page=0&size=3')
         // Map API booking objects to expected frontend structure
@@ -135,7 +167,7 @@ const OwnerDashboard = () => {
       }
     }
     fetchDashboard()
-  }, [])
+  }, [fetchNotifications])
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -214,10 +246,10 @@ const OwnerDashboard = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Average Rating</p>
-                  <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{stats?.averageRating ?? 0}</p>
+                  <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{averageRatingValue.toFixed(1)}</p>
                   <p className="text-sm text-green-600 dark:text-green-400 mt-2 flex items-center">
                     <ArrowUpRight className="w-4 h-4 mr-1" />
-                    {stats?.totalReviews ?? 0} reviews
+                    {totalReviewsValue} reviews
                   </p>
                 </div>
                 <div className="p-3 bg-yellow-100 dark:bg-yellow-900 rounded-lg">

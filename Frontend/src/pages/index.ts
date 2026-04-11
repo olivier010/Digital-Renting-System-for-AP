@@ -2,10 +2,10 @@
 export * from './shared'
 
 // Renter-specific pages
-export * from './renter'
+export * as renterPages from './renter'
 
 // Owner-specific pages
-export * from './owner'
+export * as ownerPages from './owner'
 
 // Admin-specific pages
-export * from './admin'
+export * as adminPages from './admin'

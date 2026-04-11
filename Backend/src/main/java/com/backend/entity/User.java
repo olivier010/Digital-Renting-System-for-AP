@@ -90,6 +90,10 @@ public class User {
     @Builder.Default
     private List<Notification> notifications = new ArrayList<>();
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<PaymentMethod> paymentMethods = new ArrayList<>();
+
     public String getFullName() {
         return firstName + " " + lastName;
     }

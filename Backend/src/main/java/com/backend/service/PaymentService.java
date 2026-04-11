@@ -77,6 +77,9 @@ public class PaymentService {
         if (!booking.getRenter().getId().equals(renter.getId())) {
             throw new UnauthorizedException("You can only pay for your own bookings");
         }
+        if (booking.getStatus() != BookingStatus.CONFIRMED) {
+            throw new BadRequestException("Only confirmed bookings can be paid");
+        }
         PaymentType type;
         try {
             type = PaymentType.valueOf(request.getType().toUpperCase());

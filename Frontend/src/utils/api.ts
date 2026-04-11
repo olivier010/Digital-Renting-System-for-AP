@@ -7,6 +7,13 @@ interface ApiFetchOptions extends RequestInit {
 }
 
 export async function apiFetch(endpoint: string, options: ApiFetchOptions = {}) {
+  const normalizedEndpoint = endpoint.startsWith('/api/')
+    ? endpoint.slice('/api'.length)
+    : endpoint;
+  const requestPath = normalizedEndpoint.startsWith('/')
+    ? normalizedEndpoint
+    : `/${normalizedEndpoint}`;
+
   const sessionToken = sessionStorage.getItem('rentwise_token');
   const localToken = localStorage.getItem('rentwise_token');
   const token = sessionToken || localToken;
@@ -15,7 +22,7 @@ export async function apiFetch(endpoint: string, options: ApiFetchOptions = {}) 
     ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
     ...(options.headers || {}),
   };
-  const res = await fetch(`${API_BASE_URL}${endpoint}`, {
+  const res = await fetch(`${API_BASE_URL}${requestPath}`, {
     ...options,
     headers,
   });
@@ -30,7 +37,7 @@ export async function apiFetch(endpoint: string, options: ApiFetchOptions = {}) 
       ...(options.headers || {}),
     };
 
-    const retryRes = await fetch(`${API_BASE_URL}${endpoint}`, {
+    const retryRes = await fetch(`${API_BASE_URL}${requestPath}`, {
       ...options,
       headers: retryHeaders,
     });

@@ -5,10 +5,12 @@ import { Calendar, CheckCircle, XCircle, AlertCircle, Search, Filter, Clock, Che
 const API_BASE_URL = 'http://localhost:8080/api';
 
 type OwnerBooking = import('../../types').Booking & {
+  propertyId?: number | string;
   propertyName?: string;
   propertyStatus?: string;
   propertyLocation?: string;
   propertyImages?: string[];
+  tenantId?: number | string;
   tenantName?: string;
   tenantEmail?: string;
   tenantPhone?: string;
@@ -17,10 +19,10 @@ type OwnerBooking = import('../../types').Booking & {
 
 const Bookings = () => {
   const [bookings, setBookings] = useState<OwnerBooking[]>([]);
-  const [statusEditId, setStatusEditId] = useState<string | null>(null);
+  const [statusEditId, setStatusEditId] = useState<number | null>(null);
   const [statusEditLoading, setStatusEditLoading] = useState(false);
   const statusModalRef = useRef<HTMLDivElement | null>(null);
-  const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
+  const [expandedCards, setExpandedCards] = useState<Set<number>>(new Set());
     // Close modal on outside click or Escape
     useEffect(() => {
       if (!statusEditId) return;
@@ -72,14 +74,14 @@ const Bookings = () => {
         const apiBookings = data.data?.content || [];
         setBookings(apiBookings.map((b: any) => ({
           id: b.id,
-          propertyId: b.property?.id?.toString() || b.propertyId,
+          propertyId: b.property?.id || b.propertyId,
           propertyName: b.property?.title || '',
           propertyStatus: b.property?.status || '',
           propertyLocation: b.property?.location || '',
           propertyImages: b.property?.image
             ? [b.property.image.startsWith('http') ? b.property.image : `http://localhost:8080${b.property.image}`]
             : [],
-          tenantId: b.renter?.id?.toString() || b.tenantId,
+          tenantId: b.renter?.id || b.tenantId,
           tenantName: b.renter?.name || '',
           tenantEmail: b.renter?.email || '',
           tenantPhone: b.renter?.phone || '',
@@ -144,7 +146,7 @@ const Bookings = () => {
 
 
   // Toggle card expansion (independent for each card)
-  const toggleCardExpansion = (bookingId: string) => {
+  const toggleCardExpansion = (bookingId: number) => {
     setExpandedCards(prev => {
       const newSet = new Set(prev);
       if (newSet.has(bookingId)) {

@@ -1,11 +1,13 @@
 package com.backend.controller;
 
 import com.backend.dto.request.ChangePasswordRequest;
+import com.backend.dto.request.DeleteAccountRequest;
 import com.backend.dto.request.LoginRequest;
 import com.backend.dto.request.RegisterRequest;
 import com.backend.dto.request.UpdateUserRequest;
 import com.backend.dto.response.ApiResponse;
 import com.backend.dto.response.AuthResponse;
+import com.backend.dto.response.UserDataExportResponse;
 import com.backend.dto.response.UserResponse;
 import com.backend.service.AuthService;
 import jakarta.validation.Valid;
@@ -56,6 +58,18 @@ public class AuthController {
     public ResponseEntity<ApiResponse<Void>> changePassword(@Valid @RequestBody ChangePasswordRequest request) {
         authService.changePassword(request);
         return ResponseEntity.ok(ApiResponse.success("Password changed successfully", null));
+    }
+
+    @GetMapping("/me/export")
+    public ResponseEntity<ApiResponse<UserDataExportResponse>> exportCurrentUserData() {
+        UserDataExportResponse response = authService.exportCurrentUserData();
+        return ResponseEntity.ok(ApiResponse.success("User data exported successfully", response));
+    }
+
+    @DeleteMapping("/me")
+    public ResponseEntity<ApiResponse<Void>> deleteCurrentUser(@Valid @RequestBody DeleteAccountRequest request) {
+        authService.deleteCurrentUser(request);
+        return ResponseEntity.ok(ApiResponse.success("Account deleted successfully", null));
     }
 }
 
