@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Star, MapPin, Search, MessageSquare, ThumbsUp, ThumbsDown, Clock, CheckCircle, MoreVertical, Edit, Trash2 } from 'lucide-react'
 import { apiFetch } from '../../utils/api'
 
@@ -12,12 +12,12 @@ const Reviews = () => {
   const [menuOpenId, setMenuOpenId] = useState<number | null>(null)
   const [editModal, setEditModal] = useState<{ open: boolean, review: any | null }>({ open: false, review: null })
   const [editForm, setEditForm] = useState<any | null>(null)
-  const menuRef = useRef<HTMLDivElement>(null)
 
   // Close menu on outside click
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+      const target = event.target as HTMLElement
+      if (!target.closest('[data-review-menu="true"]')) {
         setMenuOpenId(null)
       }
     }
@@ -28,64 +28,6 @@ const Reviews = () => {
     }
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [menuOpenId])
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setError(null)
-      try {
-        console.log('Fetching reviews data...')
-        
-        // Fetch only completed bookings for reviews to write
-        const bookingsRes = await apiFetch('/renter/bookings?status=COMPLETED')
-        console.log('Bookings response:', bookingsRes)
-        const bookings = bookingsRes.data?.content || []
-        // Filter to only bookings with status COMPLETED and not already reviewed
-        const completedBookings = bookings.filter((b: any) => {
-          const status = (b.status?.toLowerCase?.() || b.status)
-          // Hide if booking has a review or reviewed flag
-          const isReviewed = b.review || b.reviewed === true
-          return status === 'completed' && !isReviewed
-        })
-        setReviewsToWrite(completedBookings)
-        console.log('Reviews to write:', completedBookings.length)
-
-        // Fetch user's existing reviews
-        let reviews = []
-        try {
-          // Try renter-specific endpoint first
-          const reviewsRes = await apiFetch('/reviews/my')
-          reviews = reviewsRes.data?.content || reviewsRes.data || []
-        } catch (renterError) {
-          console.log('Renter reviews endpoint failed, trying alternative...')
-          try {
-            // Try alternative endpoint - maybe reviews are nested under user
-            const userRes = await apiFetch('/user/reviews')
-            reviews = userRes.data?.content || userRes.data || []
-          } catch (userError) {
-            console.log('User reviews endpoint failed, trying bookings approach...')
-            try {
-              // Last resort - get reviews from bookings data
-              const allBookingsRes = await apiFetch('/renter/bookings')
-              const allBookings = allBookingsRes.data?.content || []
-              reviews = allBookings
-                .filter((b: any) => b.review || b.reviews)
-                .map((b: any) => b.review || b.reviews)
-                .filter(Boolean)
-            } catch (bookingsError) {
-              console.error('All review fetch methods failed:', bookingsError)
-            }
-          }
-        }
-        
-        console.log('Final reviews data:', reviews)
-        setMyReviews(reviews)
-      } catch (err: any) {
-        console.error('Error fetching reviews:', err)
-        setError(err.message || 'Failed to fetch data')
-      }
-    }
-    fetchData()
-  }, [])
 
   const tabs = [
     { id: 'to_write', label: 'Reviews to Write', count: reviewsToWrite.length },
@@ -128,12 +70,78 @@ const Reviews = () => {
     value: 0
   })
 
-  const filteredReviews = myReviews.filter(review => 
-    searchTerm === '' || 
-    review.property.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    review.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    review.review.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  const normalizeReview = useCallback((review: any) => {
+    const propertyTitle = review.propertyTitle || review.property?.title || review.property || 'Property'
+    const propertyLocation = review.propertyLocation || review.property?.location || review.location || ''
+    const propertyImage = review.propertyImage || review.property?.image || review.property?.images?.[0] || ''
+    const comment = review.comment || review.review || ''
+
+    return {
+      ...review,
+      propertyTitle,
+      propertyLocation,
+      propertyImage,
+      property: propertyTitle,
+      location: propertyLocation,
+      comment,
+      review: comment
+    }
+  }, [])
+
+  const fetchPendingReviews = useCallback(async () => {
+    const bookingsRes = await apiFetch('/renter/bookings?status=COMPLETED')
+    const bookings = bookingsRes.data?.content || []
+    const completedBookings = bookings.filter((b: any) => {
+      const status = (b.status?.toLowerCase?.() || b.status)
+      const isReviewed = b.review || b.reviewed === true
+      return status === 'completed' && !isReviewed
+    })
+    setReviewsToWrite(completedBookings)
+  }, [])
+
+  const fetchMyReviews = useCallback(async () => {
+    let reviews: any[] = []
+
+    try {
+      const reviewsRes = await apiFetch('/reviews/my?page=0&size=100')
+      reviews = reviewsRes.data?.content || reviewsRes.data || []
+    } catch {
+      try {
+        const userRes = await apiFetch('/user/reviews')
+        reviews = userRes.data?.content || userRes.data || []
+      } catch {
+        const allBookingsRes = await apiFetch('/renter/bookings')
+        const allBookings = allBookingsRes.data?.content || []
+        reviews = allBookings
+          .filter((b: any) => b.review || b.reviews)
+          .map((b: any) => b.review || b.reviews)
+          .filter(Boolean)
+      }
+    }
+
+    setMyReviews((Array.isArray(reviews) ? reviews : []).map(normalizeReview))
+  }, [normalizeReview])
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setError(null)
+      try {
+        await Promise.all([fetchPendingReviews(), fetchMyReviews()])
+      } catch (err: any) {
+        setError(err.message || 'Failed to fetch data')
+      }
+    }
+    fetchData()
+  }, [fetchMyReviews, fetchPendingReviews])
+
+  const filteredReviews = myReviews.filter((review) => {
+    if (searchTerm === '') return true
+    const term = searchTerm.toLowerCase()
+    const property = String(review.propertyTitle || review.property || '').toLowerCase()
+    const location = String(review.propertyLocation || review.location || '').toLowerCase()
+    const comment = String(review.comment || review.review || '').toLowerCase()
+    return property.includes(term) || location.includes(term) || comment.includes(term)
+  })
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
@@ -418,15 +426,9 @@ const Reviews = () => {
                                 value: reviewForm.value
                               }
 
-                              // Get token from localStorage
-                              const token = localStorage.getItem('rentwise_token')
                               await apiFetch('/reviews', {
                                 method: 'POST',
-                                body: JSON.stringify(payload),
-                                headers: {
-                                  'Content-Type': 'application/json',
-                                  ...(token ? { 'Authorization': `Bearer ${token}` } : {})
-                                }
+                                body: JSON.stringify(payload)
                               })
 
                               // Reset form
@@ -442,31 +444,7 @@ const Reviews = () => {
                                 value: 0
                               })
 
-                              // Refresh data
-                              const bookingsRes = await apiFetch('/renter/bookings?status=COMPLETED')
-                              const bookings = bookingsRes.data?.content || []
-                              const completedBookings = bookings.filter((b: any) => {
-                                const status = (b.status?.toLowerCase?.() || b.status)
-                                const isReviewed = b.review || b.reviewed === true
-                                return status === 'completed' && !isReviewed
-                              })
-                              setReviewsToWrite(completedBookings)
-
-                              // Refresh reviews
-                              let reviews = []
-                              try {
-                                const reviewsRes = await apiFetch('/reviews/my')
-                                reviews = reviewsRes.data?.content || reviewsRes.data || []
-                              } catch (err) {
-                                // Fallback to bookings approach
-                                const allBookingsRes = await apiFetch('/renter/bookings')
-                                const allBookings = allBookingsRes.data?.content || []
-                                reviews = allBookings
-                                  .filter((b: any) => b.review || b.reviews)
-                                  .map((b: any) => b.review || b.reviews)
-                                  .filter(Boolean)
-                              }
-                              setMyReviews(reviews)
+                              await Promise.all([fetchPendingReviews(), fetchMyReviews()])
 
                               alert('Review submitted successfully!')
                             } catch (err: any) {
@@ -554,7 +532,7 @@ const Reviews = () => {
                         </div>
                         
                         {/* Three-dot menu */}
-                        <div className="relative" ref={menuRef}>
+                        <div className="relative" data-review-menu="true">
                           <button
                             className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                             onClick={() => setMenuOpenId(menuOpenId === review.id ? null : review.id)}
@@ -571,7 +549,7 @@ const Reviews = () => {
                                   setEditModal({ open: true, review })
                                   setEditForm({
                                     overallRating: review.overallRating,
-                                    comment: review.comment,
+                                    comment: review.comment || review.review || '',
                                     wouldRecommend: review.wouldRecommend,
                                     cleanliness: review.cleanliness,
                                     communication: review.communication,
@@ -591,30 +569,15 @@ const Reviews = () => {
                                 onClick={async () => {
                                   if (window.confirm('Are you sure you want to delete this review?')) {
                                     try {
-                                      const token = localStorage.getItem('rentwise_token')
+                                      const deletedId = review.id
                                       await apiFetch(`/reviews/${review.id}`, {
-                                        method: 'DELETE',
-                                        headers: {
-                                          'Content-Type': 'application/json',
-                                          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
-                                        }
+                                        method: 'DELETE'
                                       })
-                                      
-                                      // Refresh reviews
-                                      let reviews = []
-                                      try {
-                                        const reviewsRes = await apiFetch('/renter/reviews')
-                                        reviews = reviewsRes.data?.content || reviewsRes.data || []
-                                      } catch (err) {
-                                        const allBookingsRes = await apiFetch('/renter/bookings')
-                                        const allBookings = allBookingsRes.data?.content || []
-                                        reviews = allBookings
-                                          .filter((b: any) => b.review || b.reviews)
-                                          .map((b: any) => b.review || b.reviews)
-                                          .filter(Boolean)
-                                      }
-                                      setMyReviews(reviews)
+
+                                      // Remove instantly from UI so user sees immediate feedback.
+                                      setMyReviews((prev) => prev.filter((r) => r.id !== deletedId))
                                       setMenuOpenId(null)
+                                      await fetchPendingReviews()
                                       alert('Review deleted successfully!')
                                     } catch (err: any) {
                                       alert('Failed to delete review: ' + (err.message || 'Unknown error'))
@@ -691,55 +654,15 @@ const Reviews = () => {
                   try {
                     const payload = {
                       overallRating: editForm.overallRating,
-                      comment: editForm.comment,
-                      wouldRecommend: editForm.wouldRecommend,
-                      cleanliness: editForm.cleanliness,
-                      communication: editForm.communication,
-                      checkIn: editForm.checkIn,
-                      accuracy: editForm.accuracy,
-                      locationRating: editForm.locationRating,
-                      value: editForm.value
+                      comment: editForm.comment
                     }
-                    const token = localStorage.getItem('rentwise_token')
                     await apiFetch(`/reviews/${editModal.review.id}`, {
                       method: 'PUT',
-                      body: JSON.stringify(payload),
-                      headers: {
-                        'Content-Type': 'application/json',
-                        ...(token ? { 'Authorization': `Bearer ${token}` } : {})
-                      }
+                      body: JSON.stringify(payload)
                     })
                     alert('Review updated successfully!')
                     setEditModal({ open: false, review: null })
-                    // Refresh reviews and fetch property details
-                    let reviews = []
-                    try {
-                      const reviewsRes = await apiFetch('/reviews/my')
-                      reviews = reviewsRes.data?.content || reviewsRes.data || []
-                    } catch (err) {
-                      // Fallback to bookings approach
-                      const allBookingsRes = await apiFetch('/renter/bookings')
-                      const allBookings = allBookingsRes.data?.content || []
-                      reviews = allBookings
-                        .filter((b: any) => b.review || b.reviews)
-                        .map((b: any) => b.review || b.reviews)
-                        .filter(Boolean)
-                    }
-                    // Fetch property details for each review
-                    const reviewsWithProperty = await Promise.all(
-                      reviews.map(async (review: any) => {
-                        if (review.propertyId) {
-                          try {
-                            const propertyRes = await apiFetch(`/properties/${review.propertyId}`)
-                            review.property = propertyRes.data || propertyRes
-                          } catch (propertyError) {
-                            review.property = null
-                          }
-                        }
-                        return review
-                      })
-                    )
-                    setMyReviews(reviewsWithProperty)
+                    await Promise.all([fetchPendingReviews(), fetchMyReviews()])
                   } catch (err: any) {
                     alert('Failed to update review: ' + (err.message || 'Unknown error'))
                   }
