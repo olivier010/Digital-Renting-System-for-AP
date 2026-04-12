@@ -9,6 +9,7 @@ const Reviews = () => {
   const [reviewsToWrite, setReviewsToWrite] = useState<any[]>([])
   const [myReviews, setMyReviews] = useState<any[]>([])
   const [error, setError] = useState<string | null>(null)
+  const [successMessage, setSuccessMessage] = useState<string | null>(null)
   const [menuOpenId, setMenuOpenId] = useState<number | null>(null)
   const [editModal, setEditModal] = useState<{ open: boolean, review: any | null }>({ open: false, review: null })
   const [editForm, setEditForm] = useState<any | null>(null)
@@ -28,6 +29,12 @@ const Reviews = () => {
     }
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [menuOpenId])
+
+  useEffect(() => {
+    if (!successMessage) return
+    const timer = setTimeout(() => setSuccessMessage(null), 2500)
+    return () => clearTimeout(timer)
+  }, [successMessage])
 
   const tabs = [
     { id: 'to_write', label: 'Reviews to Write', count: reviewsToWrite.length },
@@ -88,6 +95,12 @@ const Reviews = () => {
     }
   }, [])
 
+  const resolveReviewId = useCallback((review: any): number | null => {
+    const rawId = review?.id ?? review?.reviewId
+    const parsed = Number(rawId)
+    return Number.isFinite(parsed) ? parsed : null
+  }, [])
+
   const fetchPendingReviews = useCallback(async () => {
     const bookingsRes = await apiFetch('/renter/bookings?status=COMPLETED')
     const bookings = bookingsRes.data?.content || []
@@ -103,7 +116,7 @@ const Reviews = () => {
     let reviews: any[] = []
 
     try {
-      const reviewsRes = await apiFetch('/reviews/my?page=0&size=100')
+      const reviewsRes = await apiFetch(`/reviews/my?page=0&size=100&t=${Date.now()}`)
       reviews = reviewsRes.data?.content || reviewsRes.data || []
     } catch {
       try {
@@ -119,7 +132,9 @@ const Reviews = () => {
       }
     }
 
-    setMyReviews((Array.isArray(reviews) ? reviews : []).map(normalizeReview))
+    const normalized = (Array.isArray(reviews) ? reviews : []).map(normalizeReview)
+    setMyReviews(normalized)
+    return normalized
   }, [normalizeReview])
 
   useEffect(() => {
@@ -174,6 +189,12 @@ const Reviews = () => {
                 </p>
               </div>
             </div>
+          </div>
+        )}
+
+        {successMessage && (
+          <div className="mb-8 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+            <p className="text-sm text-green-700 dark:text-green-300">{successMessage}</p>
           </div>
         )}
 
@@ -411,6 +432,7 @@ const Reviews = () => {
                           className="px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl"
                           onClick={async () => {
                             try {
+                              setError(null)
                               // Compose review payload
                               const payload = {
                                 bookingId: review.id,
@@ -445,10 +467,9 @@ const Reviews = () => {
                               })
 
                               await Promise.all([fetchPendingReviews(), fetchMyReviews()])
-
-                              alert('Review submitted successfully!')
+                              setSuccessMessage('Review submitted successfully.')
                             } catch (err: any) {
-                              alert('Failed to submit review: ' + (err.message || 'Unknown error'))
+                              setError(err.message || 'Failed to submit review')
                             }
                           }}
                         >
@@ -567,21 +588,42 @@ const Reviews = () => {
                               <button
                                 className="flex items-center w-full px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                                 onClick={async () => {
-                                  if (window.confirm('Are you sure you want to delete this review?')) {
-                                    try {
-                                      const deletedId = review.id
-                                      await apiFetch(`/reviews/${review.id}`, {
-                                        method: 'DELETE'
-                                      })
-
-                                      // Remove instantly from UI so user sees immediate feedback.
-                                      setMyReviews((prev) => prev.filter((r) => r.id !== deletedId))
-                                      setMenuOpenId(null)
-                                      await fetchPendingReviews()
-                                      alert('Review deleted successfully!')
-                                    } catch (err: any) {
-                                      alert('Failed to delete review: ' + (err.message || 'Unknown error'))
+                                  try {
+                                    setError(null)
+                                    const deletedId = resolveReviewId(review)
+                                    if (!deletedId) {
+                                      throw new Error('Unable to identify this review for deletion')
                                     }
+
+                                    await apiFetch(`/reviews/${deletedId}`, {
+                                      method: 'DELETE'
+                                    })
+
+                                    // Remove instantly from UI so user sees immediate feedback.
+                                    setMyReviews((prev) => prev.filter((r) => {
+                                      const rowId = resolveReviewId(r)
+                                      const sameId = rowId === deletedId
+                                      const sameBooking = review.bookingId && r.bookingId === review.bookingId
+                                      return !(sameId || sameBooking)
+                                    }))
+                                    setMenuOpenId(null)
+                                    await fetchPendingReviews()
+
+                                    const refreshedReviews = await fetchMyReviews()
+                                    const stillExists = refreshedReviews.some((r: any) => {
+                                      const rowId = resolveReviewId(r)
+                                      const sameId = rowId === deletedId
+                                      const sameBooking = review.bookingId && r.bookingId === review.bookingId
+                                      return sameId || sameBooking
+                                    })
+
+                                    if (stillExists) {
+                                      throw new Error('Delete did not persist on server. Please try again.')
+                                    }
+
+                                    setSuccessMessage('Review deleted successfully.')
+                                  } catch (err: any) {
+                                    setError(err.message || 'Failed to delete review')
                                   }
                                 }}
                               >
@@ -652,6 +694,7 @@ const Reviews = () => {
                 onSubmit={async (e) => {
                   e.preventDefault()
                   try {
+                    setError(null)
                     const payload = {
                       overallRating: editForm.overallRating,
                       comment: editForm.comment
@@ -660,11 +703,11 @@ const Reviews = () => {
                       method: 'PUT',
                       body: JSON.stringify(payload)
                     })
-                    alert('Review updated successfully!')
                     setEditModal({ open: false, review: null })
                     await Promise.all([fetchPendingReviews(), fetchMyReviews()])
+                    setSuccessMessage('Review updated successfully.')
                   } catch (err: any) {
-                    alert('Failed to update review: ' + (err.message || 'Unknown error'))
+                    setError(err.message || 'Failed to update review')
                   }
                 }}
               >
