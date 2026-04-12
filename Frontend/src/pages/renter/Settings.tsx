@@ -3,7 +3,7 @@ import { User, Mail, Phone, Lock, CreditCard, Globe, Save, Eye, EyeOff, Trash2 }
 import { useAuth } from '../../contexts/AuthContext'
 import { apiFetch } from '../../utils/api'
 import { useTheme } from '../../contexts/ThemeContext'
-import UserDataReportDownloadButton from '../../components/UserDataReportDownloadButton.tsx'
+import UserDataReportDownloadButton from '../../components/reports/UserDataReportDownloadButton'
 
 interface ProfileData {
   firstName: string
