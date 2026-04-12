@@ -1,4 +1,4 @@
-name: Frontend CI (React + Vite)
+name: Frontend CI (React TS)
 
 on:
   push:
@@ -28,9 +28,6 @@ jobs:
 
       - name: Install dependencies
         run: npm install
-
-      - name: Lint code
-        run: npm run lint || true
 
       - name: Build React App
         run: npm run build
