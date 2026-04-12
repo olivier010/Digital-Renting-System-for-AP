@@ -23,6 +23,8 @@ const OwnerDashboard = () => {
   const [allBookings, setAllBookings] = useState<any[]>([])
   const [properties, setProperties] = useState<any[]>([])
   const [notifications, setNotifications] = useState<any[]>([])
+  const [isNotificationsHovered, setIsNotificationsHovered] = useState(false)
+  const [openNotificationMenuId, setOpenNotificationMenuId] = useState<number | null>(null)
 
   const calculateRatingMetrics = (propertyItems: any[]) => {
     const safeItems = Array.isArray(propertyItems) ? propertyItems : []
@@ -111,6 +113,16 @@ const OwnerDashboard = () => {
     try {
       await apiFetch(`/notifications/${id}/read`, { method: 'PATCH' })
       setNotifications(prev => prev.map((n) => n.id === id ? { ...n, read: true } : n))
+    } catch {
+      // no-op
+    }
+  }
+
+  const deleteNotification = async (id: number) => {
+    try {
+      await apiFetch(`/notifications/${id}`, { method: 'DELETE' })
+      setNotifications(prev => prev.filter((n) => n.id !== id))
+      setOpenNotificationMenuId(null)
     } catch {
       // no-op
     }
@@ -532,36 +544,73 @@ const OwnerDashboard = () => {
               100% { transform: translateY(-50%); }
             }
           `}</style>
-          <div className="relative h-80 overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700 bg-white/40 dark:bg-gray-800/40 p-3">
+          <div className="relative min-h-48 md:min-h-64 lg:h-80 overflow-hidden rounded-lg p-0">
             {notifications.length === 0 ? (
-              <div className="text-gray-400 text-center">No notifications</div>
+              <div className="text-gray-400 text-center py-8">No notifications</div>
             ) : (
               <div
-                className="absolute left-0 top-0 w-full space-y-3"
+                className="absolute left-0 top-0 w-full space-y-2"
+                onMouseEnter={() => setIsNotificationsHovered(true)}
+                onMouseLeave={() => setIsNotificationsHovered(false)}
                 style={{
                   animation: notifications.length > 1
                     ? 'ownerNotificationsMarquee 30s linear infinite'
                     : undefined,
+                  animationPlayState: isNotificationsHovered ? 'paused' : 'running',
                 }}
               >
                 {notifications.map((notification) => (
                   <button
                     key={notification.id}
                     type="button"
-                    onClick={() => markNotificationAsRead(notification.id)}
-                    className={`w-full text-left flex items-center justify-between p-3 rounded-lg ${notification.read ? 'bg-gray-50 dark:bg-gray-700' : 'bg-blue-50 dark:bg-blue-900/20'}`}
+                    onClick={() => {
+                      markNotificationAsRead(notification.id)
+                      setOpenNotificationMenuId(null)
+                    }}
+                    className="w-full text-left flex items-center justify-between p-2 md:p-3 rounded transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
                   >
-                    <div className="flex items-center space-x-3">
-                      <div className={`w-2 h-2 rounded-full ${notification.read ? 'bg-gray-300' : 'bg-blue-500'}`}></div>
-                      <div>
-                        <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">{notification.title}</p>
-                        <p className="text-sm font-medium text-gray-900 dark:text-white">{notification.message}</p>
+                    <div className="flex items-center space-x-2 md:space-x-3 flex-1 min-w-0">
+                      <div className={`w-2 h-2 rounded-full flex-shrink-0 ${notification.read ? 'bg-gray-300' : 'bg-blue-500'}`}></div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide truncate">{notification.title}</p>
+                        <p className="text-sm font-medium text-gray-900 dark:text-white line-clamp-2">{notification.message}</p>
                         <p className="text-xs text-gray-500 dark:text-gray-400">{notification.time}</p>
                       </div>
                     </div>
-                    <span className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
-                      <MoreVertical className="w-4 h-4" />
-                    </span>
+                    <div className="relative flex-shrink-0 ml-2" onClick={(e) => e.stopPropagation()}>
+                      <span
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => setOpenNotificationMenuId(openNotificationMenuId === notification.id ? null : notification.id)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault()
+                            setOpenNotificationMenuId(openNotificationMenuId === notification.id ? null : notification.id)
+                          }
+                        }}
+                        className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-pointer"
+                      >
+                        <MoreVertical className="w-4 h-4" />
+                      </span>
+                      {openNotificationMenuId === notification.id && (
+                        <div className="absolute right-0 top-6 z-20 min-w-24 rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-lg py-1">
+                          <span
+                            role="button"
+                            tabIndex={0}
+                            onClick={() => deleteNotification(notification.id)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' || e.key === ' ') {
+                                e.preventDefault()
+                                deleteNotification(notification.id)
+                              }
+                            }}
+                            className="block w-full px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 cursor-pointer"
+                          >
+                            Delete
+                          </span>
+                        </div>
+                      )}
+                    </div>
                   </button>
                 ))}
 
@@ -569,20 +618,54 @@ const OwnerDashboard = () => {
                   <button
                     key={`${notification.id}-clone`}
                     type="button"
-                    onClick={() => markNotificationAsRead(notification.id)}
-                    className={`w-full text-left flex items-center justify-between p-3 rounded-lg ${notification.read ? 'bg-gray-50 dark:bg-gray-700' : 'bg-blue-50 dark:bg-blue-900/20'}`}
+                    onClick={() => {
+                      markNotificationAsRead(notification.id)
+                      setOpenNotificationMenuId(null)
+                    }}
+                    className="w-full text-left flex items-center justify-between p-2 md:p-3 rounded transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
                   >
-                    <div className="flex items-center space-x-3">
-                      <div className={`w-2 h-2 rounded-full ${notification.read ? 'bg-gray-300' : 'bg-blue-500'}`}></div>
-                      <div>
-                        <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">{notification.title}</p>
-                        <p className="text-sm font-medium text-gray-900 dark:text-white">{notification.message}</p>
+                    <div className="flex items-center space-x-2 md:space-x-3 flex-1 min-w-0">
+                      <div className={`w-2 h-2 rounded-full flex-shrink-0 ${notification.read ? 'bg-gray-300' : 'bg-blue-500'}`}></div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide truncate">{notification.title}</p>
+                        <p className="text-sm font-medium text-gray-900 dark:text-white line-clamp-2">{notification.message}</p>
                         <p className="text-xs text-gray-500 dark:text-gray-400">{notification.time}</p>
                       </div>
                     </div>
-                    <span className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
-                      <MoreVertical className="w-4 h-4" />
-                    </span>
+                    <div className="relative flex-shrink-0 ml-2" onClick={(e) => e.stopPropagation()}>
+                      <span
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => setOpenNotificationMenuId(openNotificationMenuId === notification.id ? null : notification.id)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault()
+                            setOpenNotificationMenuId(openNotificationMenuId === notification.id ? null : notification.id)
+                          }
+                        }}
+                        className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-pointer"
+                      >
+                        <MoreVertical className="w-4 h-4" />
+                      </span>
+                      {openNotificationMenuId === notification.id && (
+                        <div className="absolute right-0 top-6 z-20 min-w-24 rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-lg py-1">
+                          <span
+                            role="button"
+                            tabIndex={0}
+                            onClick={() => deleteNotification(notification.id)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' || e.key === ' ') {
+                                e.preventDefault()
+                                deleteNotification(notification.id)
+                              }
+                            }}
+                            className="block w-full px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 cursor-pointer"
+                          >
+                            Delete
+                          </span>
+                        </div>
+                      )}
+                    </div>
                   </button>
                 ))}
               </div>
