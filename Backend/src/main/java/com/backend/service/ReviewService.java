@@ -192,9 +192,11 @@ public class ReviewService {
         Booking booking = review.getBooking();
         if (booking != null) {
             booking.setReviewed(false);
+            booking.setReview(null);
             bookingRepository.save(booking);
         }
-        reviewRepository.delete(review);
+        reviewRepository.deleteById(id);
+        reviewRepository.flush();
     }
 
     public Long getCurrentUserId() {
