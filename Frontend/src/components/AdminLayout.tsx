@@ -47,7 +47,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       console.log('Logout function called, navigating to home...')
       navigate('/shared/home')
       console.log('Navigation to home initiated')
-      
+
       // Fallback: Force navigation with window.location if React Router doesn't work
       setTimeout(() => {
         if (window.location.pathname !== '/') {
@@ -113,7 +113,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex">
       {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
-        <div 
+        <div
           className="fixed inset-0 z-40 lg:hidden bg-gray-600 bg-opacity-75"
           onClick={() => setSidebarOpen(false)}
         />

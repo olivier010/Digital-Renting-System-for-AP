@@ -126,7 +126,7 @@ const OwnerLayout: React.FC<OwnerLayoutProps> = ({ children }) => {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex">
       {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
-        <div 
+        <div
           className="fixed inset-0 z-40 lg:hidden bg-gray-600 bg-opacity-75"
           onClick={() => setSidebarOpen(false)}
         />

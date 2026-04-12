@@ -81,7 +81,7 @@ const Home = () => {
         <div className="absolute inset-0">
           <div className="h-full w-full bg-gradient-to-r from-transparent via-white/5 to-transparent"></div>
         </div>
-        
+
         <div className="relative container mx-auto px-4 text-center">
           <h1 className="text-4xl md:text-6xl font-bold mb-6 animate-fade-in">
             Rent Assets & Properties Anywhere, Anytime
@@ -89,7 +89,7 @@ const Home = () => {
           <p className="text-xl md:text-2xl mb-12 max-w-3xl mx-auto text-primary-100">
             Find houses, cars, and equipment near you in just a few clicks.
           </p>
-          
+
           {/* Professional Search Bar */}
           <div className="max-w-2xl mx-auto">
             <div className="relative group">
@@ -108,7 +108,7 @@ const Home = () => {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                   </button>
-                  
+
                   {/* Search Input */}
                   <input
                     type="text"
@@ -125,7 +125,7 @@ const Home = () => {
                       ${isExpanded ? 'w-64' : 'w-0 opacity-0'}
                     `}
                   />
-                  
+
                   {/* Search Action Button */}
                   {searchQuery && (
                     <button
@@ -139,7 +139,7 @@ const Home = () => {
                   )}
                 </div>
               </div>
-              
+
               {/* Search Suggestions (shown when expanded) */}
               {isExpanded && (
                 <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 p-4 z-10">
@@ -162,7 +162,7 @@ const Home = () => {
               )}
             </div>
           </div>
-          
+
           {/* Quick Categories */}
           <div className="flex flex-wrap justify-center gap-4 mt-8">
             {['Apartments', 'Houses', 'Luxury', 'Beachfront'].map((category) => (
@@ -185,7 +185,7 @@ const Home = () => {
             <h2 className="text-3xl md:text-4xl font-bold text-gray-800 dark:text-white mb-4">Popular Property Types</h2>
             <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">Choose from our wide range of rental properties designed to meet your needs</p>
           </div>
-          
+
           <div className="grid md:grid-cols-4 gap-8 max-w-5xl mx-auto">
             {[
               { name: 'Houses', icon: <HomeIcon className="w-8 h-8" />, description: 'Spacious homes for families and individuals', color: 'bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-300' },
@@ -193,7 +193,7 @@ const Home = () => {
               { name: 'Cars', icon: <Car className="w-8 h-8" />, description: 'Reliable vehicles for daily or monthly rental', color: 'bg-yellow-100 dark:bg-yellow-900 text-yellow-600 dark:text-yellow-300' },
               { name: 'Commercial', icon: <Star className="w-8 h-8" />, description: 'Office and retail spaces for your business', color: 'bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300' }
             ].map((category) => (
-              <Link 
+              <Link
                 key={category.name}
                 to="/properties"
                 className="group"
@@ -222,7 +222,7 @@ const Home = () => {
             <h2 className="text-3xl md:text-4xl font-bold text-gray-800 dark:text-white mb-4">How It Works</h2>
             <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">Rent assets in 4 simple steps</p>
           </div>
-          
+
           <div className="grid md:grid-cols-4 gap-8">
             {[
               { step: 1, title: 'Find Property', description: 'Search and browse listings', icon: <Search className="w-8 h-8" /> },
@@ -261,8 +261,8 @@ const Home = () => {
             {featuredProperties.map((property) => (
               <div key={property.id} className="bg-white dark:bg-gray-700 rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
                 <div className="relative">
-                  <img 
-                    src={property.image} 
+                  <img
+                    src={property.image}
                     alt={property.title}
                     className="w-full h-48 object-cover"
                   />
@@ -272,12 +272,12 @@ const Home = () => {
                     </span>
                   </div>
                 </div>
-                
+
                 <div className="p-6">
                   <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
                     {property.title}
                   </h3>
-                  
+
                   <div className="flex items-center text-gray-600 dark:text-gray-300 mb-4">
                     <MapPin className="w-4 h-4 mr-1" />
                     <span className="text-sm">{property.location}</span>
@@ -289,7 +289,7 @@ const Home = () => {
                         {property.category}
                       </span>
                     </div>
-                    
+
                     <div className="flex items-center">
                       <Star className="w-4 h-4 text-yellow-500 mr-1" />
                       <span className="text-sm font-medium text-gray-900 dark:text-white">
@@ -301,7 +301,7 @@ const Home = () => {
                     </div>
                   </div>
 
-                  <Link 
+                  <Link
                     to={`/properties/${property.id}`}
                     className="block w-full bg-primary-600 hover:bg-primary-700 text-white text-center py-2 px-4 rounded-lg transition-colors duration-200"
                   >
@@ -313,7 +313,7 @@ const Home = () => {
           </div>
 
           <div className="text-center mt-12">
-            <Link 
+            <Link
               to="/properties"
               className="inline-flex items-center bg-primary-600 hover:bg-primary-700 text-white px-8 py-3 rounded-lg font-medium transition-colors duration-200"
             >
@@ -340,8 +340,8 @@ const Home = () => {
             {testimonials.map((testimonial) => (
               <div key={testimonial.id} className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg">
                 <div className="flex items-center mb-4">
-                  <img 
-                    src={testimonial.avatar} 
+                  <img
+                    src={testimonial.avatar}
                     alt={testimonial.name}
                     className="w-12 h-12 rounded-full mr-4"
                   />
@@ -407,7 +407,7 @@ const Home = () => {
               </div>
               <p className="text-gray-400">Your trusted platform for renting assets and properties.</p>
             </div>
-            
+
             <div>
               <h4 className="font-bold mb-4">Quick Links</h4>
               <ul className="space-y-2 text-gray-400">
@@ -417,7 +417,7 @@ const Home = () => {
                 <li><Link to="/contact" className="hover:text-white transition-colors">Contact</Link></li>
               </ul>
             </div>
-            
+
             <div>
               <h4 className="font-bold mb-4">Support</h4>
               <ul className="space-y-2 text-gray-400">
@@ -427,7 +427,7 @@ const Home = () => {
                 <li><Link to="/faq" className="hover:text-white transition-colors">FAQ</Link></li>
               </ul>
             </div>
-            
+
             <div>
               <h4 className="font-bold mb-4">Connect</h4>
               <p className="text-gray-400 mb-4">info@rentwise.com</p>
@@ -444,7 +444,7 @@ const Home = () => {
               </div>
             </div>
           </div>
-          
+
           <div className="border-t border-gray-800 dark:border-gray-700 pt-8 text-center text-gray-400">
             <p>&copy; 2026 RentWise. All rights reserved.</p>
           </div>

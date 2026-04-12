@@ -12,8 +12,8 @@ const Navbar = () => {
   const isActive = (path: string) => location.pathname === path
   const dashboardPath =
     user?.type === 'admin' ? '/dashboard' :
-    user?.type === 'owner' ? '/owner/dashboard' :
-    '/renter/dashboard'
+      user?.type === 'owner' ? '/owner/dashboard' :
+        '/renter/dashboard'
 
   return (
     <nav className="bg-white dark:bg-gray-900 shadow-sm sticky top-0 z-50 backdrop-blur-lg bg-opacity-95 dark:bg-opacity-95">
@@ -29,35 +29,31 @@ const Navbar = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            <Link 
-              to="/" 
-              className={`font-medium transition-colors ${
-                isActive('/') ? 'text-primary-600 dark:text-primary-400' : 'text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400'
-              }`}
+            <Link
+              to="/"
+              className={`font-medium transition-colors ${isActive('/') ? 'text-primary-600 dark:text-primary-400' : 'text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400'
+                }`}
             >
               Home
             </Link>
-            <Link 
-              to="/properties" 
-              className={`font-medium transition-colors ${
-                isActive('/properties') || isActive('/properties/') ? 'text-primary-600 dark:text-primary-400' : 'text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400'
-              }`}
+            <Link
+              to="/properties"
+              className={`font-medium transition-colors ${isActive('/properties') || isActive('/properties/') ? 'text-primary-600 dark:text-primary-400' : 'text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400'
+                }`}
             >
               Explore
             </Link>
-            <Link 
-              to="/about" 
-              className={`font-medium transition-colors ${
-                isActive('/about') ? 'text-primary-600 dark:text-primary-400' : 'text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400'
-              }`}
+            <Link
+              to="/about"
+              className={`font-medium transition-colors ${isActive('/about') ? 'text-primary-600 dark:text-primary-400' : 'text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400'
+                }`}
             >
               About
             </Link>
-            <Link 
-              to="/contact" 
-              className={`font-medium transition-colors ${
-                isActive('/contact') ? 'text-primary-600 dark:text-primary-400' : 'text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400'
-              }`}
+            <Link
+              to="/contact"
+              className={`font-medium transition-colors ${isActive('/contact') ? 'text-primary-600 dark:text-primary-400' : 'text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400'
+                }`}
             >
               Contact
             </Link>
@@ -81,7 +77,7 @@ const Navbar = () => {
                 </svg>
               )}
             </button>
-            
+
             {/* Auth Buttons */}
             {isAuthenticated ? (
               <Link
@@ -92,14 +88,14 @@ const Navbar = () => {
               </Link>
             ) : (
               <>
-                <Link 
-                  to="/login" 
+                <Link
+                  to="/login"
                   className="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 font-medium transition-colors"
                 >
                   Login
                 </Link>
-                <Link 
-                  to="/register" 
+                <Link
+                  to="/register"
                   className="bg-accent-500 text-white px-4 py-2 rounded-lg hover:bg-accent-600 transition-all duration-200 transform hover:scale-105"
                 >
                   Register
@@ -127,38 +123,34 @@ const Navbar = () => {
         {isMenuOpen && (
           <div className="md:hidden py-4 border-t border-gray-200 dark:border-gray-700">
             <div className="flex flex-col space-y-3">
-              <Link 
-                to="/" 
-                className={`font-medium transition-colors ${
-                  isActive('/') ? 'text-primary-600 dark:text-primary-400' : 'text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400'
-                }`}
+              <Link
+                to="/"
+                className={`font-medium transition-colors ${isActive('/') ? 'text-primary-600 dark:text-primary-400' : 'text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400'
+                  }`}
                 onClick={() => setIsMenuOpen(false)}
               >
                 Home
               </Link>
-              <Link 
-                to="/properties" 
-                className={`font-medium transition-colors ${
-                  isActive('/properties') ? 'text-primary-600 dark:text-primary-400' : 'text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400'
-                }`}
+              <Link
+                to="/properties"
+                className={`font-medium transition-colors ${isActive('/properties') ? 'text-primary-600 dark:text-primary-400' : 'text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400'
+                  }`}
                 onClick={() => setIsMenuOpen(false)}
               >
                 Explore
               </Link>
-              <Link 
-                to="/about" 
-                className={`font-medium transition-colors ${
-                  isActive('/about') ? 'text-primary-600 dark:text-primary-400' : 'text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400'
-                }`}
+              <Link
+                to="/about"
+                className={`font-medium transition-colors ${isActive('/about') ? 'text-primary-600 dark:text-primary-400' : 'text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400'
+                  }`}
                 onClick={() => setIsMenuOpen(false)}
               >
                 About
               </Link>
-              <Link 
-                to="/contact" 
-                className={`font-medium transition-colors ${
-                  isActive('/contact') ? 'text-primary-600 dark:text-primary-400' : 'text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400'
-                }`}
+              <Link
+                to="/contact"
+                className={`font-medium transition-colors ${isActive('/contact') ? 'text-primary-600 dark:text-primary-400' : 'text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400'
+                  }`}
                 onClick={() => setIsMenuOpen(false)}
               >
                 Contact
@@ -185,7 +177,7 @@ const Navbar = () => {
                     </>
                   )}
                 </button>
-                
+
                 {isAuthenticated ? (
                   <Link
                     to={dashboardPath}
@@ -196,15 +188,15 @@ const Navbar = () => {
                   </Link>
                 ) : (
                   <>
-                    <Link 
-                      to="/login" 
+                    <Link
+                      to="/login"
                       className="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 font-medium transition-colors text-center"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       Login
                     </Link>
-                    <Link 
-                      to="/register" 
+                    <Link
+                      to="/register"
                       className="bg-accent-500 text-white px-4 py-2 rounded-lg hover:bg-accent-600 transition-colors text-center"
                       onClick={() => setIsMenuOpen(false)}
                     >

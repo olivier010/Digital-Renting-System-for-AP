@@ -160,7 +160,7 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
     <>
       {/* Backdrop - close on click */}
       <div className="fixed inset-0 z-40" onClick={onClose}></div>
-      
+
       {/* Popover dropdown */}
       <div
         className="fixed z-50 top-12 right-4 w-96 rounded-xl bg-white shadow-2xl dark:bg-gray-800"
@@ -199,11 +199,10 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
                   key={notification.id}
                   type="button"
                   onClick={() => markNotificationAsRead(notification.id)}
-                  className={`w-full rounded-lg p-3 text-left ${
-                    notification.isRead
+                  className={`w-full rounded-lg p-3 text-left ${notification.isRead
                       ? 'bg-gray-50 dark:bg-gray-700'
                       : 'bg-blue-50 dark:bg-blue-900/20'
-                  }`}
+                    }`}
                 >
                   <div className="flex items-start gap-3">
                     <div className="mt-0.5">{getNotificationIcon(notification.type)}</div>

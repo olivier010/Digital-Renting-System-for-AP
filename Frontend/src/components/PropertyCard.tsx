@@ -25,21 +25,20 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
             </svg>
           </div>
         )}
-        
+
         {/* Category Badge */}
         <div className="absolute top-2 left-2">
           <span className="bg-blue-600 text-white px-1.5 py-0.5 rounded-full text-xs font-semibold capitalize">
             {property.category}
           </span>
         </div>
-        
+
         {/* Availability Status */}
         <div className="absolute top-2 right-2">
-          <span className={`px-1.5 py-0.5 rounded-full text-xs font-semibold ${
-            property.available 
-              ? 'bg-green-100 text-green-800' 
+          <span className={`px-1.5 py-0.5 rounded-full text-xs font-semibold ${property.available
+              ? 'bg-green-100 text-green-800'
               : 'bg-red-100 text-red-800'
-          }`}>
+            }`}>
             {property.available ? 'Available' : 'Occupied'}
           </span>
         </div>

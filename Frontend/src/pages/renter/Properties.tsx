@@ -53,8 +53,8 @@ const Properties = () => {
     let filtered = properties.filter(property => {
       if (!property.isVerified) return false;
       if (query && !property.location.toLowerCase().includes(query.toLowerCase()) &&
-          !property.title.toLowerCase().includes(query.toLowerCase()) &&
-          !property.description.toLowerCase().includes(query.toLowerCase())) {
+        !property.title.toLowerCase().includes(query.toLowerCase()) &&
+        !property.description.toLowerCase().includes(query.toLowerCase())) {
         return false
       }
       return true
@@ -83,10 +83,10 @@ const Properties = () => {
   }
 
   // Calculate properties to display
-  const displayProperties = showAllProperties 
-    ? filteredProperties 
+  const displayProperties = showAllProperties
+    ? filteredProperties
     : filteredProperties.slice(0, ITEMS_PER_PAGE)
-  
+
   const shouldShowViewMore = filteredProperties.length > ITEMS_PER_PAGE && !showAllProperties
 
   return (
@@ -99,7 +99,7 @@ const Properties = () => {
             <p className="text-xl text-primary-100 mb-8">
               Explore our curated collection of premium properties across the most desirable locations
             </p>
-            
+
             {/* Quick Stats */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
               <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
@@ -144,7 +144,7 @@ const Properties = () => {
                 />
               </div>
             </div>
-            
+
             <div className="flex items-center gap-4">
               {/* View Mode Toggle */}
               <div className="flex bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
@@ -184,7 +184,7 @@ const Properties = () => {
                   {loading ? 'Searching...' : 'Discover your perfect home from our curated selection'}
                 </p>
               </div>
-              
+
               {/* Sort Dropdown */}
               <div className="flex items-center gap-2">
                 <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Sort by:</label>
@@ -216,7 +216,7 @@ const Properties = () => {
                     <PropertyCard key={property.id} property={property} />
                   ))}
                 </div>
-                
+
                 {/* View More Button */}
                 {shouldShowViewMore && (
                   <div className="text-center mt-6">
@@ -234,7 +234,7 @@ const Properties = () => {
                     </p>
                   </div>
                 )}
-                
+
                 {/* Show Less Button (when showing all) */}
                 {showAllProperties && filteredProperties.length > ITEMS_PER_PAGE && (
                   <div className="text-center mt-6">
