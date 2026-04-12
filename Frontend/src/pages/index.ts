@@ -1,11 +1,7 @@
 // Shared pages (accessible to all users)
 export * from './shared'
 
-// Renter-specific pages
-export * from './renter'
-
-// Owner-specific pages
-export * from './owner'
-
-// Admin-specific pages
-export * from './admin'
+// Feature page groups are exported as namespaces to avoid name collisions.
+export * as renterPages from './renter'
+export * as ownerPages from './owner'
+export * as adminPages from './admin'

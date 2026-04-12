@@ -1,8 +1,6 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-<<<<<<< Updated upstream
-=======
 
 @keyframes notification-marquee-up {
   from {
@@ -37,4 +35,3 @@
     animation: none;
   }
 }
->>>>>>> Stashed changes

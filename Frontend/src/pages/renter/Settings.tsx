@@ -3,7 +3,7 @@ import { User, Mail, Phone, Lock, CreditCard, Globe, Save, Eye, EyeOff, Trash2 }
 import { useAuth } from '../../contexts/AuthContext'
 import { apiFetch } from '../../utils/api'
 import { useTheme } from '../../contexts/ThemeContext'
-import UserDataReportDownloadButton from '../../components/reports/UserDataReportDownloadButton'
+import UserDataReportDownloadButton from '../../components/UserDataReportDownloadButton.tsx'
 
 interface ProfileData {
   firstName: string
@@ -658,8 +658,8 @@ const Settings = () => {
 
                 <div className="space-y-4">
                   <UserDataReportDownloadButton
-                    onSuccess={(message) => setFeedback({ type: 'success', message })}
-                    onError={(message) => setFeedback({ type: 'error', message })}
+                    onSuccess={(message: string) => setFeedback({ type: 'success', message })}
+                    onError={(message: string) => setFeedback({ type: 'error', message })}
                   />
 
                   <button

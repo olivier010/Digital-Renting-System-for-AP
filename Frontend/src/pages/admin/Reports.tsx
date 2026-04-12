@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { apiFetch } from '../../utils/api'
 import { 
-  BarChart3, 
   TrendingUp, 
   Users, 
   DollarSign, 
