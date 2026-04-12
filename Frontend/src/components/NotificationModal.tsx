@@ -142,6 +142,16 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
     }
   }
 
+  const deleteNotification = async (id: number) => {
+    try {
+      await apiFetch(`/notifications/${id}`, { method: 'DELETE' })
+      setNotifications((prev) => prev.filter((n) => n.id !== id))
+      onNotificationsUpdated?.()
+    } catch {
+      // no-op
+    }
+  }
+
   useEffect(() => {
     if (!isOpen) return
     fetchInitialNotifications()
@@ -210,32 +220,45 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
           )}
 
           {!isLoading && notifications.length > 0 && (
-            <div className="space-y-2">
-              {notifications.map((notification) => (
-                <button
-                  key={notification.id}
-                  type="button"
-                  onClick={() => markNotificationAsRead(notification.id)}
-                  className={`w-full rounded-lg p-3 text-left ${notification.isRead
-                      ? 'bg-gray-50 dark:bg-gray-700'
-                      : 'bg-blue-50 dark:bg-blue-900/20'
-                    }`}
-                >
-                  <div className="flex items-start gap-3">
-                    <div className="mt-0.5">{getNotificationIcon(notification.type)}</div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-xs font-semibold uppercase tracking-wide text-gray-700 dark:text-gray-300">
-                        {notification.title}
-                      </p>
-                      <p className="text-sm text-gray-900 dark:text-white">{notification.body}</p>
-                      <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                        {formatRelativeTime(notification.createdAt)}
-                      </p>
+            <div className="flex flex-col-reverse gap-2 transition-all duration-500" style={{ maxHeight: '40vh', overflow: 'hidden' }}>
+              {notifications.map((notification, idx) => (
+                <div key={notification.id} className="relative group">
+                  <button
+                    type="button"
+                    onClick={() => markNotificationAsRead(notification.id)}
+                    className={`w-full rounded-lg p-3 text-left ${notification.isRead
+                        ? 'bg-gray-50 dark:bg-gray-700'
+                        : 'bg-blue-50 dark:bg-blue-900/20'
+                      }`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="mt-0.5">{getNotificationIcon(notification.type)}</div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-gray-700 dark:text-gray-300">
+                          {notification.title}
+                        </p>
+                        <p className="text-sm text-gray-900 dark:text-white">{notification.body}</p>
+                        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                          {formatRelativeTime(notification.createdAt)}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                </button>
+                  </button>
+                  <button
+                    className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-red-100 dark:hover:bg-red-900"
+                    title="Delete notification"
+                    onClick={() => deleteNotification(notification.id)}
+                  >
+                    <X className="w-4 h-4 text-red-500" />
+                  </button>
+                </div>
               ))}
-
+              {/* Dots indicator */}
+              <div className="flex justify-center gap-1 mt-2">
+                {notifications.map((_, i) => (
+                  <span key={i} className="inline-block w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-600" style={{ opacity: i === notifications.length - 1 ? 1 : 0.5 }} />
+                ))}
+              </div>
               {isLoadingMore && (
                 <div className="py-3 text-center text-sm text-gray-400">Loading more...</div>
               )}

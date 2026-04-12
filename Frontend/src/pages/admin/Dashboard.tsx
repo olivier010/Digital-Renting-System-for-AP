@@ -341,44 +341,7 @@ const Dashboard = () => {
         )}
       </div>
 
-      {/* Notifications */}
-      <div className="mt-10 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
-        <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Bell className="w-5 h-5 text-primary-600 dark:text-primary-400" />
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Admin Notifications</h3>
-          </div>
-          <button
-            className="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300"
-            onClick={markAllNotificationsAsRead}
-          >
-            Mark all as read
-          </button>
-        </div>
-        <div className="p-6">
-          <div className="space-y-3">
-            {notifications.length === 0 ? (
-              <div className="text-gray-400 text-center">No notifications</div>
-            ) : notifications.map((notification) => (
-              <button
-                key={notification.id}
-                type="button"
-                onClick={() => markNotificationAsRead(notification.id)}
-                className={`w-full text-left flex items-center justify-between p-3 rounded-lg ${notification.read ? 'bg-gray-50 dark:bg-gray-700' : 'bg-blue-50 dark:bg-blue-900/20'}`}
-              >
-                <div className="flex items-center gap-3">
-                  <div className={`w-2 h-2 rounded-full ${notification.read ? 'bg-gray-300' : 'bg-blue-500'}`}></div>
-                  <div>
-                    <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">{notification.title}</p>
-                    <p className="text-sm text-gray-900 dark:text-white">{notification.message}</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">{notification.time}</p>
-                  </div>
-                </div>
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
+
 
           {/* Recent Activity & System Logs */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-10">
@@ -439,39 +402,41 @@ const Dashboard = () => {
             </div>
           </div>
           <div className="p-6">
-            <div className="space-y-4">
-              {[...systemLogs]
-                .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
-                .slice(0, 4)
-                .map((log) => (
-                  <div key={log.id} className="flex items-start space-x-3">
-                    <div className="mt-0.5">
-                      {log.level === 'ERROR' && <AlertCircle className="w-4 h-4 text-red-500 inline-block" />}
-                      {(log.level === 'WARN' || log.level === 'WARNING') && <AlertCircle className="w-4 h-4 text-yellow-500 inline-block" />}
-                      {log.level === 'INFO' && <FileText className="w-4 h-4 text-blue-500 inline-block" />}
-                      {log.level === 'DEBUG' && <CheckCircle className="w-4 h-4 text-green-500 inline-block" />}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between">
-                        <p className="text-sm text-gray-900 dark:text-white truncate">{log.message}</p>
-                        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ml-2 ${
-                          log.level === 'ERROR'
-                            ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                            : log.level === 'WARN' || log.level === 'WARNING'
-                            ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-                            : log.level === 'INFO'
-                            ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-                            : log.level === 'DEBUG'
-                            ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                            : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
-                        }`}>
-                          {log.level}
-                        </span>
+            <div className="notification-marquee-viewport">
+              <div className="notification-marquee-track">
+                {(() => {
+                  const logs = [...systemLogs]
+                    .filter(log => log.level !== 'WARN' && log.level !== 'WARNING')
+                    .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+                  // Duplicate logs for seamless looping
+                  return [...logs, ...logs].map((log, idx) => (
+                    <div key={log.id + '-' + idx} className="flex items-start space-x-3">
+                      <div className="mt-0.5">
+                        {log.level === 'ERROR' && <AlertCircle className="w-4 h-4 text-red-500 inline-block" />}
+                        {log.level === 'INFO' && <FileText className="w-4 h-4 text-blue-500 inline-block" />}
+                        {log.level === 'DEBUG' && <CheckCircle className="w-4 h-4 text-green-500 inline-block" />}
                       </div>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">{log.timestamp}</p>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between">
+                          <p className="text-sm text-gray-900 dark:text-white truncate">{log.message}</p>
+                          <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ml-2 ${
+                            log.level === 'ERROR'
+                              ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                              : log.level === 'INFO'
+                              ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+                              : log.level === 'DEBUG'
+                              ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                              : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
+                          }`}>
+                            {log.level}
+                          </span>
+                        </div>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">{log.timestamp}</p>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ));
+                })()}
+              </div>
             </div>
           </div>
         </div>
