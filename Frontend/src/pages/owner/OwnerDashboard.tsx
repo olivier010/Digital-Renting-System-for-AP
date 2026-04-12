@@ -20,6 +20,7 @@ const OwnerDashboard = () => {
   const [stats, setStats] = useState<any>(null)
   const [revenueData, setRevenueData] = useState<any[]>([])
   const [recentBookings, setRecentBookings] = useState<any[]>([])
+  const [allBookings, setAllBookings] = useState<any[]>([])
   const [properties, setProperties] = useState<any[]>([])
   const [notifications, setNotifications] = useState<any[]>([])
 
@@ -146,7 +147,15 @@ const OwnerDashboard = () => {
             : [],
         }));
         setProperties(apiProperties.slice(0, 3))
-        // Bookings
+        // Fetch ALL bookings for accurate status counts
+        const allBookRes = await apiFetch('/owner/bookings?page=0&size=1000')
+        const allApiBookings = Array.isArray(allBookRes.data?.content) ? allBookRes.data.content.map((b: any) => ({
+          id: b.id,
+          status: (b.status || '').toLowerCase(),
+        })) : []
+        setAllBookings(allApiBookings)
+        
+        // Also fetch recent 3 for display
         const bookRes = await apiFetch('/owner/bookings?page=0&size=3')
         // Map API booking objects to expected frontend structure
         const apiBookings = Array.isArray(bookRes.data?.content) ? bookRes.data.content.map((b: any) => ({
@@ -277,32 +286,89 @@ const OwnerDashboard = () => {
           </Card>
         </div>
 
-        {/* Revenue Chart and Quick Actions */}
+        {/* Booking Chart and Quick Actions */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-          {/* Revenue Chart */}
+          {/* Booking Chart */}
           <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Revenue Overview</h2>
-              <select className="text-sm border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-1 bg-white dark:bg-gray-700">
-                <option>Last 6 months</option>
-                <option>Last year</option>
-                <option>All time</option>
-              </select>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Booking Overview</h2>
             </div>
-            <div className="h-64 flex items-end justify-between space-x-2">
-              {revenueData.length === 0 ? (
-                <div className="text-gray-400 text-center w-full">No data</div>
-              ) : revenueData.map((data, index) => (
-                <div key={index} className="flex-1 flex flex-col items-center">
-                  <div 
-                    className="w-full bg-primary-600 dark:bg-primary-500 rounded-t-lg hover:bg-primary-700 transition-colors"
-                    style={{ height: `${(data.revenue / 30000) * 100}%` }}
-                  ></div>
-                  <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">{data.month}</p>
-                  <p className="text-xs font-medium text-gray-900 dark:text-white">${(data.revenue / 1000).toFixed(0)}k</p>
+            
+            {/* Booking Status Breakdown */}
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Confirmed</span>
+                  <span className="text-sm font-semibold text-green-600 dark:text-green-400">{allBookings.filter(b => b.status === 'confirmed').length}</span>
                 </div>
-              ))}
+                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                  <div 
+                    className="bg-green-500 h-2 rounded-full transition-all"
+                    style={{ width: `${allBookings.length > 0 ? (allBookings.filter(b => b.status === 'confirmed').length / allBookings.length) * 100 : 0}%` }}
+                  ></div>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Pending</span>
+                  <span className="text-sm font-semibold text-yellow-600 dark:text-yellow-400">{allBookings.filter(b => b.status === 'pending').length}</span>
+                </div>
+                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                  <div 
+                    className="bg-yellow-500 h-2 rounded-full transition-all"
+                    style={{ width: `${allBookings.length > 0 ? (allBookings.filter(b => b.status === 'pending').length / allBookings.length) * 100 : 0}%` }}
+                  ></div>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Completed</span>
+                  <span className="text-sm font-semibold text-blue-600 dark:text-blue-400">{allBookings.filter(b => b.status === 'completed').length}</span>
+                </div>
+                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                  <div 
+                    className="bg-blue-500 h-2 rounded-full transition-all"
+                    style={{ width: `${allBookings.length > 0 ? (allBookings.filter(b => b.status === 'completed').length / allBookings.length) * 100 : 0}%` }}
+                  ></div>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Cancelled</span>
+                  <span className="text-sm font-semibold text-red-600 dark:text-red-400">{allBookings.filter(b => b.status === 'cancelled').length}</span>
+                </div>
+                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                  <div 
+                    className="bg-red-500 h-2 rounded-full transition-all"
+                    style={{ width: `${allBookings.length > 0 ? (allBookings.filter(b => b.status === 'cancelled').length / allBookings.length) * 100 : 0}%` }}
+                  ></div>
+                </div>
+              </div>
             </div>
+
+            {/* Monthly Booking Trend */}
+            {revenueData.length > 0 && (
+              <div className="mt-4 pt-4">
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">
+                  Monthly Booking Trend
+                </h3>
+                <div className="h-40 flex items-end justify-between space-x-2">
+                  {revenueData.map((data, index) => (
+                    <div key={index} className="flex-1 flex flex-col items-center">
+                      <div 
+                        className="w-full bg-primary-600 dark:bg-primary-500 rounded-t-lg hover:bg-primary-700 transition-colors"
+                        style={{ height: `${(data.bookings / 25) * 100}%` }}
+                      ></div>
+                      <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">{data.month}</p>
+                      <p className="text-xs font-medium text-gray-900 dark:text-white">{data.bookings}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Quick Actions */}
