@@ -1,0 +1,36 @@
+name: Frontend CI (React + Vite)
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "Frontend/**"
+  pull_request:
+    paths:
+      - "Frontend/**"
+
+jobs:
+  frontend:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: Frontend
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Lint code
+        run: npm run lint || true
+
+      - name: Build project
+        run: npm run build
