@@ -212,6 +212,18 @@ src/main/java/com/backend/
 | POST | `/api/payments` | Renter | Create payment |
 | POST | `/api/payments/{id}/refund` | Admin | Refund payment |
 
+### Payment Methods
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| POST | `/api/payment-methods` | Authenticated | Add new payment method |
+| GET | `/api/payment-methods` | Authenticated | Get user's payment methods |
+| GET | `/api/payment-methods/{id}` | Authenticated | Get payment method details |
+| PUT | `/api/payment-methods/{id}` | Authenticated | Update payment method |
+| PATCH | `/api/payment-methods/{id}/default` | Authenticated | Set as default payment method |
+| GET | `/api/payment-methods/default` | Authenticated | Get default payment method |
+| DELETE | `/api/payment-methods/{id}` | Authenticated | Delete payment method |
+
 ### Notifications
 
 | Method | Endpoint | Auth | Description |
@@ -469,6 +481,44 @@ Content-Type: application/json
 ```
 > **Categories:** `HOUSE`, `APARTMENT`, `CAR`, `LAND`, `COMMERCIAL`, `OTHER`
 
+#### Get All Properties
+```http
+GET /api/properties?page=0&size=10&category=APARTMENT&minPrice=1000&maxPrice=5000&location=New%20York
+Authorization: Bearer <token> (Optional)
+```
+
+#### Get Property Details
+```http
+GET /api/properties/{id}
+Authorization: Bearer <token> (Optional)
+```
+
+#### Get Featured Properties
+```http
+GET /api/properties/featured?page=0&size=10
+Authorization: Bearer <token> (Optional)
+```
+
+#### Get Properties by Owner
+```http
+GET /api/properties/owner/{ownerId}?page=0&size=10
+Authorization: Bearer <token>
+```
+
+#### Toggle Featured Flag (Admin only)
+```http
+PATCH /api/properties/{id}/featured
+Authorization: Bearer <admin_token>
+```
+
+#### Verify/Reject Property (Admin only)
+```http
+PATCH /api/properties/{id}/verified?verified=true&reason=Property%20meets%20all%20standards
+Authorization: Bearer <admin_token>
+```
+> **verified:** `true` (approve) or `false` (reject)
+> **reason:** Optional explanation (required when rejecting)
+
 #### Update Property
 ```http
 PUT /api/properties/{id}
@@ -485,9 +535,27 @@ Content-Type: application/json
 }
 ```
 
+#### Delete Property (Owner only)
+```http
+DELETE /api/properties/{id}
+Authorization: Bearer <owner_token>
+```
+
 ---
 
 ### Bookings
+
+#### Get Bookings
+```http
+GET /api/bookings?page=0&size=10&status=CONFIRMED
+Authorization: Bearer <token>
+```
+
+#### Get Booking Details
+```http
+GET /api/bookings/{id}
+Authorization: Bearer <token>
+```
 
 #### Create Booking (Renter only)
 ```http
@@ -534,6 +602,18 @@ Authorization: Bearer <owner_token>
 
 ### Reviews
 
+#### Get Property Reviews
+```http
+GET /api/reviews/property/{propertyId}?page=0&size=10
+Authorization: Bearer <token> (Optional)
+```
+
+#### Get My Reviews
+```http
+GET /api/reviews/my?page=0&size=10
+Authorization: Bearer <renter_token>
+```
+
 #### Create Review (Renter only)
 ```http
 POST /api/reviews
@@ -561,9 +641,21 @@ Content-Type: application/json
 }
 ```
 
+#### Delete Review (Renter/Admin only)
+```http
+DELETE /api/reviews/{id}
+Authorization: Bearer <renter_token>
+```
+
 ---
 
 ### Favorites
+
+#### Get User Favorites
+```http
+GET /api/favorites?page=0&size=10
+Authorization: Bearer <renter_token>
+```
 
 #### Add to Favorites (Renter only)
 ```http
@@ -576,76 +668,26 @@ Content-Type: application/json
 }
 ```
 
+#### Remove from Favorites
+```http
+DELETE /api/favorites/{propertyId}
+Authorization: Bearer <renter_token>
+```
+
 ---
 
 ### Payments
 
-#### Get User Payments (Authenticated)
+#### Get User Payments
 ```http
-GET /api/payments?page=0&size=10&status=COMPLETED&type=BOOKING_PAYMENT
+GET /api/payments?page=0&size=10
 Authorization: Bearer <token>
 ```
 
-**Response Example:**
-```json
-{
-  "success": true,
-  "data": {
-    "content": [
-      {
-        "id": 1,
-        "bookingId": 5,
-        "amount": 2500.00,
-        "type": "BOOKING_PAYMENT",
-        "method": "CREDIT_CARD",
-        "status": "COMPLETED",
-        "cardLastFour": "4242",
-        "propertyInfo": {
-          "propertyId": 1,
-          "propertyTitle": "Modern 2-Bedroom Apartment",
-          "location": "123 Main Street, New York, NY 10001"
-        },
-        "createdAt": "2026-04-06T14:30:00",
-        "updatedAt": "2026-04-06T14:30:00"
-      }
-    ],
-    "page": 0,
-    "size": 10,
-    "totalElements": 1,
-    "totalPages": 1
-  },
-  "timestamp": "2026-04-06T15:00:00"
-}
-```
-
-#### Get Payment Details (Authenticated)
+#### Get Payment Details
 ```http
 GET /api/payments/{id}
 Authorization: Bearer <token>
-```
-
-**Response Example:**
-```json
-{
-  "success": true,
-  "data": {
-    "id": 1,
-    "bookingId": 5,
-    "amount": 2500.00,
-    "type": "BOOKING_PAYMENT",
-    "method": "CREDIT_CARD",
-    "status": "COMPLETED",
-    "cardLastFour": "4242",
-    "propertyInfo": {
-      "propertyId": 1,
-      "propertyTitle": "Modern 2-Bedroom Apartment",
-      "location": "123 Main Street, New York, NY 10001"
-    },
-    "createdAt": "2026-04-06T14:30:00",
-    "updatedAt": "2026-04-06T14:30:00"
-  },
-  "timestamp": "2026-04-06T15:00:00"
-}
 ```
 
 #### Create Payment (Renter only)
@@ -728,6 +770,371 @@ Content-Type: application/json
 ```
 
 > **Note:** `refundAmount` is optional. If not provided, full amount will be refunded.
+
+---
+
+### Payment Methods
+
+#### Add Payment Method
+```http
+POST /api/payment-methods
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "brand": "VISA",
+  "last4": "4242",
+  "expiryMonth": 12,
+  "expiryYear": 2026,
+  "cardHolderName": "John Doe",
+  "isDefault": false
+}
+```
+> **Card Brands:** `VISA`, `MASTERCARD`, `AMEX`, `DISCOVER`, `OTHER`
+
+#### Get All Payment Methods
+```http
+GET /api/payment-methods
+Authorization: Bearer <token>
+```
+
+#### Get Payment Method by ID
+```http
+GET /api/payment-methods/{id}
+Authorization: Bearer <token>
+```
+
+#### Update Payment Method
+```http
+PUT /api/payment-methods/{id}
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "brand": "MASTERCARD",
+  "expiryMonth": 06,
+  "expiryYear": 2027,
+  "cardHolderName": "John Smith"
+}
+```
+> **Card Brands:** `VISA`, `MASTERCARD`, `AMEX`, `DISCOVER`, `OTHER`
+> **Note:** Only brand, expiryMonth, expiryYear, and cardHolderName can be updated. last4 and isDefault cannot be modified via update endpoint.
+
+#### Set Default Payment Method
+```http
+PATCH /api/payment-methods/{id}/default
+Authorization: Bearer <token>
+```
+
+#### Get Default Payment Method
+```http
+GET /api/payment-methods/default
+Authorization: Bearer <token>
+```
+
+#### Delete Payment Method
+```http
+DELETE /api/payment-methods/{id}
+Authorization: Bearer <token>
+```
+
+---
+
+### Admin - User Management
+
+#### Get All Users
+```http
+GET /api/users?page=0&size=10&role=RENTER&isActive=true
+Authorization: Bearer <admin_token>
+```
+
+#### Update User (Admin only)
+```http
+PUT /api/users/{id}?role=OWNER&isActive=true
+Authorization: Bearer <admin_token>
+```
+
+#### Update User Status
+```http
+PATCH /api/users/{id}/status?isActive=false
+Authorization: Bearer <admin_token>
+```
+
+#### Delete User (Admin only)
+```http
+DELETE /api/users/{id}
+Authorization: Bearer <admin_token>
+```
+
+---
+
+### Admin - Dashboard & Reports
+
+#### Get Dashboard Statistics
+```http
+GET /api/admin/dashboard
+Authorization: Bearer <admin_token>
+```
+
+#### Get Monthly Revenue Report
+```http
+GET /api/admin/reports/revenue?month=2026-03&year=2026
+Authorization: Bearer <admin_token>
+```
+
+---
+
+### Renter
+
+#### Get Renter Dashboard
+```http
+GET /api/renter/dashboard
+Authorization: Bearer <renter_token>
+```
+
+#### Get Renter's Bookings
+```http
+GET /api/renter/bookings?page=0&size=10&status=CONFIRMED
+Authorization: Bearer <renter_token>
+```
+
+---
+
+### Owner
+
+#### Get Owner's Bookings
+```http
+GET /api/owner/bookings?page=0&size=10&status=CONFIRMED&startDate=2026-04-01&endDate=2026-04-30
+Authorization: Bearer <owner_token>
+```
+
+#### Get Owner Earnings Summary
+```http
+GET /api/owner/earnings
+Authorization: Bearer <owner_token>
+```
+
+#### Get Owner Earnings Transactions
+```http
+GET /api/owner/earnings/transactions?page=0&size=10
+Authorization: Bearer <owner_token>
+```
+
+#### Get Per-Property Earnings
+```http
+GET /api/owner/earnings/properties
+Authorization: Bearer <owner_token>
+```
+
+---
+
+### Admin - System Logs & Status
+
+#### Get System Logs
+```http
+GET /api/admin/logs?page=0&size=10&level=ERROR
+Authorization: Bearer <admin_token>
+```
+
+#### Get System Status
+```http
+GET /api/admin/system-status
+Authorization: Bearer <admin_token>
+```
+
+---
+
+### Notifications
+
+#### List Notifications (Current User)
+```http
+GET /api/notifications?page=0&size=10&unread=true&type=BOOKING_STATUS_CHANGED&from=2026-04-01T00:00:00&to=2026-04-30T23:59:59
+Authorization: Bearer <token>
+```
+
+**Supported query params:**
+- `page`, `size`
+- `unread` (`true` or `false`)
+- `type` (e.g. `BOOKING_CREATED`, `BOOKING_STATUS_CHANGED`, `PAYMENT_SUCCEEDED`, `PAYMENT_FAILED`, `REVIEW_RECEIVED`, `PROPERTY_VERIFIED`, `USER_PENDING_APPROVAL`)
+- `from`, `to` (ISO date-time)
+
+> For booking notifications, statuses are `PENDING`, `CONFIRMED`, `CANCELLED`, `COMPLETED`.
+
+#### Get Unread Count
+```http
+GET /api/notifications/unread-count
+Authorization: Bearer <token>
+```
+
+#### Mark One Notification as Read
+```http
+PATCH /api/notifications/{id}/read
+Authorization: Bearer <token>
+```
+
+#### Mark All Notifications as Read
+```http
+PATCH /api/notifications/read-all
+Authorization: Bearer <token>
+```
+
+#### Delete Notification
+```http
+DELETE /api/notifications/{id}
+Authorization: Bearer <token>
+```
+
+---
+
+### Contact Form (Public)
+
+#### Submit Contact Form
+```http
+POST /api/contact
+Content-Type: application/json
+
+{
+  "name": "Jane Doe",
+  "email": "jane.doe@example.com",
+  "subject": "Question about listings",
+  "message": "I have a question about how to list my property on your platform. Could you please provide more information?"
+}
+```
+
+---
+
+### File Upload
+
+#### Upload Single Image
+```http
+POST /api/upload/image
+Authorization: Bearer <token>
+Content-Type: multipart/form-data
+
+file: <binary image data>
+```
+
+#### Upload Multiple Images
+```http
+POST /api/upload/images
+Authorization: Bearer <token>
+Content-Type: multipart/form-data
+
+files: <binary image data>
+files: <binary image data>
+files: <binary image data>
+```
+
+---
+
+## Response Examples
+
+### Success Response Example
+```json
+{
+  "success": true,
+  "message": "Operation successful",
+  "data": { ... },
+  "timestamp": "2026-04-06T10:15:30"
+}
+```
+
+### Notifications - List Response Example
+```json
+{
+  "status": 200,
+  "message": "Success",
+  "data": {
+    "content": [
+      {
+        "id": 42,
+        "type": "BOOKING_STATUS_CHANGED",
+        "title": "Booking status updated",
+        "body": "Your booking status is now CONFIRMED.",
+        "isRead": false,
+        "createdAt": "2026-04-06T10:15:30",
+        "readAt": null,
+        "actorUserId": 7,
+        "entityType": "BOOKING",
+        "entityId": 101,
+        "metadata": "status=CONFIRMED"
+      }
+    ],
+    "page": 0,
+    "size": 10,
+    "totalElements": 1,
+    "totalPages": 1,
+    "first": true,
+    "last": true
+  },
+  "timestamp": "2026-04-06T10:16:00"
+}
+```
+
+### Notifications - Unread Count Response Example
+```json
+{
+  "status": 200,
+  "message": "Success",
+  "data": {
+    "unreadCount": 5
+  },
+  "timestamp": "2026-04-06T10:20:00"
+}
+```
+
+### Notifications - Mark as Read Response Example
+```json
+{
+  "status": 200,
+  "message": "Notification marked as read",
+  "data": {
+    "id": 42,
+    "isRead": true,
+    "readAt": "2026-04-06T10:25:00"
+  },
+  "timestamp": "2026-04-06T10:25:00"
+}
+```
+
+### Admin System Logs Response Example
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "level": "INFO",
+      "message": "User registered: admin@rentwise.com",
+      "timestamp": "2026-03-27T00:00:00"
+    },
+    {
+      "id": 2,
+      "level": "ERROR",
+      "message": "Unhandled exception: Database connection lost",
+      "timestamp": "2026-03-27T00:10:00"
+    }
+  ]
+}
+```
+
+### Admin System Status Response Example
+```json
+{
+  "success": true,
+  "data": {
+    "database": "UP",
+    "externalApis": {
+      "paymentGateway": "UP",
+      "emailService": "DOWN"
+    },
+    "fileStorage": "UP",
+    "messageQueue": "UP",
+    "uptime": "1:23:45",
+    "recentErrorCount": 2
+  }
+}
+```
 
 ---
 

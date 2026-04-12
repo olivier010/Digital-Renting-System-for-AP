@@ -1,84 +1,21 @@
-import { useState } from 'react'
-import { 
-  User, 
-  Lock, 
-  Bell, 
-  CreditCard, 
-  Shield, 
-  Save, 
-  Eye, 
-  EyeOff, 
-  Camera, 
-  Trash2, 
-  Building
-} from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { User, Lock, Save, Eye, EyeOff, Trash2 } from 'lucide-react'
+import { apiFetch } from '../../utils/api'
+import { useAuth } from '../../contexts/AuthContext'
+import UserDataReportDownloadButton from '../../components/reports/UserDataReportDownloadButton'
 
 const Settings = () => {
+  const { user, updateUser, logout } = useAuth()
+
   const [activeTab, setActiveTab] = useState('profile')
   const [showPassword, setShowPassword] = useState(false)
+  const [showDeletePassword, setShowDeletePassword] = useState(false)
 
   const [profileData, setProfileData] = useState({
-    firstName: 'John',
-    lastName: 'Doe',
-    email: 'john.doe@example.com',
-    phone: '+1 (555) 123-4567',
-    company: 'Doe Properties LLC',
-    bio: 'Experienced property owner with 5+ years in the rental business. Focused on providing exceptional guest experiences.',
-    address: '123 Business Ave, Suite 100',
-    city: 'New York',
-    state: 'NY',
-    zipCode: '10001',
-    country: 'United States',
-    website: 'www.doeproperties.com',
-    taxId: '12-3456789'
-  })
-
-  const [notificationSettings, setNotificationSettings] = useState({
-    newBooking: true,
-    bookingCancellation: true,
-    guestMessage: true,
-    reviewReceived: true,
-    paymentReceived: true,
-    maintenanceRequest: true,
-    marketingEmails: false,
-    smsNotifications: true,
-    pushNotifications: true
-  })
-
-  const [privacySettings, setPrivacySettings] = useState({
-    profileVisibility: 'public',
-    showEmail: false,
-    showPhone: false,
-    allowGuestContact: true,
-    twoFactorAuth: false,
-    loginAlerts: true,
-    dataSharing: false,
-    analyticsTracking: true
-  })
-
-  const [paymentSettings, setPaymentSettings] = useState({
-    defaultPaymentMethod: 'bank',
-    autoPayout: true,
-    payoutFrequency: 'weekly',
-    minimumPayout: 100,
-    currency: 'USD',
-    taxWithholding: 15,
-    invoiceRequired: false
-  })
-
-  const [businessSettings, setBusinessSettings] = useState({
-    businessName: 'Doe Properties LLC',
-    businessType: 'llc',
-    registrationNumber: 'LLC-2023-001234',
-    businessLicense: 'BL-2023-NYC-5678',
-    insuranceProvider: 'State Farm Insurance',
-    policyNumber: 'SF-123456789',
-    coverageAmount: 1000000,
-    emergencyContact: 'Jane Doe',
-    emergencyPhone: '+1 (555) 987-6543',
-    checkInInstructions: 'Check-in is at 3:00 PM. Key code will be sent 24 hours before arrival. Please contact me if you need early check-in.',
-    houseRules: 'No smoking, No parties, Quiet hours after 10 PM, No pets unless approved',
-    cancellationPolicy: 'moderate'
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: ''
   })
 
   const [passwordData, setPasswordData] = useState({
@@ -87,48 +24,190 @@ const Settings = () => {
     confirmPassword: ''
   })
 
-  const handleSaveProfile = () => {
-    console.log('Saving profile:', profileData)
-    // API call to save profile
+  const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
+  const [isProfileLoading, setIsProfileLoading] = useState(true)
+  const [isSavingProfile, setIsSavingProfile] = useState(false)
+  const [isChangingPassword, setIsChangingPassword] = useState(false)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [deletePassword, setDeletePassword] = useState('')
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false)
+
+  useEffect(() => {
+    const loadProfile = async () => {
+      setIsProfileLoading(true)
+      setFeedback(null)
+      try {
+        const response = await apiFetch('/auth/me')
+        const profile = response?.data ?? {}
+
+        setProfileData({
+          firstName: profile.firstName ?? user?.firstName ?? '',
+          lastName: profile.lastName ?? user?.lastName ?? '',
+          email: profile.email ?? user?.email ?? '',
+          phone: profile.phone ?? user?.phone ?? ''
+        })
+      } catch (error) {
+        setProfileData({
+          firstName: user?.firstName ?? '',
+          lastName: user?.lastName ?? '',
+          email: user?.email ?? '',
+          phone: user?.phone ?? ''
+        })
+        setFeedback({
+          type: 'error',
+          message: error instanceof Error ? error.message : 'Failed to load profile data'
+        })
+      } finally {
+        setIsProfileLoading(false)
+      }
+    }
+
+    void loadProfile()
+  }, [user])
+
+  const handleSaveProfile = async () => {
+    setIsSavingProfile(true)
+    setFeedback(null)
+
+    try {
+      const response = await apiFetch('/auth/me', {
+        method: 'PUT',
+        body: JSON.stringify({
+          firstName: profileData.firstName,
+          lastName: profileData.lastName,
+          phone: profileData.phone
+        })
+      })
+
+      const updatedUser = response?.data
+      if (updatedUser) {
+        updateUser({
+          firstName: updatedUser.firstName,
+          lastName: updatedUser.lastName,
+          email: updatedUser.email,
+          phone: updatedUser.phone
+        })
+
+        setProfileData(prev => ({
+          ...prev,
+          firstName: updatedUser.firstName ?? prev.firstName,
+          lastName: updatedUser.lastName ?? prev.lastName,
+          email: updatedUser.email ?? prev.email,
+          phone: updatedUser.phone ?? prev.phone
+        }))
+      }
+
+      setFeedback({ type: 'success', message: 'Profile updated successfully.' })
+    } catch (error) {
+      setFeedback({
+        type: 'error',
+        message: error instanceof Error ? error.message : 'Failed to update profile'
+      })
+    } finally {
+      setIsSavingProfile(false)
+    }
   }
 
-  const handleSaveNotifications = () => {
-    console.log('Saving notifications:', notificationSettings)
-    // API call to save notification settings
+  const handleChangePassword = async () => {
+    setFeedback(null)
+
+    if (!passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword) {
+      setFeedback({ type: 'error', message: 'All password fields are required.' })
+      return
+    }
+
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      setFeedback({ type: 'error', message: 'New password and confirm password do not match.' })
+      return
+    }
+
+    setIsChangingPassword(true)
+    try {
+      await apiFetch('/auth/password', {
+        method: 'PUT',
+        body: JSON.stringify(passwordData)
+      })
+
+      setPasswordData({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: ''
+      })
+      setFeedback({ type: 'success', message: 'Password changed successfully.' })
+    } catch (error) {
+      setFeedback({
+        type: 'error',
+        message: error instanceof Error ? error.message : 'Failed to change password'
+      })
+    } finally {
+      setIsChangingPassword(false)
+    }
   }
 
-  const handleSavePrivacy = () => {
-    console.log('Saving privacy:', privacySettings)
-    // API call to save privacy settings
+  const openDeleteModal = () => {
+    setDeletePassword('')
+    setShowDeletePassword(false)
+    setShowDeleteModal(true)
   }
 
-  const handleChangePassword = () => {
-    console.log('Changing password:', passwordData)
-    // API call to change password
+  const closeDeleteModal = () => {
+    if (isDeletingAccount) return
+    setShowDeleteModal(false)
+    setDeletePassword('')
+    setShowDeletePassword(false)
+  }
+
+  const handleDeleteAccount = async () => {
+    if (!deletePassword.trim()) {
+      setFeedback({ type: 'error', message: 'Current password is required to delete your account.' })
+      return
+    }
+
+    setIsDeletingAccount(true)
+    setFeedback(null)
+    try {
+      await apiFetch('/auth/me', {
+        method: 'DELETE',
+        body: JSON.stringify({ currentPassword: deletePassword })
+      })
+
+      logout()
+      window.location.href = '/'
+    } catch (error) {
+      setFeedback({
+        type: 'error',
+        message: error instanceof Error ? error.message : 'Failed to delete your account'
+      })
+    } finally {
+      setIsDeletingAccount(false)
+    }
   }
 
   const tabs = [
     { id: 'profile', label: 'Profile', icon: User },
-    { id: 'notifications', label: 'Notifications', icon: Bell },
-    { id: 'privacy', label: 'Privacy & Security', icon: Shield },
-    { id: 'payment', label: 'Payment Settings', icon: CreditCard },
-    { id: 'business', label: 'Business Settings', icon: Building }
+    { id: 'security', label: 'Privacy & Settings', icon: Lock }
   ]
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-          Settings
-        </h1>
-        <p className="text-gray-600 dark:text-gray-400">
-          Manage your account settings and preferences
-        </p>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Settings</h1>
+        <p className="text-gray-600 dark:text-gray-400">Manage your account settings</p>
       </div>
 
+      {feedback && (
+        <div
+          className={`mb-6 rounded-lg border px-4 py-3 text-sm ${
+            feedback.type === 'success'
+              ? 'border-green-200 bg-green-50 text-green-800 dark:border-green-700 dark:bg-green-900/20 dark:text-green-200'
+              : 'border-red-200 bg-red-50 text-red-800 dark:border-red-700 dark:bg-red-900/20 dark:text-red-200'
+          }`}
+        >
+          {feedback.message}
+        </div>
+      )}
+
       <div className="flex flex-col lg:flex-row gap-8">
-        {/* Sidebar */}
         <div className="lg:w-64">
           <nav className="space-y-1">
             {tabs.map((tab) => {
@@ -151,812 +230,203 @@ const Settings = () => {
           </nav>
         </div>
 
-        {/* Content */}
         <div className="flex-1">
-          {/* Profile Settings */}
           {activeTab === 'profile' && (
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Profile Information</h2>
-              
-              {/* Profile Picture */}
-              <div className="flex items-center space-x-4 mb-6">
-                <div className="w-20 h-20 bg-primary-100 dark:bg-primary-900 rounded-full flex items-center justify-center">
-                  <span className="text-2xl font-bold text-primary-600 dark:text-primary-300">
-                    {profileData.firstName[0]}{profileData.lastName[0]}
-                  </span>
-                </div>
-                <div>
-                  <button className="flex items-center px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-colors text-sm">
-                    <Camera className="w-4 h-4 mr-2" />
-                    Change Photo
-                  </button>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    JPG, PNG or GIF. Max size 2MB
-                  </p>
-                </div>
-              </div>
 
-              {/* Personal Information */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    First Name
-                  </label>
-                  <input
-                    type="text"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                    value={profileData.firstName}
-                    onChange={(e) => setProfileData({...profileData, firstName: e.target.value})}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Last Name
-                  </label>
-                  <input
-                    type="text"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                    value={profileData.lastName}
-                    onChange={(e) => setProfileData({...profileData, lastName: e.target.value})}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Email Address
-                  </label>
-                  <input
-                    type="email"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                    value={profileData.email}
-                    onChange={(e) => setProfileData({...profileData, email: e.target.value})}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Phone Number
-                  </label>
-                  <input
-                    type="tel"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                    value={profileData.phone}
-                    onChange={(e) => setProfileData({...profileData, phone: e.target.value})}
-                  />
-                </div>
-              </div>
-
-              {/* Business Information */}
-              <div className="space-y-4 mb-6">
-                <h3 className="text-md font-medium text-gray-900 dark:text-white">Business Information</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Company Name
-                    </label>
-                    <input
-                      type="text"
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                      value={profileData.company}
-                      onChange={(e) => setProfileData({...profileData, company: e.target.value})}
-                    />
+              {isProfileLoading ? (
+                <p className="text-sm text-gray-500 dark:text-gray-400">Loading profile...</p>
+              ) : (
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">First Name</label>
+                      <input
+                        type="text"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        value={profileData.firstName}
+                        onChange={(e) => setProfileData({ ...profileData, firstName: e.target.value })}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Last Name</label>
+                      <input
+                        type="text"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        value={profileData.lastName}
+                        onChange={(e) => setProfileData({ ...profileData, lastName: e.target.value })}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email Address</label>
+                      <input
+                        type="email"
+                        readOnly
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300"
+                        value={profileData.email}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Phone Number</label>
+                      <input
+                        type="tel"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        value={profileData.phone}
+                        onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
+                      />
+                    </div>
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Website
-                    </label>
+
+                  <div className="flex justify-end">
+                    <button
+                      onClick={handleSaveProfile}
+                      disabled={isSavingProfile}
+                      className="flex items-center px-6 py-2 bg-primary-600 hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors"
+                    >
+                      <Save className="w-4 h-4 mr-2" />
+                      {isSavingProfile ? 'Saving...' : 'Save Profile'}
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+
+          {activeTab === 'security' && (
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Privacy & Settings</h2>
+
+              <h3 className="text-md font-medium text-gray-900 dark:text-white mb-4">Change Password</h3>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Current Password</label>
+                  <div className="relative">
                     <input
-                      type="url"
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                      value={profileData.website}
-                      onChange={(e) => setProfileData({...profileData, website: e.target.value})}
+                      type={showPassword ? 'text' : 'password'}
+                      className="w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      value={passwordData.currentPassword}
+                      onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    >
+                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    </button>
                   </div>
                 </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">New Password</label>
+                  <input
+                    type="password"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    value={passwordData.newPassword}
+                    onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Confirm New Password</label>
+                  <input
+                    type="password"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    value={passwordData.confirmPassword}
+                    onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
+                  />
+                </div>
               </div>
 
-              {/* Bio */}
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Bio
-                </label>
-                <textarea
-                  rows={4}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                  value={profileData.bio}
-                  onChange={(e) => setProfileData({...profileData, bio: e.target.value})}
-                  placeholder="Tell guests about yourself and your properties..."
+              <div className="flex justify-end mt-6">
+                <button
+                  onClick={handleChangePassword}
+                  disabled={isChangingPassword}
+                  className="flex items-center px-6 py-2 bg-primary-600 hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors"
+                >
+                  <Save className="w-4 h-4 mr-2" />
+                  {isChangingPassword ? 'Updating...' : 'Update Password'}
+                </button>
+              </div>
+
+              <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+                <h3 className="text-md font-medium text-gray-900 dark:text-white mb-2">Download Your Data</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                  Download a full PDF report of your account data and activity.
+                </p>
+                <UserDataReportDownloadButton
+                  onSuccess={(message) => setFeedback({ type: 'success', message })}
+                  onError={(message) => setFeedback({ type: 'error', message })}
                 />
               </div>
 
-              {/* Address */}
-              <div className="space-y-4 mb-6">
-                <h3 className="text-md font-medium text-gray-900 dark:text-white">Address</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Street Address
-                    </label>
-                    <input
-                      type="text"
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                      value={profileData.address}
-                      onChange={(e) => setProfileData({...profileData, address: e.target.value})}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      City
-                    </label>
-                    <input
-                      type="text"
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                      value={profileData.city}
-                      onChange={(e) => setProfileData({...profileData, city: e.target.value})}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      State/Province
-                    </label>
-                    <input
-                      type="text"
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                      value={profileData.state}
-                      onChange={(e) => setProfileData({...profileData, state: e.target.value})}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      ZIP/Postal Code
-                    </label>
-                    <input
-                      type="text"
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                      value={profileData.zipCode}
-                      onChange={(e) => setProfileData({...profileData, zipCode: e.target.value})}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Country
-                    </label>
-                    <input
-                      type="text"
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                      value={profileData.country}
-                      onChange={(e) => setProfileData({...profileData, country: e.target.value})}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex justify-end">
+              <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+                <h3 className="text-md font-medium text-red-600 dark:text-red-400 mb-2">Delete My Account</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                  Permanently delete your account and all your data. This action cannot be undone.
+                </p>
                 <button
-                  onClick={handleSaveProfile}
-                  className="flex items-center px-6 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-colors"
+                  onClick={openDeleteModal}
+                  className="flex items-center px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors"
                 >
-                  <Save className="w-4 h-4 mr-2" />
-                  Save Profile
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Notification Settings */}
-          {activeTab === 'notifications' && (
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Notification Preferences</h2>
-              
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-md font-medium text-gray-900 dark:text-white mb-4">Booking Notifications</h3>
-                  <div className="space-y-3">
-                    {Object.entries(notificationSettings).slice(0, 3).map(([key, value]) => (
-                      <div key={key} className="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-700 last:border-0">
-                        <div>
-                          <p className="font-medium text-gray-900 dark:text-white">
-                            {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
-                          </p>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">
-                            {key === 'newBooking' && 'Get notified when you receive a new booking request'}
-                            {key === 'bookingCancellation' && 'Get notified when a guest cancels their booking'}
-                            {key === 'guestMessage' && 'Get notified when a guest sends you a message'}
-                          </p>
-                        </div>
-                        <button
-                          onClick={() => setNotificationSettings({...notificationSettings, [key]: !value})}
-                          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                            value ? 'bg-primary-600' : 'bg-gray-200 dark:bg-gray-700'
-                          }`}
-                        >
-                          <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                            value ? 'translate-x-6' : 'translate-x-1'
-                          }`} />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="text-md font-medium text-gray-900 dark:text-white mb-4">Payment Notifications</h3>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-700">
-                      <div>
-                        <p className="font-medium text-gray-900 dark:text-white">Payment Received</p>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">Get notified when you receive a payment</p>
-                      </div>
-                      <button
-                        onClick={() => setNotificationSettings({...notificationSettings, paymentReceived: !notificationSettings.paymentReceived})}
-                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                          notificationSettings.paymentReceived ? 'bg-primary-600' : 'bg-gray-200 dark:bg-gray-700'
-                        }`}
-                      >
-                        <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                          notificationSettings.paymentReceived ? 'translate-x-6' : 'translate-x-1'
-                        }`} />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="text-md font-medium text-gray-900 dark:text-white mb-4">Notification Methods</h3>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-700">
-                      <div>
-                        <p className="font-medium text-gray-900 dark:text-white">Email Notifications</p>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">Receive updates via email</p>
-                      </div>
-                      <button
-                        onClick={() => setNotificationSettings({...notificationSettings, marketingEmails: !notificationSettings.marketingEmails})}
-                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                          notificationSettings.marketingEmails ? 'bg-primary-600' : 'bg-gray-200 dark:bg-gray-700'
-                        }`}
-                      >
-                        <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                          notificationSettings.marketingEmails ? 'translate-x-6' : 'translate-x-1'
-                        }`} />
-                      </button>
-                    </div>
-                    <div className="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-700">
-                      <div>
-                        <p className="font-medium text-gray-900 dark:text-white">SMS Notifications</p>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">Receive updates via text message</p>
-                      </div>
-                      <button
-                        onClick={() => setNotificationSettings({...notificationSettings, smsNotifications: !notificationSettings.smsNotifications})}
-                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                          notificationSettings.smsNotifications ? 'bg-primary-600' : 'bg-gray-200 dark:bg-gray-700'
-                        }`}
-                      >
-                        <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                          notificationSettings.smsNotifications ? 'translate-x-6' : 'translate-x-1'
-                        }`} />
-                      </button>
-                    </div>
-                    <div className="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-700">
-                      <div>
-                        <p className="font-medium text-gray-900 dark:text-white">Push Notifications</p>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">Receive browser push notifications</p>
-                      </div>
-                      <button
-                        onClick={() => setNotificationSettings({...notificationSettings, pushNotifications: !notificationSettings.pushNotifications})}
-                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                          notificationSettings.pushNotifications ? 'bg-primary-600' : 'bg-gray-200 dark:bg-gray-700'
-                        }`}
-                      >
-                        <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                          notificationSettings.pushNotifications ? 'translate-x-6' : 'translate-x-1'
-                        }`} />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex justify-end mt-6">
-                <button
-                  onClick={handleSaveNotifications}
-                  className="flex items-center px-6 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-colors"
-                >
-                  <Save className="w-4 h-4 mr-2" />
-                  Save Settings
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Privacy Settings */}
-          {activeTab === 'privacy' && (
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Privacy & Security</h2>
-              
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-md font-medium text-gray-900 dark:text-white mb-4">Profile Visibility</h3>
-                  <div className="space-y-3">
-                    {Object.entries(privacySettings).slice(0, 4).map(([key, value]) => (
-                      <div key={key} className="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-700 last:border-0">
-                        <div>
-                          <p className="font-medium text-gray-900 dark:text-white">
-                            {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
-                          </p>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">
-                            {key === 'profileVisibility' && 'Control who can see your profile'}
-                            {key === 'showEmail' && 'Display your email address on your public profile'}
-                            {key === 'showPhone' && 'Display your phone number on your public profile'}
-                            {key === 'allowGuestContact' && 'Allow guests to contact you directly'}
-                          </p>
-                        </div>
-                        {key === 'profileVisibility' ? (
-                          <select
-                            value={value as string}
-                            onChange={(e) => setPrivacySettings({...privacySettings, [key]: e.target.value})}
-                            className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
-                          >
-                            <option value="public">Public</option>
-                            <option value="guests">Guests Only</option>
-                            <option value="private">Private</option>
-                          </select>
-                        ) : (
-                          <button
-                            onClick={() => setPrivacySettings({...privacySettings, [key]: !value})}
-                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                              value ? 'bg-primary-600' : 'bg-gray-200 dark:bg-gray-700'
-                            }`}
-                          >
-                            <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                              value ? 'translate-x-6' : 'translate-x-1'
-                            }`} />
-                          </button>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="text-md font-medium text-gray-900 dark:text-white mb-4">Security</h3>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-700">
-                      <div>
-                        <p className="font-medium text-gray-900 dark:text-white">Two-Factor Authentication</p>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">Add an extra layer of security to your account</p>
-                      </div>
-                      <button
-                        onClick={() => setPrivacySettings({...privacySettings, twoFactorAuth: !privacySettings.twoFactorAuth})}
-                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                          privacySettings.twoFactorAuth ? 'bg-primary-600' : 'bg-gray-200 dark:bg-gray-700'
-                        }`}
-                      >
-                        <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                          privacySettings.twoFactorAuth ? 'translate-x-6' : 'translate-x-1'
-                        }`} />
-                      </button>
-                    </div>
-                    <div className="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-700">
-                      <div>
-                        <p className="font-medium text-gray-900 dark:text-white">Login Alerts</p>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">Get notified when someone logs into your account</p>
-                      </div>
-                      <button
-                        onClick={() => setPrivacySettings({...privacySettings, loginAlerts: !privacySettings.loginAlerts})}
-                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                          privacySettings.loginAlerts ? 'bg-primary-600' : 'bg-gray-200 dark:bg-gray-700'
-                        }`}
-                      >
-                        <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                          privacySettings.loginAlerts ? 'translate-x-6' : 'translate-x-1'
-                        }`} />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="text-md font-medium text-gray-900 dark:text-white mb-4">Data & Analytics</h3>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-700">
-                      <div>
-                        <p className="font-medium text-gray-900 dark:text-white">Data Sharing</p>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">Share your data with trusted partners for better service</p>
-                      </div>
-                      <button
-                        onClick={() => setPrivacySettings({...privacySettings, dataSharing: !privacySettings.dataSharing})}
-                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                          privacySettings.dataSharing ? 'bg-primary-600' : 'bg-gray-200 dark:bg-gray-700'
-                        }`}
-                      >
-                        <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                          privacySettings.dataSharing ? 'translate-x-6' : 'translate-x-1'
-                        }`} />
-                      </button>
-                    </div>
-                    <div className="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-700">
-                      <div>
-                        <p className="font-medium text-gray-900 dark:text-white">Analytics Tracking</p>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">Help us improve by sharing usage analytics</p>
-                      </div>
-                      <button
-                        onClick={() => setPrivacySettings({...privacySettings, analyticsTracking: !privacySettings.analyticsTracking})}
-                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                          privacySettings.analyticsTracking ? 'bg-primary-600' : 'bg-gray-200 dark:bg-gray-700'
-                        }`}
-                      >
-                        <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                          privacySettings.analyticsTracking ? 'translate-x-6' : 'translate-x-1'
-                        }`} />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="text-md font-medium text-gray-900 dark:text-white mb-4">Change Password</h3>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Current Password
-                      </label>
-                      <div className="relative">
-                        <input
-                          type={showPassword ? 'text' : 'password'}
-                          className="w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                          value={passwordData.currentPassword}
-                          onChange={(e) => setPasswordData({...passwordData, currentPassword: e.target.value})}
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                        >
-                          {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                        </button>
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        New Password
-                      </label>
-                      <input
-                        type="password"
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                        value={passwordData.newPassword}
-                        onChange={(e) => setPasswordData({...passwordData, newPassword: e.target.value})}
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Confirm New Password
-                      </label>
-                      <input
-                        type="password"
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                        value={passwordData.confirmPassword}
-                        onChange={(e) => setPasswordData({...passwordData, confirmPassword: e.target.value})}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex justify-between items-center mt-6">
-                <button className="flex items-center px-4 py-2 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300">
                   <Trash2 className="w-4 h-4 mr-2" />
-                  Delete Account
-                </button>
-                <div className="flex space-x-3">
-                  <button
-                    onClick={handleSavePrivacy}
-                    className="flex items-center px-6 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-colors"
-                  >
-                    <Save className="w-4 h-4 mr-2" />
-                    Save Settings
-                  </button>
-                  <button
-                    onClick={handleChangePassword}
-                    className="flex items-center px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-medium transition-colors"
-                  >
-                    <Lock className="w-4 h-4 mr-2" />
-                    Update Password
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Payment Settings */}
-          {activeTab === 'payment' && (
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Payment Settings</h2>
-              
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-md font-medium text-gray-900 dark:text-white mb-4">Payout Preferences</h3>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Default Payment Method
-                      </label>
-                      <select
-                        value={paymentSettings.defaultPaymentMethod}
-                        onChange={(e) => setPaymentSettings({...paymentSettings, defaultPaymentMethod: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                      >
-                        <option value="bank">Bank Account</option>
-                        <option value="paypal">PayPal</option>
-                        <option value="wise">Wise</option>
-                      </select>
-                    </div>
-                    <div className="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-700">
-                      <div>
-                        <p className="font-medium text-gray-900 dark:text-white">Auto Payout</p>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">Automatically transfer earnings to your account</p>
-                      </div>
-                      <button
-                        onClick={() => setPaymentSettings({...paymentSettings, autoPayout: !paymentSettings.autoPayout})}
-                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                          paymentSettings.autoPayout ? 'bg-primary-600' : 'bg-gray-200 dark:bg-gray-700'
-                        }`}
-                      >
-                        <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                          paymentSettings.autoPayout ? 'translate-x-6' : 'translate-x-1'
-                        }`} />
-                      </button>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Payout Frequency
-                      </label>
-                      <select
-                        value={paymentSettings.payoutFrequency}
-                        onChange={(e) => setPaymentSettings({...paymentSettings, payoutFrequency: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                      >
-                        <option value="daily">Daily</option>
-                        <option value="weekly">Weekly</option>
-                        <option value="biweekly">Bi-weekly</option>
-                        <option value="monthly">Monthly</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Minimum Payout Amount
-                      </label>
-                      <input
-                        type="number"
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                        value={paymentSettings.minimumPayout}
-                        onChange={(e) => setPaymentSettings({...paymentSettings, minimumPayout: parseInt(e.target.value)})}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="text-md font-medium text-gray-900 dark:text-white mb-4">Currency & Taxes</h3>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Currency
-                      </label>
-                      <select
-                        value={paymentSettings.currency}
-                        onChange={(e) => setPaymentSettings({...paymentSettings, currency: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                      >
-                        <option value="USD">USD - US Dollar</option>
-                        <option value="EUR">EUR - Euro</option>
-                        <option value="GBP">GBP - British Pound</option>
-                        <option value="CAD">CAD - Canadian Dollar</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Tax Withholding (%)
-                      </label>
-                      <input
-                        type="number"
-                        min="0"
-                        max="100"
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                        value={paymentSettings.taxWithholding}
-                        onChange={(e) => setPaymentSettings({...paymentSettings, taxWithholding: parseInt(e.target.value)})}
-                      />
-                    </div>
-                    <div className="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-700">
-                      <div>
-                        <p className="font-medium text-gray-900 dark:text-white">Invoice Required</p>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">Require invoices for all payouts</p>
-                      </div>
-                      <button
-                        onClick={() => setPaymentSettings({...paymentSettings, invoiceRequired: !paymentSettings.invoiceRequired})}
-                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                          paymentSettings.invoiceRequired ? 'bg-primary-600' : 'bg-gray-200 dark:bg-gray-700'
-                        }`}
-                      >
-                        <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                          paymentSettings.invoiceRequired ? 'translate-x-6' : 'translate-x-1'
-                        }`} />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex justify-end mt-6">
-                <button className="flex items-center px-6 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-colors">
-                  <Save className="w-4 h-4 mr-2" />
-                  Save Settings
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Business Settings */}
-          {activeTab === 'business' && (
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Business Settings</h2>
-              
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-md font-medium text-gray-900 dark:text-white mb-4">Business Information</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Business Name
-                      </label>
-                      <input
-                        type="text"
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                        value={businessSettings.businessName}
-                        onChange={(e) => setBusinessSettings({...businessSettings, businessName: e.target.value})}
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Business Type
-                      </label>
-                      <select
-                        value={businessSettings.businessType}
-                        onChange={(e) => setBusinessSettings({...businessSettings, businessType: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                      >
-                        <option value="sole">Sole Proprietorship</option>
-                        <option value="llc">LLC</option>
-                        <option value="corporation">Corporation</option>
-                        <option value="partnership">Partnership</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Registration Number
-                      </label>
-                      <input
-                        type="text"
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                        value={businessSettings.registrationNumber}
-                        onChange={(e) => setBusinessSettings({...businessSettings, registrationNumber: e.target.value})}
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Business License
-                      </label>
-                      <input
-                        type="text"
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                        value={businessSettings.businessLicense}
-                        onChange={(e) => setBusinessSettings({...businessSettings, businessLicense: e.target.value})}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="text-md font-medium text-gray-900 dark:text-white mb-4">Insurance Information</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Insurance Provider
-                      </label>
-                      <input
-                        type="text"
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                        value={businessSettings.insuranceProvider}
-                        onChange={(e) => setBusinessSettings({...businessSettings, insuranceProvider: e.target.value})}
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Policy Number
-                      </label>
-                      <input
-                        type="text"
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                        value={businessSettings.policyNumber}
-                        onChange={(e) => setBusinessSettings({...businessSettings, policyNumber: e.target.value})}
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Coverage Amount
-                      </label>
-                      <input
-                        type="number"
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                        value={businessSettings.coverageAmount}
-                        onChange={(e) => setBusinessSettings({...businessSettings, coverageAmount: parseInt(e.target.value)})}
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Emergency Contact
-                      </label>
-                      <input
-                        type="text"
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                        value={businessSettings.emergencyContact}
-                        onChange={(e) => setBusinessSettings({...businessSettings, emergencyContact: e.target.value})}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="text-md font-medium text-gray-900 dark:text-white mb-4">Guest Instructions</h3>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Check-in Instructions
-                      </label>
-                      <textarea
-                        rows={3}
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                        value={businessSettings.checkInInstructions}
-                        onChange={(e) => setBusinessSettings({...businessSettings, checkInInstructions: e.target.value})}
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        House Rules
-                      </label>
-                      <textarea
-                        rows={3}
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                        value={businessSettings.houseRules}
-                        onChange={(e) => setBusinessSettings({...businessSettings, houseRules: e.target.value})}
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Cancellation Policy
-                      </label>
-                      <select
-                        value={businessSettings.cancellationPolicy}
-                        onChange={(e) => setBusinessSettings({...businessSettings, cancellationPolicy: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                      >
-                        <option value="flexible">Flexible</option>
-                        <option value="moderate">Moderate</option>
-                        <option value="strict">Strict</option>
-                        <option value="super_strict">Super Strict</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex justify-end mt-6">
-                <button className="flex items-center px-6 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-colors">
-                  <Save className="w-4 h-4 mr-2" />
-                  Save Settings
+                  Delete My Account
                 </button>
               </div>
             </div>
           )}
         </div>
       </div>
+
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl dark:bg-gray-800">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Delete My Account</h3>
+            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+              Enter your current password to permanently delete your account. This action cannot be undone.
+            </p>
+
+            <div className="mt-4">
+              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Current Password</label>
+              <div className="relative">
+                <input
+                  type={showDeletePassword ? 'text' : 'password'}
+                  value={deletePassword}
+                  onChange={(e) => setDeletePassword(e.target.value)}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 pr-10 text-sm text-gray-900 focus:border-primary-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  placeholder="Enter current password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowDeletePassword((prev) => !prev)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                >
+                  {showDeletePassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                </button>
+              </div>
+            </div>
+
+            <div className="mt-5 flex justify-end space-x-3">
+              <button
+                onClick={closeDeleteModal}
+                disabled={isDeletingAccount}
+                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteAccount}
+                disabled={isDeletingAccount}
+                className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {isDeletingAccount ? 'Deleting...' : 'Delete Account'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

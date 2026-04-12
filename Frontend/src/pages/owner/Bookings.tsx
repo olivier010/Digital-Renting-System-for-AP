@@ -74,14 +74,14 @@ const Bookings = () => {
         const apiBookings = data.data?.content || [];
         setBookings(apiBookings.map((b: any) => ({
           id: b.id,
-          propertyId: b.property?.id?.toString() || b.propertyId,
+          propertyId: b.property?.id || b.propertyId,
           propertyName: b.property?.title || '',
           propertyStatus: b.property?.status || '',
           propertyLocation: b.property?.location || '',
           propertyImages: b.property?.image
             ? [b.property.image.startsWith('http') ? b.property.image : `http://localhost:8080${b.property.image}`]
             : [],
-          tenantId: b.renter?.id?.toString() || b.tenantId,
+          tenantId: b.renter?.id || b.tenantId,
           tenantName: b.renter?.name || '',
           tenantEmail: b.renter?.email || '',
           tenantPhone: b.renter?.phone || '',

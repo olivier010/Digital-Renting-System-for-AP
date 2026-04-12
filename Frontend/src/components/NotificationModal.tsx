@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Calendar, CreditCard, Star, AlertCircle, X } from 'lucide-react'
 import { apiFetch } from '../utils/api'
 
@@ -31,6 +31,7 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
   const [isLoadingMore, setIsLoadingMore] = useState(false)
   const [page, setPage] = useState(0)
   const [hasMore, setHasMore] = useState(true)
+  const listRef = useRef<HTMLDivElement | null>(null)
 
   const formatRelativeTime = (timestamp?: string) => {
     if (!timestamp) return 'just now'
@@ -70,7 +71,7 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
     }
   }
 
-  const fetchNotificationsPage = async (pageNumber: number, append: boolean) => {
+  const fetchNotificationsPage = useCallback(async (pageNumber: number, append: boolean) => {
     if (append) {
       setIsLoadingMore(true)
     } else {
@@ -109,12 +110,12 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
         setIsLoading(false)
       }
     }
-  }
+  }, [])
 
-  const fetchInitialNotifications = async () => {
+  const fetchInitialNotifications = useCallback(async () => {
     setHasMore(true)
     await fetchNotificationsPage(0, false)
-  }
+  }, [fetchNotificationsPage])
 
   const fetchMoreNotifications = async () => {
     if (isLoading || isLoadingMore || !hasMore) return
@@ -144,12 +145,23 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
   useEffect(() => {
     if (!isOpen) return
     fetchInitialNotifications()
-  }, [isOpen])
+  }, [isOpen, fetchInitialNotifications])
 
   const handleListScroll = (event: React.UIEvent<HTMLDivElement>) => {
     const target = event.currentTarget
     const nearBottom = target.scrollHeight - target.scrollTop - target.clientHeight < 40
     if (nearBottom) {
+      fetchMoreNotifications()
+    }
+  }
+
+  const handleListWheel = (event: React.WheelEvent<HTMLDivElement>) => {
+    const target = event.currentTarget
+    const canScroll = target.scrollHeight > target.clientHeight
+    const nearBottom = target.scrollHeight - target.scrollTop - target.clientHeight < 40
+
+    // When the initial 3 items do not overflow, a downward wheel gesture means user wants more.
+    if ((!canScroll && event.deltaY > 0) || (canScroll && nearBottom && event.deltaY > 0)) {
       fetchMoreNotifications()
     }
   }
@@ -186,7 +198,12 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
           </div>
         </div>
 
-        <div className="max-h-[60vh] overflow-y-auto p-4" onScroll={handleListScroll}>
+        <div
+          ref={listRef}
+          className="max-h-[60vh] overflow-y-auto p-4"
+          onScroll={handleListScroll}
+          onWheel={handleListWheel}
+        >
           {isLoading && <div className="py-10 text-center text-gray-400">Loading notifications...</div>}
           {!isLoading && notifications.length === 0 && (
             <div className="py-10 text-center text-gray-400">No notifications</div>

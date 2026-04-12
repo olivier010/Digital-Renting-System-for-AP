@@ -1,0 +1,155 @@
+import jsPDF from 'jspdf'
+import autoTable from 'jspdf-autotable'
+
+export interface PaymentsReportRow {
+  id?: number
+  invoiceId?: string
+  bookingId?: number
+  status?: string
+  type?: string
+  description?: string
+  property?: string
+  location?: string
+  amount?: number
+  refundAmount?: number
+  refundReason?: string
+  createdAt?: string
+  date?: string
+  paymentMethod?: string
+  cardType?: string
+  cardLast4?: string
+  host?: string
+}
+
+const currency = (value: number) => `$${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+
+const safe = (value?: string | number | null) => {
+  if (value === null || value === undefined || value === '') return 'N/A'
+  return String(value)
+}
+
+export const downloadPaymentsFullReportPdf = (rows: PaymentsReportRow[]) => {
+  const doc = new jsPDF({ unit: 'mm', format: 'a4' })
+  const pageWidth = doc.internal.pageSize.getWidth()
+  const margin = 14
+  const generatedOn = new Date().toLocaleString('en-GB')
+
+  const totalAmount = rows.reduce((sum, row) => sum + Number(row.amount || 0), 0)
+  const completedRows = rows.filter((row) => row.status === 'completed')
+  const pendingRows = rows.filter((row) => row.status === 'pending')
+  const refundedRows = rows.filter((row) => row.status === 'refunded')
+  const completedAmount = completedRows.reduce((sum, row) => sum + Number(row.amount || 0), 0)
+  const pendingAmount = pendingRows.reduce((sum, row) => sum + Number(row.amount || 0), 0)
+  const refundedAmount = refundedRows.reduce((sum, row) => sum + Number(row.refundAmount || row.amount || 0), 0)
+  const netAmount = completedAmount - refundedAmount
+
+  doc.setFillColor(37, 99, 235)
+  doc.roundedRect(margin, 12, 16, 16, 3, 3, 'F')
+  doc.setTextColor(255, 255, 255)
+  doc.setFont('helvetica', 'bold')
+  doc.setFontSize(10)
+  doc.text('RW', margin + 8, 22, { align: 'center' })
+
+  doc.setTextColor(17, 24, 39)
+  doc.setFontSize(16)
+  doc.text('RentWise Payments Report', margin + 22, 18)
+  doc.setFontSize(10)
+  doc.setTextColor(75, 85, 99)
+  doc.text('Full summary and detailed transactions', margin + 22, 24)
+
+  doc.setDrawColor(37, 99, 235)
+  doc.setLineWidth(0.8)
+  doc.line(margin, 32, pageWidth - margin, 32)
+
+  autoTable(doc, {
+    startY: 36,
+    theme: 'grid',
+    styles: { fontSize: 9, cellPadding: 3, textColor: [17, 24, 39] },
+    headStyles: { fillColor: [243, 244, 246], textColor: [55, 65, 81], fontStyle: 'bold' },
+    body: [
+      ['REPORT TYPE', 'DATE GENERATED', 'RECORDS'],
+      ['Payments Full Export', generatedOn, String(rows.length)]
+    ],
+    columnStyles: {
+      0: { cellWidth: 70 },
+      1: { cellWidth: 70 },
+      2: { cellWidth: 36, halign: 'center' }
+    }
+  })
+
+  const summaryY = (doc as any).lastAutoTable.finalY + 8
+  doc.setFontSize(12)
+  doc.setTextColor(17, 24, 39)
+  doc.text('Summary', margin, summaryY)
+
+  autoTable(doc, {
+    startY: summaryY + 2,
+    head: [['Metric', 'Value']],
+    body: [
+      ['Total Payments Count', String(rows.length)],
+      ['Total Amount (All Payments)', currency(totalAmount)],
+      ['Completed Payments Count', String(completedRows.length)],
+      ['Completed Amount', currency(completedAmount)],
+      ['Pending Payments Count', String(pendingRows.length)],
+      ['Pending Amount', currency(pendingAmount)],
+      ['Refunded Payments Count', String(refundedRows.length)],
+      ['Refunded Amount', currency(refundedAmount)],
+      ['Net Amount', currency(netAmount)]
+    ],
+    theme: 'grid',
+    styles: { fontSize: 10, cellPadding: 3 },
+    headStyles: { fillColor: [37, 99, 235], textColor: [255, 255, 255] },
+    columnStyles: {
+      0: { cellWidth: 120 },
+      1: { cellWidth: 52, halign: 'right', fontStyle: 'bold' }
+    }
+  })
+
+  const detailsY = (doc as any).lastAutoTable.finalY + 8
+  doc.setFontSize(12)
+  doc.text('Payment Details', margin, detailsY)
+
+  autoTable(doc, {
+    startY: detailsY + 2,
+    theme: 'striped',
+    styles: { fontSize: 8, cellPadding: 2.2, valign: 'middle' },
+    alternateRowStyles: { fillColor: [249, 250, 251] },
+    head: [[
+      'Payment ID',
+      'Invoice ID',
+      'Booking ID',
+      'Status',
+      'Type',
+      'Property',
+      'Location',
+      'Amount',
+      'Method',
+      'Card',
+      'Created At'
+    ]],
+    body: rows.map((row) => [
+      safe(row.id),
+      safe(row.invoiceId),
+      row.bookingId ? `#${row.bookingId}` : 'N/A',
+      safe(row.status),
+      safe(row.type).replace('_', ' '),
+      safe(row.property || row.description),
+      safe(row.location),
+      currency(Number(row.amount || 0)),
+      safe(row.paymentMethod),
+      `${safe(row.cardType)} ${row.cardLast4 ? `•••• ${row.cardLast4}` : ''}`.trim(),
+      safe(row.createdAt || row.date)
+    ]),
+    headStyles: { fillColor: [31, 41, 55], textColor: [255, 255, 255], fontSize: 8 },
+    didDrawPage: () => {
+      const footerY = doc.internal.pageSize.getHeight() - 8
+      doc.setFontSize(8)
+      doc.setTextColor(107, 114, 128)
+      doc.text('Generated by RentWise System', margin, footerY)
+      doc.text(`Generated on ${generatedOn}`, pageWidth - margin, footerY, { align: 'right' })
+    }
+  })
+
+  const suffix = new Date().toISOString().slice(0, 10)
+  doc.save(`rentwise-payments-full-report-${suffix}.pdf`)
+}
