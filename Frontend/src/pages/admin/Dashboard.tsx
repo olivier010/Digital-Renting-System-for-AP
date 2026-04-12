@@ -1,8 +1,8 @@
 
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { apiFetch } from '../../utils/api'
 import { Link } from 'react-router-dom'
-import { Users, Home, TrendingUp, DollarSign, AlertCircle, CheckCircle, FileText, BarChart, Settings, Bell } from 'lucide-react'
+import { Users, Home, TrendingUp, DollarSign, AlertCircle, CheckCircle, FileText, BarChart, Settings } from 'lucide-react'
 
 const Dashboard = () => {
   // Dashboard state
@@ -37,62 +37,9 @@ const Dashboard = () => {
   const [showAllStatus, setShowAllStatus] = useState(false)
   const [recentUsers, setRecentUsers] = useState<any[]>([])
   const [systemLogs, setSystemLogs] = useState<any[]>([])
-  const [notifications, setNotifications] = useState<any[]>([])
-  // Removed unused loading and error state
 
-  const fetchNotifications = useCallback(async () => {
-    const formatRelativeTime = (timestamp: string) => {
-      const date = new Date(timestamp)
-      const now = new Date()
-      const diffMs = now.getTime() - date.getTime()
-      const mins = Math.floor(diffMs / (1000 * 60))
 
-      if (mins < 1) return 'just now'
-      if (mins < 60) return `${mins}m ago`
 
-      const hours = Math.floor(mins / 60)
-      if (hours < 24) return `${hours}h ago`
-
-      const days = Math.floor(hours / 24)
-      if (days < 7) return `${days}d ago`
-
-      return date.toLocaleDateString()
-    }
-
-    try {
-      const notificationRes = await apiFetch('/notifications?page=0&size=6')
-      const items = (notificationRes.data?.content || [])
-        .sort((a: any, b: any) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime())
-        .slice(0, 3)
-      setNotifications(items.map((n: any) => ({
-        id: n.id,
-        title: n.title || 'Notification',
-        message: n.body || n.title || 'You have a new notification',
-        time: n.createdAt ? formatRelativeTime(n.createdAt) : 'just now',
-        read: Boolean(n.isRead)
-      })))
-    } catch {
-      setNotifications([])
-    }
-  }, [])
-
-  const markAllNotificationsAsRead = async () => {
-    try {
-      await apiFetch('/notifications/read-all', { method: 'PATCH' })
-      setNotifications(prev => prev.map((n) => ({ ...n, read: true })))
-    } catch {
-      // no-op
-    }
-  }
-
-  const markNotificationAsRead = async (id: number) => {
-    try {
-      await apiFetch(`/notifications/${id}/read`, { method: 'PATCH' })
-      setNotifications(prev => prev.map((n) => n.id === id ? { ...n, read: true } : n))
-    } catch {
-      // no-op
-    }
-  }
 
   useEffect(() => {
     const fetchDashboard = async () => {
@@ -109,13 +56,13 @@ const Dashboard = () => {
         // Fetch system logs
         const logsRes = await apiFetch('/admin/logs?page=0&size=5')
         setSystemLogs(Array.isArray(logsRes.data) ? logsRes.data : [])
-        await fetchNotifications()
+        // await fetchNotifications()
       } catch (err: any) {
         // Optionally handle error here if you want to show a message
       }
     }
     fetchDashboard()
-  }, [fetchNotifications])
+  }, [])
 
   // Helper to calculate percent change
   const percentChange = (current: number, last: number) => {

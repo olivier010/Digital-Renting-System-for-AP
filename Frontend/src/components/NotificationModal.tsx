@@ -221,7 +221,7 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
 
           {!isLoading && notifications.length > 0 && (
             <div className="flex flex-col-reverse gap-2 transition-all duration-500" style={{ maxHeight: '40vh', overflow: 'hidden' }}>
-              {notifications.map((notification, idx) => (
+              {notifications.map((notification) => (
                 <div key={notification.id} className="relative group">
                   <button
                     type="button"
