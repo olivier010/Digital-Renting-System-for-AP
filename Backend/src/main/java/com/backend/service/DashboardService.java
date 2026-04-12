@@ -135,9 +135,9 @@ public class DashboardService {
         // Bookings
         long bookingsThisMonth = bookingRepository.countByOwnerIdAndCreatedAtBetween(ownerId, startOfThisMonth, now);
         long bookingsLastMonth = bookingRepository.countByOwnerIdAndCreatedAtBetween(ownerId, startOfLastMonth, startOfThisMonth);
-        // Earnings
-        BigDecimal earningsThisMonth = bookingRepository.sumCompletedEarningsByOwnerAndCreatedAtBetween(ownerId, startOfThisMonth, now);
-        BigDecimal earningsLastMonth = bookingRepository.sumCompletedEarningsByOwnerAndCreatedAtBetween(ownerId, startOfLastMonth, startOfThisMonth);
+        // Earnings based on completed payment dates
+        BigDecimal earningsThisMonth = paymentRepository.sumOwnerCompletedPaymentsBetween(ownerId, startOfThisMonth, now);
+        BigDecimal earningsLastMonth = paymentRepository.sumOwnerCompletedPaymentsBetween(ownerId, startOfLastMonth, startOfThisMonth);
         // Ratings
         Double avgRatingThisMonth = reviewRepository.averageRatingByOwnerAndCreatedAtBetween(ownerId, startOfThisMonth, now);
         Double avgRatingLastMonth = reviewRepository.averageRatingByOwnerAndCreatedAtBetween(ownerId, startOfLastMonth, startOfThisMonth);

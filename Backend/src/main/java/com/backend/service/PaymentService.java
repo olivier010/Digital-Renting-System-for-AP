@@ -31,7 +31,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -206,17 +210,73 @@ public class PaymentService {
     @Transactional(readOnly = true)
     public List<PropertyEarningsResponse> getOwnerPropertyEarnings(Long ownerId) {
         List<Property> properties = propertyRepository.findByOwnerId(ownerId, Pageable.unpaged()).getContent();
+        List<Payment> ownerPayments = paymentRepository.findByOwnerId(ownerId, Pageable.unpaged()).getContent();
+
+        LocalDate today = LocalDate.now();
+        YearMonth thisMonth = YearMonth.from(today);
+        YearMonth lastMonth = thisMonth.minusMonths(1);
+        LocalDate thisMonthStart = thisMonth.atDay(1);
+        LocalDate thisMonthEndExclusive = thisMonth.plusMonths(1).atDay(1);
+        LocalDate lastMonthStart = lastMonth.atDay(1);
+        LocalDate lastMonthEndExclusive = thisMonthStart;
+        int daysInThisMonth = thisMonth.lengthOfMonth();
+
         return properties.stream().map(property -> {
-            BigDecimal totalRevenue = paymentRepository
-                .findByOwnerId(ownerId, Pageable.unpaged())
-                .getContent().stream()
-                .filter(p -> p.getBooking().getProperty().getId().equals(property.getId()))
-                .map(Payment::getAmount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+            BigDecimal totalRevenue = ownerPayments.stream()
+                    .filter(p -> p.getBooking().getProperty().getId().equals(property.getId()))
+                    .filter(p -> p.getStatus() == PaymentStatus.COMPLETED)
+                    .map(Payment::getAmount)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
             int bookingsCount = property.getBookings().size();
-            double occupancyRate = 0.0; // Calculate if you have data
+
+            long occupiedDaysThisMonth = property.getBookings().stream()
+                    .filter(b -> b.getStatus() == BookingStatus.CONFIRMED || b.getStatus() == BookingStatus.COMPLETED)
+                    .mapToLong(b -> {
+                        if (b.getStartDate() == null || b.getEndDate() == null) return 0L;
+                        LocalDate overlapStart = b.getStartDate().isAfter(thisMonthStart) ? b.getStartDate() : thisMonthStart;
+                        LocalDate overlapEnd = b.getEndDate().isBefore(thisMonthEndExclusive) ? b.getEndDate() : thisMonthEndExclusive;
+                        long days = ChronoUnit.DAYS.between(overlapStart, overlapEnd);
+                        return Math.max(days, 0L);
+                    })
+                    .sum();
+
+            double occupancyRate = daysInThisMonth > 0
+                    ? Math.min(100.0, (occupiedDaysThisMonth * 100.0) / daysInThisMonth)
+                    : 0.0;
+
             BigDecimal averagePrice = property.getPrice();
-            double growth = 0.0; // Calculate if you have data
+
+            BigDecimal thisMonthRevenue = ownerPayments.stream()
+                    .filter(p -> p.getBooking().getProperty().getId().equals(property.getId()))
+                    .filter(p -> p.getStatus() == PaymentStatus.COMPLETED)
+                    .filter(p -> {
+                        LocalDate paidDate = p.getCreatedAt() != null ? p.getCreatedAt().toLocalDate() : null;
+                        return paidDate != null && !paidDate.isBefore(thisMonthStart) && paidDate.isBefore(thisMonthEndExclusive);
+                    })
+                    .map(Payment::getAmount)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            BigDecimal lastMonthRevenue = ownerPayments.stream()
+                    .filter(p -> p.getBooking().getProperty().getId().equals(property.getId()))
+                    .filter(p -> p.getStatus() == PaymentStatus.COMPLETED)
+                    .filter(p -> {
+                        LocalDate paidDate = p.getCreatedAt() != null ? p.getCreatedAt().toLocalDate() : null;
+                        return paidDate != null && !paidDate.isBefore(lastMonthStart) && paidDate.isBefore(lastMonthEndExclusive);
+                    })
+                    .map(Payment::getAmount)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            double growth;
+            if (lastMonthRevenue.compareTo(BigDecimal.ZERO) > 0) {
+                growth = thisMonthRevenue.subtract(lastMonthRevenue)
+                        .multiply(BigDecimal.valueOf(100))
+                        .divide(lastMonthRevenue, 2, RoundingMode.HALF_UP)
+                        .doubleValue();
+            } else {
+                growth = thisMonthRevenue.compareTo(BigDecimal.ZERO) > 0 ? 100.0 : 0.0;
+            }
+
             return PropertyEarningsResponse.builder()
                     .propertyId(property.getId())
                     .propertyTitle(property.getTitle())
