@@ -1,15 +1,18 @@
-import { useEffect, useState } from 'react'
-import { User, Lock, Save, Eye, EyeOff, Trash2 } from 'lucide-react'
+import { useEffect, useState, useMemo } from 'react'
+import { User, Lock, Save, Eye, EyeOff, Trash2, Globe } from 'lucide-react'
 import { apiFetch } from '../../utils/api'
 import { useAuth } from '../../contexts/AuthContext'
+import { useTheme } from '../../contexts/ThemeContext'
 import UserDataReportDownloadButton from '../../components/reports/UserDataReportDownloadButton'
 
 const Settings = () => {
   const { user, updateUser, logout } = useAuth()
+  const { theme, toggleTheme } = useTheme()
 
   const [activeTab, setActiveTab] = useState('profile')
   const [showPassword, setShowPassword] = useState(false)
   const [showDeletePassword, setShowDeletePassword] = useState(false)
+  const isDarkMode = theme === 'dark'
 
   const [profileData, setProfileData] = useState({
     firstName: '',
@@ -183,10 +186,14 @@ const Settings = () => {
     }
   }
 
-  const tabs = [
-    { id: 'profile', label: 'Profile', icon: User },
-    { id: 'security', label: 'Privacy & Settings', icon: Lock }
-  ]
+  const tabs = useMemo(
+    () => [
+      { id: 'profile', label: 'Profile', icon: User },
+      { id: 'security', label: 'Privacy & Settings', icon: Lock },
+      { id: 'preferences', label: 'Preferences', icon: Globe }
+    ],
+    []
+  )
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -294,7 +301,8 @@ const Settings = () => {
           )}
 
           {activeTab === 'security' && (
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <div className="space-y-6">
+              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Privacy & Settings</h2>
 
               <h3 className="text-md font-medium text-gray-900 dark:text-white mb-4">Change Password</h3>
@@ -350,30 +358,60 @@ const Settings = () => {
                   {isChangingPassword ? 'Updating...' : 'Update Password'}
                 </button>
               </div>
+              </div>
+            </div>
+          )}
 
-              <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
-                <h3 className="text-md font-medium text-gray-900 dark:text-white mb-2">Download Your Data</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                  Download a full PDF report of your account data and activity.
-                </p>
-                <UserDataReportDownloadButton
-                  onSuccess={(message) => setFeedback({ type: 'success', message })}
-                  onError={(message) => setFeedback({ type: 'error', message })}
-                />
+          {activeTab === 'preferences' && (
+            <div className="space-y-6">
+              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Preferences</h2>
+
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium text-gray-900 dark:text-white">Dark Mode</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Use dark theme across the platform</p>
+                    </div>
+                    <button
+                      onClick={toggleTheme}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                        isDarkMode ? 'bg-primary-600' : 'bg-gray-200 dark:bg-gray-700'
+                      }`}
+                    >
+                      <span
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                          isDarkMode ? 'translate-x-6' : 'translate-x-1'
+                        }`}
+                      />
+                    </button>
+                  </div>
+                </div>
               </div>
 
-              <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
-                <h3 className="text-md font-medium text-red-600 dark:text-red-400 mb-2">Delete My Account</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                  Permanently delete your account and all your data. This action cannot be undone.
-                </p>
-                <button
-                  onClick={openDeleteModal}
-                  className="flex items-center px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors"
-                >
-                  <Trash2 className="w-4 h-4 mr-2" />
-                  Delete My Account
-                </button>
+              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Data Management</h2>
+
+                <div className="space-y-4">
+                  <UserDataReportDownloadButton
+                    onSuccess={(message: string) => setFeedback({ type: 'success', message })}
+                    onError={(message: string) => setFeedback({ type: 'error', message })}
+                  />
+
+                  <button
+                    onClick={openDeleteModal}
+                    disabled={isDeletingAccount}
+                    className="w-full flex items-center justify-between p-4 border border-red-200 dark:border-red-700 rounded-lg hover:bg-red-50 disabled:opacity-60 disabled:cursor-not-allowed dark:hover:bg-red-900/20 transition-colors"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <Trash2 className="w-5 h-5 text-red-600 dark:text-red-400" />
+                      <div className="text-left">
+                        <p className="font-medium text-red-600 dark:text-red-400">{isDeletingAccount ? 'Deleting Account...' : 'Delete Account'}</p>
+                        <p className="text-sm text-red-500 dark:text-red-400">Permanently delete your account and all data</p>
+                      </div>
+                    </div>
+                  </button>
+                </div>
               </div>
             </div>
           )}
