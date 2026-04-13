@@ -249,7 +249,7 @@ const Users = () => {
             </div>
           </div>
           
-          <div className="flex items-center space-x-3">
+          <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto mt-4 lg:mt-0">
             <select
               value={filterRole}
               onChange={(e) => setFilterRole(e.target.value)}
@@ -298,7 +298,7 @@ const Users = () => {
         <div className="px-6 py-4 border-b border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-700 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <h2 className="text-lg font-semibold text-surface-900 dark:text-white">Users Waiting for Approval</h2>
           {selectedPending.length > 0 && (
-            <div className="flex items-center space-x-2">
+            <div className="flex flex-wrap items-center gap-2">
               <button
                 className="px-3 py-1 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 rounded hover:bg-green-200 dark:hover:bg-green-800 text-xs font-medium"
                 onClick={() => handleApprove(selectedPending)}

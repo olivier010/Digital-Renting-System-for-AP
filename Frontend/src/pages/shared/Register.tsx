@@ -158,7 +158,7 @@ const Register = () => {
                     </div>
                   )}
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {/* First Name */}
                     <div>
                       <label htmlFor="firstName" className="block text-xs font-medium text-surface-700 dark:text-surface-300 mb-1.5">First Name *</label>
@@ -179,7 +179,7 @@ const Register = () => {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {/* Email */}
                     <div>
                       <label htmlFor="email" className="block text-xs font-medium text-surface-700 dark:text-surface-300 mb-1.5">Email *</label>
@@ -200,7 +200,7 @@ const Register = () => {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {/* Password */}
                     <div>
                       <label htmlFor="password" className="block text-xs font-medium text-surface-700 dark:text-surface-300 mb-1.5">Password *</label>
@@ -255,7 +255,7 @@ const Register = () => {
                   {/* Terms & Submit */}
                   <div className="space-y-3 pt-3 border-t border-surface-200 dark:border-surface-700">
                     <div className="flex items-start">
-                      <input id="agreeToTerms" name="agreeToTerms" type="checkbox" checked={formData.agreeToTerms} onChange={handleChange} className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-surface-300 rounded mt-0.5 dark:border-surface-600 dark:bg-surface-800" />
+                      <input id="agreeToTerms" name="agreeToTerms" type="checkbox" checked={formData.agreeToTerms} onChange={handleChange} className="h-4 w-4 flex-shrink-0 text-primary-600 focus:ring-primary-500 border-surface-300 rounded mt-0.5 dark:border-surface-600 dark:bg-surface-800" />
                       <label htmlFor="agreeToTerms" className="ml-2 text-sm text-surface-600 dark:text-surface-400">
                         I agree to the <Link to="/terms" className="text-primary-600 hover:text-primary-500 dark:text-primary-400">Terms of Service</Link> and <Link to="/privacy" className="text-primary-600 hover:text-primary-500 dark:text-primary-400">Privacy Policy</Link>
                       </label>

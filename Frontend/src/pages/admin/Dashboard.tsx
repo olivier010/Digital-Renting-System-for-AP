@@ -215,21 +215,21 @@ const Dashboard = () => {
             {recentUsers.slice(0, 4).map((user) => {
               const status = user.isActive ? 'Active' : 'Pending';
               return (
-                <div key={user.id} className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-primary-400 to-primary-600 rounded-2xl flex items-center justify-center shadow-sm">
+                <div key={user.id} className="flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <div className="w-10 h-10 flex-shrink-0 bg-gradient-to-br from-primary-400 to-primary-600 rounded-2xl flex items-center justify-center shadow-sm">
                       <span className="text-xs font-bold text-white">
                         {user.firstName?.charAt(0)}{user.lastName?.charAt(0)}
                       </span>
                     </div>
-                    <div>
-                      <p className="text-sm font-semibold text-surface-900 dark:text-white">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-surface-900 dark:text-white truncate">
                         {user.firstName} {user.lastName}
                       </p>
-                      <p className="text-xs text-surface-400 dark:text-surface-500">{user.email}</p>
+                      <p className="text-xs text-surface-400 dark:text-surface-500 truncate">{user.email}</p>
                     </div>
                   </div>
-                  <div className="text-right">
+                  <div className="text-right flex-shrink-0">
                     <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-semibold rounded-full ${
                       status === 'Active' 
                         ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'

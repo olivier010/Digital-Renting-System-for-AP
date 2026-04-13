@@ -12,7 +12,7 @@ const About = () => {
           <div className="absolute bottom-10 right-20 w-96 h-96 bg-accent-500/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }}></div>
         </div>
         <div className="relative container mx-auto px-4 sm:px-6 py-24 text-center">
-          <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-6 tracking-tight animate-fade-in-up">About RentWise</h1>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white mb-6 tracking-tight animate-fade-in-up">About RentWise</h1>
           <p className="text-xl text-white/80 max-w-3xl mx-auto animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
             Your trusted platform for finding the perfect rental property anywhere, anytime
           </p>
