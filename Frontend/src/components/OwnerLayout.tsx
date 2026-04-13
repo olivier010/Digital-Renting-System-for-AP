@@ -4,6 +4,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { Home, Settings, LogOut, Menu, X, Building, Calendar, DollarSign, Star, Bell, Plus } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import Loading from './ui/Loading'
+import ThemeToggle from './ui/ThemeToggle'
 import NotificationModal from './NotificationModal'
 import { apiFetch } from '../utils/api'
 import OwnerRoutes from '../pages/owner/OwnerRoutes'
@@ -41,15 +42,11 @@ const OwnerLayout: React.FC<OwnerLayoutProps> = ({ children }) => {
   const handleLogout = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    console.log('Owner logout clicked')
     try {
       logout()
-      console.log('Logout function called, navigating to home...')
       navigate('/')
-      console.log('Navigation to home initiated')
     } catch (error) {
       console.error('Logout error:', error)
-      // Force navigation even if there's an error
       navigate('/')
     }
   }
@@ -70,109 +67,93 @@ const OwnerLayout: React.FC<OwnerLayoutProps> = ({ children }) => {
   const currentTab = getCurrentTab()
 
   const ownerNavItems = [
-    {
-      name: 'Dashboard',
-      href: '/owner/dashboard',
-      icon: Home,
-      current: currentTab === 'dashboard'
-    },
-    {
-      name: 'My Properties',
-      href: '/owner/properties',
-      icon: Building,
-      current: currentTab === 'properties'
-    },
-    {
-      name: 'Add Property',
-      href: '/owner/add-property',
-      icon: Plus,
-      current: currentTab === 'add-property'
-    },
-    {
-      name: 'Bookings',
-      href: '/owner/bookings',
-      icon: Calendar,
-      current: currentTab === 'bookings'
-    },
-    {
-      name: 'Reviews',
-      href: '/owner/reviews',
-      icon: Star,
-      current: currentTab === 'reviews'
-    },
-    {
-      name: 'Earnings',
-      href: '/owner/earnings',
-      icon: DollarSign,
-      current: currentTab === 'earnings'
-    },
-    {
-      name: 'Settings',
-      href: '/owner/settings',
-      icon: Settings,
-      current: currentTab === 'settings'
-    }
+    { name: 'Dashboard', href: '/owner/dashboard', icon: Home, current: currentTab === 'dashboard' },
+    { name: 'My Properties', href: '/owner/properties', icon: Building, current: currentTab === 'properties' },
+    { name: 'Add Property', href: '/owner/add-property', icon: Plus, current: currentTab === 'add-property', accent: true },
+    { name: 'Bookings', href: '/owner/bookings', icon: Calendar, current: currentTab === 'bookings' },
+    { name: 'Reviews', href: '/owner/reviews', icon: Star, current: currentTab === 'reviews' },
+    { name: 'Earnings', href: '/owner/earnings', icon: DollarSign, current: currentTab === 'earnings' },
+    { name: 'Settings', href: '/owner/settings', icon: Settings, current: currentTab === 'settings' },
   ]
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+      <div className="min-h-screen flex items-center justify-center bg-surface-50 dark:bg-surface-900">
         <Loading />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex">
+    <div className="min-h-screen bg-surface-50 dark:bg-surface-900 flex">
       {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 z-40 lg:hidden bg-gray-600 bg-opacity-75"
+          className="fixed inset-0 z-40 lg:hidden bg-surface-900/50 dark:bg-black/60 backdrop-blur-sm animate-fade-in"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
-      {/* Sidebar - Fixed on desktop, overlay on mobile */}
+      {/* Sidebar */}
       <div className={`
-        fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 shadow-xl transform transition-transform duration-300 ease-in-out flex flex-col
+        fixed inset-y-0 left-0 z-50 w-[280px] flex flex-col
+        bg-white dark:bg-surface-900
+        border-r border-surface-200 dark:border-surface-800
+        transform transition-transform duration-300 ease-out
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
-        lg:translate-x-0 lg:shadow-none lg:border-r lg:border-gray-200 lg:dark:border-gray-700
+        lg:translate-x-0
       `}>
-        <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200 dark:border-gray-700 lg:border-b-0 flex-shrink-0">
-          <div className="flex items-center">
-            <Building className="w-8 h-8 text-primary-600 dark:text-primary-400" />
-            <span className="ml-2 text-xl font-bold text-gray-900 dark:text-white">
-              Owner Portal
-            </span>
+        {/* Sidebar Header */}
+        <div className="flex items-center justify-between h-16 px-6 flex-shrink-0">
+          <div className="flex items-center gap-2.5">
+            <div className="bg-gradient-to-br from-accent-500 to-accent-600 text-white w-9 h-9 rounded-2xl flex items-center justify-center shadow-md">
+              <Building className="w-5 h-5" />
+            </div>
+            <div>
+              <span className="text-base font-bold text-surface-900 dark:text-white block leading-tight">
+                Owner Portal
+              </span>
+              <span className="text-[10px] font-medium text-surface-400 dark:text-surface-500 uppercase tracking-wider">
+                Property Management
+              </span>
+            </div>
           </div>
           <button
             onClick={() => setSidebarOpen(false)}
-            className="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            className="lg:hidden p-1.5 rounded-lg text-surface-400 hover:text-surface-600 hover:bg-surface-100 dark:hover:text-surface-300 dark:hover:bg-surface-800 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <nav className="flex-1 mt-6 px-3 overflow-y-auto">
-          <div className="space-y-1">
+        {/* Navigation */}
+        <nav className="flex-1 mt-2 px-3 overflow-y-auto">
+          <div className="space-y-0.5">
             {ownerNavItems.map((item) => {
               const Icon = item.icon
+              const isAccent = 'accent' in item && item.accent
               return (
                 <Link
                   key={item.name}
                   to={item.href}
                   className={`
-                    group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200
+                    group flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-2xl transition-all duration-200
                     ${item.current
-                      ? 'bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300 shadow-sm'
-                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
+                      ? isAccent
+                        ? 'bg-accent-50 dark:bg-accent-900/20 text-accent-700 dark:text-accent-300 shadow-sm'
+                        : 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 shadow-sm'
+                      : 'text-surface-600 dark:text-surface-400 hover:bg-surface-100 dark:hover:bg-surface-800 hover:text-surface-900 dark:hover:text-white'
                     }
                   `}
                 >
-                  <Icon className={`w-5 h-5 mr-3 ${item.current ? 'text-primary-600 dark:text-primary-400' : 'text-gray-400 group-hover:text-gray-500 dark:group-hover:text-gray-300'}`} />
-                  {item.name}
+                  <Icon className={`w-5 h-5 flex-shrink-0 ${
+                    item.current
+                      ? isAccent ? 'text-accent-600 dark:text-accent-400' : 'text-primary-600 dark:text-primary-400'
+                      : 'text-surface-400 dark:text-surface-500 group-hover:text-surface-600 dark:group-hover:text-surface-300'
+                  }`} />
+                  <span className="flex-1">{item.name}</span>
                   {item.current && (
-                    <div className="ml-auto w-2 h-2 bg-primary-600 dark:bg-primary-400 rounded-full"></div>
+                    <div className={`w-1.5 h-1.5 rounded-full ${isAccent ? 'bg-accent-500' : 'bg-primary-500 dark:bg-primary-400'}`}></div>
                   )}
                 </Link>
               )
@@ -180,66 +161,64 @@ const OwnerLayout: React.FC<OwnerLayoutProps> = ({ children }) => {
           </div>
         </nav>
 
-        {/* User info and logout - Fixed at bottom */}
-        <div className="p-4 border-t border-gray-200 dark:border-gray-700 flex-shrink-0">
-          <div className="flex items-center mb-3">
-            <div className="w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center">
-              <span className="text-white text-sm font-medium">
+        {/* User info and logout */}
+        <div className="p-4 border-t border-surface-200 dark:border-surface-800 flex-shrink-0 space-y-3">
+          <ThemeToggle showLabel className="w-full justify-center" />
+          <div className="flex items-center gap-3 px-2">
+            <div className="w-9 h-9 bg-gradient-to-br from-accent-500 to-accent-600 rounded-2xl flex items-center justify-center shadow-sm">
+              <span className="text-white text-xs font-bold">
                 {user.firstName.charAt(0)}{user.lastName.charAt(0)}
               </span>
             </div>
-            <div className="ml-3">
-              <p className="text-sm font-medium text-gray-900 dark:text-white">
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-surface-900 dark:text-white truncate">
                 {user.firstName} {user.lastName}
               </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
+              <p className="text-xs text-surface-400 dark:text-surface-500">
                 Property Owner
               </p>
             </div>
           </div>
           <button
             onClick={handleLogout}
-            className="w-full flex items-center px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-surface-600 dark:text-surface-400 rounded-2xl hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20 dark:hover:text-red-400 transition-colors"
           >
-            <LogOut className="w-4 h-4 mr-2" />
-            Logout
+            <LogOut className="w-4 h-4" />
+            Sign Out
           </button>
         </div>
       </div>
 
-      {/* Main content - Scrollable with proper spacing */}
-      <div className="flex-1 flex flex-col min-h-screen lg:ml-64">
-        {/* Top bar - Fixed */}
-        <div className="sticky top-0 z-30 bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+      {/* Main content */}
+      <div className="flex-1 flex flex-col min-h-screen lg:ml-[280px]">
+        {/* Top bar */}
+        <div className="sticky top-0 z-30 glass-navbar flex-shrink-0">
           <div className="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
-            <button
-              onClick={() => setSidebarOpen(true)}
-              className="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-            >
-              <Menu className="w-5 h-5" />
-            </button>
-
-            <div className="flex-1 lg:flex-none">
-              <h1 className="text-lg font-semibold text-gray-900 dark:text-white">
-                Owner Dashboard
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => setSidebarOpen(true)}
+                className="lg:hidden p-2 rounded-2xl text-surface-500 hover:text-surface-700 hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors"
+              >
+                <Menu className="w-5 h-5" />
+              </button>
+              <h1 className="text-lg font-semibold text-surface-900 dark:text-white">
+                {ownerNavItems.find(n => n.current)?.name || 'Owner Dashboard'}
               </h1>
             </div>
 
-            <div className="flex items-center space-x-4">
-              <div className="hidden sm:flex items-center space-x-2">
+            <div className="flex items-center gap-2">
+              <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-50 dark:bg-green-900/20">
                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span className="text-sm text-gray-600 dark:text-gray-400">
-                  Account Active
-                </span>
+                <span className="text-xs font-medium text-green-700 dark:text-green-400">Active</span>
               </div>
               <div className="relative">
                 <button
-                  className="p-2 text-gray-400 hover:text-gray-500 relative"
+                  className="p-2 rounded-2xl text-surface-400 hover:text-surface-600 hover:bg-surface-100 dark:hover:text-surface-300 dark:hover:bg-surface-800 transition-colors relative"
                   onClick={() => setNotificationOpen(true)}
                 >
                   <Bell className="w-5 h-5" />
                   {unreadCount > 0 && (
-                    <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-red-500 text-white text-[10px] font-semibold leading-5 text-center shadow-sm">
+                    <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold leading-[18px] text-center shadow-sm animate-scale-in">
                       {unreadCount > 99 ? '99+' : unreadCount}
                     </span>
                   )}
@@ -249,8 +228,8 @@ const OwnerLayout: React.FC<OwnerLayoutProps> = ({ children }) => {
           </div>
         </div>
 
-        {/* Page content - Scrollable */}
-        <main className="flex-1 bg-gray-50 dark:bg-gray-900 overflow-y-auto">
+        {/* Page content */}
+        <main className="flex-1 overflow-y-auto">
           {children || <OwnerRoutes />}
         </main>
       </div>
@@ -269,3 +248,5 @@ const OwnerLayout: React.FC<OwnerLayoutProps> = ({ children }) => {
 }
 
 export default OwnerLayout
+
+

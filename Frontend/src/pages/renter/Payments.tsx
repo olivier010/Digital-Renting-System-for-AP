@@ -312,7 +312,7 @@ const Payments = () => {
       case 'pending': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
       case 'failed': return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
       case 'refunded': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
+      default: return 'bg-surface-100 text-gray-800 dark:bg-surface-900 dark:text-surface-200'
     }
   }
 
@@ -332,7 +332,7 @@ const Payments = () => {
       case 'security_deposit': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
       case 'service_fee': return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
       case 'refund': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
+      default: return 'bg-surface-100 text-gray-800 dark:bg-surface-900 dark:text-surface-200'
     }
   }
 
@@ -429,24 +429,24 @@ const Payments = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+        <h1 className="text-3xl font-bold text-surface-900 dark:text-white mb-2">
           Payment History
         </h1>
-        <p className="text-gray-600 dark:text-gray-400">
+        <p className="text-surface-500 dark:text-surface-400">
           Track all your payments, refunds, and transaction history
         </p>
       </div>
 
       {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <div className="bg-white dark:bg-surface-800 rounded-2xl shadow-sm border border-surface-200 dark:border-surface-700 p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Spent</p>
-              <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">
+              <p className="text-sm font-medium text-surface-500 dark:text-surface-400">Total Spent</p>
+              <p className="text-3xl font-bold text-surface-900 dark:text-white mt-2">
                 ${totalSpent.toLocaleString()}
               </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+              <p className="text-sm text-surface-500 dark:text-surface-400 mt-2">
                 All time
               </p>
             </div>
@@ -456,14 +456,14 @@ const Payments = () => {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <div className="bg-white dark:bg-surface-800 rounded-2xl shadow-sm border border-surface-200 dark:border-surface-700 p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Refunded</p>
-              <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">
+              <p className="text-sm font-medium text-surface-500 dark:text-surface-400">Total Refunded</p>
+              <p className="text-3xl font-bold text-surface-900 dark:text-white mt-2">
                 ${totalRefunded.toLocaleString()}
               </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+              <p className="text-sm text-surface-500 dark:text-surface-400 mt-2">
                 {payments.filter(p => p.status === 'refunded').length} refunds
               </p>
             </div>
@@ -473,14 +473,14 @@ const Payments = () => {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <div className="bg-white dark:bg-surface-800 rounded-2xl shadow-sm border border-surface-200 dark:border-surface-700 p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Net Spent</p>
-              <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">
+              <p className="text-sm font-medium text-surface-500 dark:text-surface-400">Net Spent</p>
+              <p className="text-3xl font-bold text-surface-900 dark:text-white mt-2">
                 ${netSpent.toLocaleString()}
               </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+              <p className="text-sm text-surface-500 dark:text-surface-400 mt-2">
                 After refunds
               </p>
             </div>
@@ -490,14 +490,14 @@ const Payments = () => {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <div className="bg-white dark:bg-surface-800 rounded-2xl shadow-sm border border-surface-200 dark:border-surface-700 p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Payment Methods</p>
-              <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">
+              <p className="text-sm font-medium text-surface-500 dark:text-surface-400">Payment Methods</p>
+              <p className="text-3xl font-bold text-surface-900 dark:text-white mt-2">
                 {paymentMethods.length}
               </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+              <p className="text-sm text-surface-500 dark:text-surface-400 mt-2">
                 Saved cards
               </p>
             </div>
@@ -509,14 +509,14 @@ const Payments = () => {
       </div>
 
       {/* Search and Filter */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 mb-6">
+      <div className="bg-white dark:bg-surface-800 rounded-2xl shadow-sm border border-surface-200 dark:border-surface-700 p-4 mb-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-surface-400 w-4 h-4" />
             <input
               type="text"
               placeholder="Search payments..."
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              className="w-full pl-10 pr-4 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -526,7 +526,7 @@ const Payments = () => {
             <select
               value={dateRange}
               onChange={(e) => setDateRange(e.target.value)}
-              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+              className="px-3 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white text-sm"
             >
               <option value="all">All Time</option>
               <option value="thisMonth">This Month</option>
@@ -536,7 +536,7 @@ const Payments = () => {
             
             <button
               onClick={() => setShowFilters((prev) => !prev)}
-              className="flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm"
+              className="flex items-center px-4 py-2 border border-surface-200 dark:border-surface-600 rounded-lg hover:bg-surface-50 dark:hover:bg-surface-700 transition-colors text-sm"
             >
               <Filter className="w-4 h-4 mr-2" />
               {showFilters ? 'Hide Filters' : 'More Filters'}
@@ -558,7 +558,7 @@ const Payments = () => {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+              className="px-3 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white text-sm"
             >
               <option value="all">All Statuses</option>
               <option value="completed">Completed</option>
@@ -570,7 +570,7 @@ const Payments = () => {
             <select
               value={typeFilter}
               onChange={(e) => setTypeFilter(e.target.value)}
-              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+              className="px-3 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white text-sm"
             >
               <option value="all">All Types</option>
               <option value="booking_payment">Booking Payment</option>
@@ -582,7 +582,7 @@ const Payments = () => {
             <select
               value={methodFilter}
               onChange={(e) => setMethodFilter(e.target.value)}
-              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+              className="px-3 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white text-sm"
             >
               <option value="all">All Methods</option>
               <option value="CREDIT_CARD">Credit Card</option>
@@ -598,7 +598,7 @@ const Payments = () => {
               value={minAmount}
               onChange={(e) => setMinAmount(e.target.value)}
               placeholder="Min Amount"
-              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+              className="px-3 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white text-sm"
             />
 
             <input
@@ -608,14 +608,14 @@ const Payments = () => {
               value={maxAmount}
               onChange={(e) => setMaxAmount(e.target.value)}
               placeholder="Max Amount"
-              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+              className="px-3 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white text-sm"
             />
           </div>
         )}
       </div>
 
       {/* Tabs */}
-      <div className="border-b border-gray-200 dark:border-gray-700 mb-6">
+      <div className="border-b border-surface-200 dark:border-surface-700 mb-6">
         <nav className="flex space-x-8">
           {tabs.map((tab) => (
             <button
@@ -624,11 +624,11 @@ const Payments = () => {
               className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
                 activeTab === tab.id
                   ? 'border-primary-500 text-primary-600 dark:text-primary-400'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
+                  : 'border-transparent text-surface-500 hover:text-surface-700 hover:border-gray-300 dark:text-surface-400 dark:hover:text-surface-300'
               }`}
             >
               {tab.label}
-              <span className="ml-2 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-0.5 rounded-full text-xs">
+              <span className="ml-2 bg-surface-100 dark:bg-surface-700 text-surface-600 dark:text-surface-300 px-2 py-0.5 rounded-full text-xs">
                 {tab.count}
               </span>
             </button>
@@ -637,9 +637,9 @@ const Payments = () => {
       </div>
 
       {/* Payment Methods Section */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6">
+      <div className="bg-white dark:bg-surface-800 rounded-2xl shadow-sm border border-surface-200 dark:border-surface-700 p-6 mb-6">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Payment Methods</h2>
+          <h2 className="text-lg font-semibold text-surface-900 dark:text-white">Payment Methods</h2>
           <button
             onClick={() => setShowAddCardForm(!showAddCardForm)}
             className="text-primary-600 hover:text-primary-500 dark:text-primary-400 text-sm font-medium"
@@ -649,12 +649,12 @@ const Payments = () => {
         </div>
 
         {showAddCardForm && (
-          <div className="mb-6 p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-900/30">
+          <div className="mb-6 p-4 border border-surface-200 dark:border-surface-700 rounded-lg bg-surface-50 dark:bg-surface-900/30">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
               <select
                 value={newCard.brand}
                 onChange={(e) => setNewCard({ ...newCard, brand: e.target.value })}
-                className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                className="px-3 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white"
               >
                 <option value="VISA">Visa</option>
                 <option value="MASTERCARD">Mastercard</option>
@@ -666,7 +666,7 @@ const Payments = () => {
                 maxLength={4}
                 value={newCard.last4}
                 onChange={(e) => setNewCard({ ...newCard, last4: e.target.value.replace(/\D/g, '') })}
-                className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                className="px-3 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white"
               />
               <input
                 type="text"
@@ -674,7 +674,7 @@ const Payments = () => {
                 maxLength={2}
                 value={newCard.expiryMonth}
                 onChange={(e) => setNewCard({ ...newCard, expiryMonth: e.target.value.replace(/\D/g, '') })}
-                className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                className="px-3 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white"
               />
               <input
                 type="text"
@@ -682,7 +682,7 @@ const Payments = () => {
                 maxLength={4}
                 value={newCard.expiryYear}
                 onChange={(e) => setNewCard({ ...newCard, expiryYear: e.target.value.replace(/\D/g, '') })}
-                className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                className="px-3 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white"
               />
             </div>
             <div className="flex justify-end mt-3">
@@ -699,19 +699,19 @@ const Payments = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {isLoadingPaymentMethods ? (
-            <p className="text-sm text-gray-500 dark:text-gray-400">Loading payment methods...</p>
+            <p className="text-sm text-surface-500 dark:text-surface-400">Loading payment methods...</p>
           ) : paymentMethods.length === 0 ? (
-            <p className="text-sm text-gray-500 dark:text-gray-400">No payment methods saved yet.</p>
+            <p className="text-sm text-surface-500 dark:text-surface-400">No payment methods saved yet.</p>
           ) : (
             paymentMethods.map((method) => (
-              <div key={method.id} className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+              <div key={method.id} className="flex items-center justify-between p-4 border border-surface-200 dark:border-surface-700 rounded-lg">
                 <div className="flex items-center space-x-3">
                   <span className="text-2xl">{getCardIcon(method.brand)}</span>
                   <div>
-                    <p className="font-medium text-gray-900 dark:text-white">
+                    <p className="font-medium text-surface-900 dark:text-white">
                       {method.brand} •••• {method.last4}
                     </p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                    <p className="text-sm text-surface-500 dark:text-surface-400">
                       Expires {method.expiryMonth}/{method.expiryYear}
                     </p>
                   </div>
@@ -724,14 +724,14 @@ const Payments = () => {
                   ) : (
                     <button
                       onClick={() => handleSetDefaultCard(method.id)}
-                      className="text-xs px-2 py-1 border border-gray-300 dark:border-gray-600 rounded text-gray-700 dark:text-gray-300"
+                      className="text-xs px-2 py-1 border border-surface-200 dark:border-surface-600 rounded text-surface-700 dark:text-surface-300"
                     >
                       Set Default
                     </button>
                   )}
                   <button
                     onClick={() => handleDeleteCard(method.id)}
-                    className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                    className="text-surface-400 hover:text-surface-600 dark:hover:text-surface-300"
                     title="Delete card"
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -749,8 +749,8 @@ const Payments = () => {
       <div className="space-y-4">
         {loading ? (
           <div className="text-center py-12">
-            <CreditCard className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+            <CreditCard className="w-16 h-16 text-surface-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-surface-900 dark:text-white mb-2">
               Loading payments...
             </h3>
           </div>
@@ -764,17 +764,17 @@ const Payments = () => {
         ) : activeTab === 'pending' ? (
           pendingItems.length === 0 ? (
             <div className="text-center py-12">
-              <CreditCard className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+              <CreditCard className="w-16 h-16 text-surface-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-surface-900 dark:text-white mb-2">
                 No pending bookings or payments
               </h3>
-              <p className="text-gray-600 dark:text-gray-400">
+              <p className="text-surface-500 dark:text-surface-400">
                 {searchTerm ? 'Try adjusting your search terms' : 'No pending items match the selected criteria'}
               </p>
             </div>
           ) : (
             pendingItems.map((item) => (
-              <div key={item.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+              <div key={item.id} className="bg-white dark:bg-surface-800 rounded-2xl shadow-sm border border-surface-200 dark:border-surface-700 p-6">
                 <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
                   <div className="flex-1">
                     <div className="flex items-start space-x-4">
@@ -782,16 +782,16 @@ const Payments = () => {
                         <Clock className="w-6 h-6 text-yellow-600" />
                       </div>
                       <div className="flex-1">
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
+                        <h3 className="text-lg font-semibold text-surface-900 dark:text-white mb-1">
                           {item.description}
                         </h3>
-                        <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-400">
+                        <div className="flex items-center space-x-4 text-sm text-surface-500 dark:text-surface-400">
                           <span className={`px-2 py-1 text-xs font-medium rounded-full ${getTypeColor(item.type)}`}>
                             Pending
                           </span>
                           {item.bookingId && <span>Booking ID: #{item.bookingId}</span>}
                         </div>
-                        <div className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                        <div className="mt-2 text-sm text-surface-500 dark:text-surface-400">
                           <p>{item.property} • {item.location}</p>
                         </div>
                       </div>
@@ -799,14 +799,14 @@ const Payments = () => {
                   </div>
                   <div className="flex flex-col lg:flex-row lg:items-end gap-4">
                     <div className="text-center lg:text-right">
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Amount</p>
-                      <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                      <p className="text-sm text-surface-500 dark:text-surface-400 mb-1">Amount</p>
+                      <p className="text-2xl font-bold text-surface-900 dark:text-white">
                         ${item.amount}
                       </p>
                     </div>
                     <div className="text-center lg:text-right">
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Date</p>
-                      <p className="font-medium text-gray-900 dark:text-white">
+                      <p className="text-sm text-surface-500 dark:text-surface-400 mb-1">Date</p>
+                      <p className="font-medium text-surface-900 dark:text-white">
                         {item.date}
                       </p>
                     </div>
@@ -826,32 +826,32 @@ const Payments = () => {
           )
         ) : filteredPayments.length === 0 ? (
           <div className="text-center py-12">
-            <CreditCard className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+            <CreditCard className="w-16 h-16 text-surface-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-surface-900 dark:text-white mb-2">
               No payments found
             </h3>
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="text-surface-500 dark:text-surface-400">
               {searchTerm ? 'Try adjusting your search terms' : 'No payments match the selected criteria'}
             </p>
           </div>
         ) : (
           filteredPayments.map((payment) => (
-            <div key={payment.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <div key={payment.id} className="bg-white dark:bg-surface-800 rounded-2xl shadow-sm border border-surface-200 dark:border-surface-700 p-6">
               <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
                 {/* Payment Info */}
                 <div className="flex-1">
                   <div className="flex items-start space-x-4">
-                    <div className="p-3 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                    <div className="p-3 bg-surface-100 dark:bg-surface-700 rounded-lg">
                       {payment.type === 'booking_payment' && <DollarSign className="w-6 h-6 text-blue-600" />}
                       {payment.type === 'security_deposit' && <CreditCard className="w-6 h-6 text-yellow-600" />}
                       {payment.type === 'service_fee' && <FileText className="w-6 h-6 text-purple-600" />}
                       {payment.type === 'refund' && <TrendingDown className="w-6 h-6 text-green-600" />}
                     </div>
                     <div className="flex-1">
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
+                      <h3 className="text-lg font-semibold text-surface-900 dark:text-white mb-1">
                         {payment.description}
                       </h3>
-                      <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-400">
+                      <div className="flex items-center space-x-4 text-sm text-surface-500 dark:text-surface-400">
                         <span className={`px-2 py-1 text-xs font-medium rounded-full ${getTypeColor(payment.type)}`}>
                           {payment.type.replace('_', ' ')}
                         </span>
@@ -859,7 +859,7 @@ const Payments = () => {
                         {payment.bookingId && <span>Booking ID: #{payment.bookingId}</span>}
                       </div>
                       
-                      <div className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                      <div className="mt-2 text-sm text-surface-500 dark:text-surface-400">
                         <p>{payment.property} • {payment.location}</p>
                         <p>Host: {payment.host}</p>
                       </div>
@@ -870,9 +870,9 @@ const Payments = () => {
                 {/* Payment Details */}
                 <div className="flex flex-col lg:flex-row lg:items-end gap-4">
                   <div className="text-center lg:text-right">
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Amount</p>
+                    <p className="text-sm text-surface-500 dark:text-surface-400 mb-1">Amount</p>
                     <p className={`text-2xl font-bold ${
-                      payment.status === 'refunded' ? 'text-green-600 dark:text-green-400' : 'text-gray-900 dark:text-white'
+                      payment.status === 'refunded' ? 'text-green-600 dark:text-green-400' : 'text-surface-900 dark:text-white'
                     }`}>
                       {payment.status === 'refunded' ? '-' : ''}${payment.amount}
                     </p>
@@ -884,19 +884,19 @@ const Payments = () => {
                   </div>
 
                   <div className="text-center lg:text-right">
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Date</p>
-                    <p className="font-medium text-gray-900 dark:text-white">
+                    <p className="text-sm text-surface-500 dark:text-surface-400 mb-1">Date</p>
+                    <p className="font-medium text-surface-900 dark:text-white">
                       {payment.date}
                     </p>
                     {payment.refundDate && (
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                      <p className="text-sm text-surface-500 dark:text-surface-400">
                         Refunded: {payment.refundDate}
                       </p>
                     )}
                   </div>
 
                   <div className="text-center lg:text-right">
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Status</p>
+                    <p className="text-sm text-surface-500 dark:text-surface-400 mb-1">Status</p>
                     <div className="flex items-center space-x-2">
                       <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(payment.status)}`}>
                         {getStatusIcon(payment.status)}
@@ -906,10 +906,10 @@ const Payments = () => {
                   </div>
 
                   <div className="text-center lg:text-right">
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Payment Method</p>
+                    <p className="text-sm text-surface-500 dark:text-surface-400 mb-1">Payment Method</p>
                     <div className="flex items-center space-x-2">
                       <span className="text-lg">{getCardIcon(payment.cardType)}</span>
-                      <span className="text-sm text-gray-900 dark:text-white">
+                      <span className="text-sm text-surface-900 dark:text-white">
                         {payment.cardType} •••• {payment.cardLast4}
                       </span>
                     </div>
@@ -924,7 +924,7 @@ const Payments = () => {
                     </button>
                     <button
                       onClick={() => handleDownloadInvoice(payment)}
-                      className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm"
+                      className="px-4 py-2 border border-surface-200 dark:border-surface-600 text-surface-700 dark:text-surface-300 rounded-lg hover:bg-surface-50 dark:hover:bg-surface-700 transition-colors text-sm"
                     >
                       Download
                     </button>
@@ -934,8 +934,8 @@ const Payments = () => {
 
               {/* Additional Details */}
               {payment.refundReason && (
-                <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                <div className="mt-4 pt-4 border-t border-surface-200 dark:border-surface-700">
+                  <p className="text-sm text-surface-500 dark:text-surface-400">
                     <span className="font-medium">Refund Reason:</span> {payment.refundReason}
                   </p>
                 </div>
@@ -961,3 +961,5 @@ const Payments = () => {
 }
 
 export default Payments
+
+

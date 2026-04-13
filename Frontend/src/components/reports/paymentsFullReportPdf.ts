@@ -153,3 +153,5 @@ export const downloadPaymentsFullReportPdf = (rows: PaymentsReportRow[]) => {
   const suffix = new Date().toISOString().slice(0, 10)
   doc.save(`rentwise-payments-full-report-${suffix}.pdf`)
 }
+
+

@@ -201,7 +201,7 @@ const Earnings = () => {
   const getGrowthColor = (growth: number) => {
     if (growth > 0) return 'text-green-600 dark:text-green-400'
     if (growth < 0) return 'text-red-600 dark:text-red-400'
-    return 'text-gray-600 dark:text-gray-400'
+    return 'text-surface-500 dark:text-surface-400'
   }
 
   const getGrowthIcon = (growth: number) => {
@@ -222,7 +222,7 @@ const Earnings = () => {
       case 'pending': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
       case 'refunded': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
       case 'failed': return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
+      default: return 'bg-surface-100 text-gray-800 dark:bg-surface-900 dark:text-surface-200'
     }
   }
 
@@ -231,8 +231,8 @@ const Earnings = () => {
       <div className="mb-8">
         <div className="flex justify-between items-start">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Earnings Overview</h1>
-            <p className="text-gray-600 dark:text-gray-400">Track your live rental income and payment performance</p>
+            <h1 className="text-3xl font-bold text-surface-900 dark:text-white mb-2">Earnings Overview</h1>
+            <p className="text-surface-500 dark:text-surface-400">Track your live rental income and payment performance</p>
           </div>
           <button className="flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg font-medium opacity-60 cursor-not-allowed" disabled>
             <Download className="w-4 h-4 mr-2" />
@@ -244,11 +244,11 @@ const Earnings = () => {
       {error && <div className="mb-6 p-4 rounded-lg border border-red-200 bg-red-50 text-red-700 dark:bg-red-900/20 dark:border-red-800 dark:text-red-300">{error}</div>}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <div className="bg-white dark:bg-surface-800 rounded-2xl shadow-sm border border-surface-200 dark:border-surface-700 p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Revenue</p>
-              <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">${earningsData.totalRevenue.toLocaleString()}</p>
+              <p className="text-sm font-medium text-surface-500 dark:text-surface-400">Total Revenue</p>
+              <p className="text-3xl font-bold text-surface-900 dark:text-white mt-2">${earningsData.totalRevenue.toLocaleString()}</p>
               <div className={`flex items-center mt-2 text-sm ${getGrowthColor(earningsData.growthRate)}`}>
                 {getGrowthIcon(earningsData.growthRate)}
                 <span className="ml-1">{Math.abs(earningsData.growthRate).toFixed(1)}% vs last month</span>
@@ -260,11 +260,11 @@ const Earnings = () => {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <div className="bg-white dark:bg-surface-800 rounded-2xl shadow-sm border border-surface-200 dark:border-surface-700 p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Monthly Revenue</p>
-              <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">${earningsData.monthlyRevenue.toLocaleString()}</p>
+              <p className="text-sm font-medium text-surface-500 dark:text-surface-400">Monthly Revenue</p>
+              <p className="text-3xl font-bold text-surface-900 dark:text-white mt-2">${earningsData.monthlyRevenue.toLocaleString()}</p>
               <div className="flex items-center mt-2 text-sm text-blue-600 dark:text-blue-400">
                 <Wallet className="w-4 h-4 mr-1" />
                 Current month completed payments
@@ -276,11 +276,11 @@ const Earnings = () => {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <div className="bg-white dark:bg-surface-800 rounded-2xl shadow-sm border border-surface-200 dark:border-surface-700 p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Pending Revenue</p>
-              <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">${earningsData.pendingRevenue.toLocaleString()}</p>
+              <p className="text-sm font-medium text-surface-500 dark:text-surface-400">Pending Revenue</p>
+              <p className="text-3xl font-bold text-surface-900 dark:text-white mt-2">${earningsData.pendingRevenue.toLocaleString()}</p>
               <div className="flex items-center mt-2 text-sm text-yellow-600 dark:text-yellow-400">
                 <Calendar className="w-4 h-4 mr-1" />
                 Awaiting payment completion
@@ -292,11 +292,11 @@ const Earnings = () => {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <div className="bg-white dark:bg-surface-800 rounded-2xl shadow-sm border border-surface-200 dark:border-surface-700 p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Avg. Booking Value</p>
-              <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">${earningsData.averageBookingValue.toFixed(0)}</p>
+              <p className="text-sm font-medium text-surface-500 dark:text-surface-400">Avg. Booking Value</p>
+              <p className="text-3xl font-bold text-surface-900 dark:text-white mt-2">${earningsData.averageBookingValue.toFixed(0)}</p>
               <div className="flex items-center mt-2 text-sm text-green-600 dark:text-green-400">
                 <BarChart3 className="w-4 h-4 mr-1" />
                 {earningsData.totalBookings} total bookings
@@ -310,13 +310,13 @@ const Earnings = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-        <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <div className="lg:col-span-2 bg-white dark:bg-surface-800 rounded-2xl shadow-sm border border-surface-200 dark:border-surface-700 p-6">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Revenue Trend</h2>
+            <h2 className="text-lg font-semibold text-surface-900 dark:text-white">Revenue Trend</h2>
             <select
               value={selectedYear}
               onChange={(e) => setSelectedYear(e.target.value)}
-              className="text-sm border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-1 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              className="text-sm border border-surface-200 dark:border-surface-600 rounded-lg px-3 py-1 bg-white dark:bg-surface-700 text-surface-900 dark:text-white"
             >
               {availableYears.map((year) => (
                 <option key={year} value={year}>{year}</option>
@@ -326,7 +326,7 @@ const Earnings = () => {
 
           <div className="h-64">
             {loading ? (
-              <div className="h-full flex items-center justify-center text-gray-500 dark:text-gray-400">Loading chart...</div>
+              <div className="h-full flex items-center justify-center text-surface-500 dark:text-surface-400">Loading chart...</div>
             ) : (
               <div className="flex items-end justify-between h-full gap-1">
                 {monthlyData.map((data, index) => (
@@ -336,12 +336,12 @@ const Earnings = () => {
                         className="w-full bg-primary-600 dark:bg-primary-500 rounded-t-lg"
                         style={{ height: `${(data.revenue / maxRevenue) * 100}%` }}
                       />
-                      <span className="absolute -top-6 text-[10px] font-medium text-gray-900 dark:text-white">
+                      <span className="absolute -top-6 text-[10px] font-medium text-surface-900 dark:text-white">
                         ${(data.revenue / 1000).toFixed(0)}k
                       </span>
                     </div>
-                    <span className="text-xs text-gray-500 dark:text-gray-400 mt-2">{data.month}</span>
-                    <span className="text-[10px] text-gray-500 dark:text-gray-400">{data.bookings} bookings</span>
+                    <span className="text-xs text-surface-500 dark:text-surface-400 mt-2">{data.month}</span>
+                    <span className="text-[10px] text-surface-500 dark:text-surface-400">{data.bookings} bookings</span>
                   </div>
                 ))}
               </div>
@@ -349,47 +349,47 @@ const Earnings = () => {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Revenue by Payment Method</h2>
+        <div className="bg-white dark:bg-surface-800 rounded-2xl shadow-sm border border-surface-200 dark:border-surface-700 p-6">
+          <h2 className="text-lg font-semibold text-surface-900 dark:text-white mb-6">Revenue by Payment Method</h2>
           <div className="space-y-4">
             {revenueBySource.length === 0 ? (
-              <p className="text-sm text-gray-500 dark:text-gray-400">No completed transactions yet.</p>
+              <p className="text-sm text-surface-500 dark:text-surface-400">No completed transactions yet.</p>
             ) : revenueBySource.map((source) => (
               <div key={source.source} className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm font-medium text-gray-900 dark:text-white">{source.source}</span>
-                  <span className="text-sm text-gray-600 dark:text-gray-400">${source.amount.toLocaleString()}</span>
+                  <span className="text-sm font-medium text-surface-900 dark:text-white">{source.source}</span>
+                  <span className="text-sm text-surface-500 dark:text-surface-400">${source.amount.toLocaleString()}</span>
                 </div>
-                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                <div className="w-full bg-surface-200 dark:bg-surface-700 rounded-full h-2">
                   <div className={`${source.color} h-2 rounded-full`} style={{ width: `${source.percentage}%` }} />
                 </div>
-                <span className="text-xs text-gray-500 dark:text-gray-400">{source.percentage.toFixed(1)}% of completed revenue</span>
+                <span className="text-xs text-surface-500 dark:text-surface-400">{source.percentage.toFixed(1)}% of completed revenue</span>
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-8">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Property Performance</h2>
+      <div className="bg-white dark:bg-surface-800 rounded-2xl shadow-sm border border-surface-200 dark:border-surface-700 p-6 mb-8">
+        <h2 className="text-lg font-semibold text-surface-900 dark:text-white mb-6">Property Performance</h2>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-gray-200 dark:border-gray-700">
-                <th className="text-left py-3 px-4 text-sm font-medium text-gray-900 dark:text-white">Property</th>
-                <th className="text-right py-3 px-4 text-sm font-medium text-gray-900 dark:text-white">Revenue</th>
-                <th className="text-right py-3 px-4 text-sm font-medium text-gray-900 dark:text-white">Bookings</th>
-                <th className="text-right py-3 px-4 text-sm font-medium text-gray-900 dark:text-white">Occupancy</th>
-                <th className="text-right py-3 px-4 text-sm font-medium text-gray-900 dark:text-white">Growth</th>
+              <tr className="border-b border-surface-200 dark:border-surface-700">
+                <th className="text-left py-3 px-4 text-sm font-medium text-surface-900 dark:text-white">Property</th>
+                <th className="text-right py-3 px-4 text-sm font-medium text-surface-900 dark:text-white">Revenue</th>
+                <th className="text-right py-3 px-4 text-sm font-medium text-surface-900 dark:text-white">Bookings</th>
+                <th className="text-right py-3 px-4 text-sm font-medium text-surface-900 dark:text-white">Occupancy</th>
+                <th className="text-right py-3 px-4 text-sm font-medium text-surface-900 dark:text-white">Growth</th>
               </tr>
             </thead>
             <tbody>
               {propertyEarnings.map((property) => (
-                <tr key={property.id} className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
-                  <td className="py-3 px-4 text-sm font-medium text-gray-900 dark:text-white">{property.property}</td>
-                  <td className="py-3 px-4 text-right font-medium text-gray-900 dark:text-white">${property.revenue.toLocaleString()}</td>
-                  <td className="py-3 px-4 text-right text-gray-600 dark:text-gray-400">{property.bookings}</td>
-                  <td className="py-3 px-4 text-right text-gray-600 dark:text-gray-400">{property.occupancy.toFixed(1)}%</td>
+                <tr key={property.id} className="border-b border-surface-200 dark:border-surface-700 hover:bg-surface-50 dark:hover:bg-surface-700">
+                  <td className="py-3 px-4 text-sm font-medium text-surface-900 dark:text-white">{property.property}</td>
+                  <td className="py-3 px-4 text-right font-medium text-surface-900 dark:text-white">${property.revenue.toLocaleString()}</td>
+                  <td className="py-3 px-4 text-right text-surface-500 dark:text-surface-400">{property.bookings}</td>
+                  <td className="py-3 px-4 text-right text-surface-500 dark:text-surface-400">{property.occupancy.toFixed(1)}%</td>
                   <td className="py-3 px-4 text-right">
                     <div className={`flex items-center justify-end ${getGrowthColor(property.growth)}`}>
                       {getGrowthIcon(property.growth)}
@@ -403,15 +403,15 @@ const Earnings = () => {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+      <div className="bg-white dark:bg-surface-800 rounded-2xl shadow-sm border border-surface-200 dark:border-surface-700 p-6">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Recent Transactions</h2>
+          <h2 className="text-lg font-semibold text-surface-900 dark:text-white">Recent Transactions</h2>
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-surface-400 w-4 h-4" />
             <input
               type="text"
               placeholder="Search transactions..."
-              className="w-64 pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+              className="w-64 pl-10 pr-4 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white text-sm"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -420,25 +420,25 @@ const Earnings = () => {
 
         <div className="space-y-4">
           {filteredTransactions.map((transaction) => (
-            <div key={transaction.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+            <div key={transaction.id} className="flex items-center justify-between p-4 bg-surface-50 dark:bg-surface-700 rounded-lg">
               <div className="flex items-center space-x-4">
-                <div className="flex items-center justify-center w-10 h-10 bg-white dark:bg-gray-800 rounded-full">
+                <div className="flex items-center justify-center w-10 h-10 bg-white dark:bg-surface-800 rounded-full">
                   {transaction.type.includes('booking') && <DollarSign className="w-5 h-5 text-green-600" />}
                   {transaction.type.includes('partial') && <CreditCard className="w-5 h-5 text-blue-600" />}
                   {transaction.type.includes('refund') && <TrendingDown className="w-5 h-5 text-red-600" />}
                 </div>
                 <div>
-                  <p className="font-medium text-gray-900 dark:text-white">{transaction.property}</p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Invoice {transaction.invoiceId} • {transaction.date}</p>
+                  <p className="font-medium text-surface-900 dark:text-white">{transaction.property}</p>
+                  <p className="text-sm text-surface-500 dark:text-surface-400">Invoice {transaction.invoiceId} • {transaction.date}</p>
                 </div>
               </div>
 
               <div className="flex items-center space-x-4">
                 <div className="text-right">
-                  <p className={`font-semibold ${transaction.type.includes('refund') ? 'text-red-600 dark:text-red-400' : 'text-gray-900 dark:text-white'}`}>
+                  <p className={`font-semibold ${transaction.type.includes('refund') ? 'text-red-600 dark:text-red-400' : 'text-surface-900 dark:text-white'}`}>
                     {transaction.type.includes('refund') ? '-' : ''}${transaction.amount.toLocaleString()}
                   </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">{transaction.paymentMethod}</p>
+                  <p className="text-xs text-surface-500 dark:text-surface-400">{transaction.paymentMethod}</p>
                 </div>
                 <div className="flex items-center space-x-2">
                   <span className={`px-2 py-1 text-xs font-medium rounded-full ${getTransactionTypeColor(transaction.type)}`}>{transaction.type.replace('_', ' ')}</span>
@@ -449,7 +449,7 @@ const Earnings = () => {
           ))}
 
           {!loading && filteredTransactions.length === 0 && (
-            <div className="text-center py-8 text-gray-500 dark:text-gray-400">No transactions found</div>
+            <div className="text-center py-8 text-surface-500 dark:text-surface-400">No transactions found</div>
           )}
         </div>
       </div>
@@ -458,3 +458,5 @@ const Earnings = () => {
 }
 
 export default Earnings
+
+

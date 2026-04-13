@@ -16,19 +16,19 @@ const PaymentInvoiceModal = ({ payment, isOpen, onClose }: PaymentInvoiceModalPr
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
-      <div className="w-full max-w-2xl rounded-xl bg-white p-6 shadow-xl dark:bg-gray-800 max-h-[90vh] overflow-y-auto">
+      <div className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-xl dark:bg-surface-800 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Invoice Preview</h3>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+          <h3 className="text-lg font-semibold text-surface-900 dark:text-white">Invoice Preview</h3>
+          <button onClick={onClose} className="text-surface-500 hover:text-surface-700 dark:text-surface-400 dark:hover:text-gray-200">
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="rounded-lg border border-gray-200 dark:border-gray-700 p-4 mb-4">
+        <div className="rounded-lg border border-surface-200 dark:border-surface-700 p-4 mb-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Invoice</p>
-              <p className="text-xl font-bold text-gray-900 dark:text-white">{invoiceId}</p>
+              <p className="text-sm text-surface-500 dark:text-surface-400">Invoice</p>
+              <p className="text-xl font-bold text-surface-900 dark:text-white">{invoiceId}</p>
             </div>
             <div className="bg-primary-600 text-white w-12 h-12 rounded-lg flex items-center justify-center font-bold">
               RW
@@ -37,36 +37,36 @@ const PaymentInvoiceModal = ({ payment, isOpen, onClose }: PaymentInvoiceModalPr
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mb-6">
-          <div className="rounded-lg bg-gray-50 dark:bg-gray-900/30 p-3">
-            <p className="text-gray-500 dark:text-gray-400">Description</p>
-            <p className="font-medium text-gray-900 dark:text-white">{payment.description || 'N/A'}</p>
+          <div className="rounded-lg bg-surface-50 dark:bg-surface-900/30 p-3">
+            <p className="text-surface-500 dark:text-surface-400">Description</p>
+            <p className="font-medium text-surface-900 dark:text-white">{payment.description || 'N/A'}</p>
           </div>
-          <div className="rounded-lg bg-gray-50 dark:bg-gray-900/30 p-3">
-            <p className="text-gray-500 dark:text-gray-400">Status</p>
-            <p className="font-medium text-gray-900 dark:text-white">{payment.status || 'N/A'}</p>
+          <div className="rounded-lg bg-surface-50 dark:bg-surface-900/30 p-3">
+            <p className="text-surface-500 dark:text-surface-400">Status</p>
+            <p className="font-medium text-surface-900 dark:text-white">{payment.status || 'N/A'}</p>
           </div>
-          <div className="rounded-lg bg-gray-50 dark:bg-gray-900/30 p-3">
-            <p className="text-gray-500 dark:text-gray-400">Property</p>
-            <p className="font-medium text-gray-900 dark:text-white">{payment.property || 'N/A'}</p>
+          <div className="rounded-lg bg-surface-50 dark:bg-surface-900/30 p-3">
+            <p className="text-surface-500 dark:text-surface-400">Property</p>
+            <p className="font-medium text-surface-900 dark:text-white">{payment.property || 'N/A'}</p>
           </div>
-          <div className="rounded-lg bg-gray-50 dark:bg-gray-900/30 p-3">
-            <p className="text-gray-500 dark:text-gray-400">Date</p>
-            <p className="font-medium text-gray-900 dark:text-white">{payment.date || 'N/A'}</p>
+          <div className="rounded-lg bg-surface-50 dark:bg-surface-900/30 p-3">
+            <p className="text-surface-500 dark:text-surface-400">Date</p>
+            <p className="font-medium text-surface-900 dark:text-white">{payment.date || 'N/A'}</p>
           </div>
-          <div className="rounded-lg bg-gray-50 dark:bg-gray-900/30 p-3">
-            <p className="text-gray-500 dark:text-gray-400">Payment Method</p>
-            <p className="font-medium text-gray-900 dark:text-white">{payment.cardType || 'N/A'} •••• {payment.cardLast4 || 'N/A'}</p>
+          <div className="rounded-lg bg-surface-50 dark:bg-surface-900/30 p-3">
+            <p className="text-surface-500 dark:text-surface-400">Payment Method</p>
+            <p className="font-medium text-surface-900 dark:text-white">{payment.cardType || 'N/A'} •••• {payment.cardLast4 || 'N/A'}</p>
           </div>
-          <div className="rounded-lg bg-gray-50 dark:bg-gray-900/30 p-3">
-            <p className="text-gray-500 dark:text-gray-400">Amount</p>
-            <p className="font-medium text-gray-900 dark:text-white">{formatAmount(payment.amount)}</p>
+          <div className="rounded-lg bg-surface-50 dark:bg-surface-900/30 p-3">
+            <p className="text-surface-500 dark:text-surface-400">Amount</p>
+            <p className="font-medium text-surface-900 dark:text-white">{formatAmount(payment.amount)}</p>
           </div>
         </div>
 
         <div className="flex items-center justify-end gap-3">
           <button
             onClick={onClose}
-            className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+            className="px-4 py-2 border border-surface-200 dark:border-surface-600 rounded-lg text-surface-700 dark:text-surface-300 hover:bg-surface-50 dark:hover:bg-surface-700"
           >
             Close
           </button>
@@ -84,3 +84,5 @@ const PaymentInvoiceModal = ({ payment, isOpen, onClose }: PaymentInvoiceModalPr
 }
 
 export default PaymentInvoiceModal
+
+

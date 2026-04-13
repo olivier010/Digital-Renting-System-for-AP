@@ -274,8 +274,8 @@ const Properties = () => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'active': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-      case 'inactive': return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
-      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
+      case 'inactive': return 'bg-surface-100 text-gray-800 dark:bg-surface-900 dark:text-surface-200'
+      default: return 'bg-surface-100 text-gray-800 dark:bg-surface-900 dark:text-surface-200'
     }
   }
 
@@ -289,7 +289,7 @@ const Properties = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[40vh]">
-        <span className="text-lg text-gray-600 dark:text-gray-300">Loading properties...</span>
+        <span className="text-lg text-surface-600 dark:text-surface-300">Loading properties...</span>
       </div>
     )
   }
@@ -309,10 +309,10 @@ const Properties = () => {
       <div className="mb-8">
         <div className="flex justify-between items-start">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+            <h1 className="text-3xl font-bold text-surface-900 dark:text-white mb-2">
               My Properties
             </h1>
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="text-surface-500 dark:text-surface-400">
               Manage your rental properties and assets
             </p>
           </div>
@@ -328,41 +328,41 @@ const Properties = () => {
 
       {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+        <div className="bg-white dark:bg-surface-800 rounded-lg p-4 border border-surface-200 dark:border-surface-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Total Properties</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.total}</p>
+              <p className="text-sm text-surface-500 dark:text-surface-400">Total Properties</p>
+              <p className="text-2xl font-bold text-surface-900 dark:text-white">{stats.total}</p>
             </div>
             <Home className="w-8 h-8 text-blue-500" />
           </div>
         </div>
         
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+        <div className="bg-white dark:bg-surface-800 rounded-lg p-4 border border-surface-200 dark:border-surface-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Active</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.active}</p>
+              <p className="text-sm text-surface-500 dark:text-surface-400">Active</p>
+              <p className="text-2xl font-bold text-surface-900 dark:text-white">{stats.active}</p>
             </div>
             <CheckCircle className="w-8 h-8 text-green-500" />
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+        <div className="bg-white dark:bg-surface-800 rounded-lg p-4 border border-surface-200 dark:border-surface-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Inactive</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.inactive}</p>
+              <p className="text-sm text-surface-500 dark:text-surface-400">Inactive</p>
+              <p className="text-2xl font-bold text-surface-900 dark:text-white">{stats.inactive}</p>
             </div>
-            <ToggleLeft className="w-8 h-8 text-gray-400" />
+            <ToggleLeft className="w-8 h-8 text-surface-400" />
           </div>
         </div>
         
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+        <div className="bg-white dark:bg-surface-800 rounded-lg p-4 border border-surface-200 dark:border-surface-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Avg Rating</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.avgRating}</p>
+              <p className="text-sm text-surface-500 dark:text-surface-400">Avg Rating</p>
+              <p className="text-2xl font-bold text-surface-900 dark:text-white">{stats.avgRating}</p>
             </div>
             <Star className="w-8 h-8 text-yellow-500" />
           </div>
@@ -370,14 +370,14 @@ const Properties = () => {
       </div>
 
       {/* Search and Filter Bar */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 mb-6">
+      <div className="bg-white dark:bg-surface-800 rounded-2xl shadow-sm border border-surface-200 dark:border-surface-700 p-4 mb-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-surface-400 w-4 h-4" />
             <input
               type="text"
               placeholder="Search properties..."
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              className="w-full pl-10 pr-4 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -387,7 +387,7 @@ const Properties = () => {
             <select
               value={filterCategory}
               onChange={(e) => setFilterCategory(e.target.value)}
-              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+              className="px-3 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white text-sm"
             >
               <option value="all">All Categories</option>
               <option value="house">House</option>
@@ -401,7 +401,7 @@ const Properties = () => {
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+              className="px-3 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white text-sm"
             >
               <option value="all">All Status</option>
               <option value="active">Active</option>
@@ -411,7 +411,7 @@ const Properties = () => {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+              className="px-3 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white text-sm"
             >
               <option value="name">Sort by: Name</option>
               <option value="price_low">Price: Low to High</option>
@@ -426,11 +426,11 @@ const Properties = () => {
       {/* Properties Grid */}
       {filteredAndSortedProperties.length === 0 ? (
         <div className="text-center py-12">
-          <Home className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+          <Home className="w-16 h-16 text-surface-400 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-surface-900 dark:text-white mb-2">
             No properties found
           </h3>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-surface-500 dark:text-surface-400">
             {searchTerm ? 'Try adjusting your search terms' : 'Get started by adding your first property'}
           </p>
           {!searchTerm && (
@@ -450,9 +450,9 @@ const Properties = () => {
             {filteredAndSortedProperties.slice(0, 4).map((property) => {
               const CategoryIcon = categoryIcons[property.category] || Package
               return (
-                <div key={property.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-lg transition-all duration-200 group">
+                <div key={property.id} className="bg-white dark:bg-surface-800 rounded-lg shadow-sm border border-surface-200 dark:border-surface-700 overflow-hidden hover:shadow-soft dark:shadow-dark-soft transition-all duration-200 group">
                   {/* Property Image */}
-                  <div className="relative h-32 bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                  <div className="relative h-32 bg-surface-200 dark:bg-surface-700 flex items-center justify-center">
                     {property.images && property.images.length > 0 ? (
                       <img
                         src={property.images[0]}
@@ -460,7 +460,7 @@ const Properties = () => {
                         className="object-cover w-full h-full"
                       />
                     ) : (
-                      <CategoryIcon className="w-8 h-8 text-gray-400" />
+                      <CategoryIcon className="w-8 h-8 text-surface-400" />
                     )}
                     
                     {/* Status & Category Badges */}
@@ -493,26 +493,26 @@ const Properties = () => {
                   <div className="p-3">
                     {/* Title & Price */}
                     <div className="mb-2">
-                      <h3 className="font-semibold text-gray-900 dark:text-white text-sm line-clamp-1 mb-1">
+                      <h3 className="font-semibold text-surface-900 dark:text-white text-sm line-clamp-1 mb-1">
                         {property.title}
                       </h3>
                       <div className="flex items-center justify-between">
                         <span className="text-lg font-bold text-primary-600 dark:text-primary-400">
                           ${property.price}
                         </span>
-                        <span className="text-xs text-gray-500 dark:text-gray-400">/month</span>
+                        <span className="text-xs text-surface-500 dark:text-surface-400">/month</span>
                       </div>
                     </div>
 
                     {/* Location */}
-                    <div className="flex items-center text-xs text-gray-600 dark:text-gray-400 mb-2">
+                    <div className="flex items-center text-xs text-surface-500 dark:text-surface-400 mb-2">
                       <MapPin className="w-3 h-3 mr-1 flex-shrink-0" />
                       <span className="line-clamp-1">{property.location}</span>
                     </div>
 
                     {/* Stats */}
                     <div className="flex items-center justify-between py-2 border-t border-gray-100 dark:border-gray-700">
-                      <div className="flex items-center text-xs text-gray-600 dark:text-gray-400">
+                      <div className="flex items-center text-xs text-surface-500 dark:text-surface-400">
                         <div className="flex items-center mr-3">
                           <div className="w-2 h-2 bg-green-500 rounded-full mr-1"></div>
                           <span>{property.bookings}</span>
@@ -522,7 +522,7 @@ const Properties = () => {
                           <span>{property.rating}</span>
                         </div>
                       </div>
-                      <span className="text-xs text-gray-500 dark:text-gray-400">
+                      <span className="text-xs text-surface-500 dark:text-surface-400">
                         {property.reviews} reviews
                       </span>
                     </div>
@@ -535,7 +535,7 @@ const Properties = () => {
                         className={`flex items-center text-xs px-2 py-1 rounded-full transition-colors ${
                           property.status === 'active' 
                             ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300' 
-                            : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400'
+                            : 'bg-surface-100 text-surface-600 dark:bg-surface-700 dark:text-surface-400'
                         }`}
                       >
                         {property.status === 'active' ? (
@@ -556,10 +556,10 @@ const Properties = () => {
                           <>
                             <button 
                               onClick={() => toggleFeatured(property.id)}
-                              className={`p-1.5 transition-colors rounded hover:bg-gray-100 dark:hover:bg-gray-700 ${
+                              className={`p-1.5 transition-colors rounded hover:bg-surface-100 dark:hover:bg-surface-700 ${
                                 property.isFeatured 
                                   ? 'text-yellow-500 hover:text-yellow-600 dark:hover:text-yellow-400' 
-                                  : 'text-gray-400 hover:text-yellow-600 dark:hover:text-yellow-400'
+                                  : 'text-surface-400 hover:text-yellow-600 dark:hover:text-yellow-400'
                               }`}
                               title={property.isFeatured ? 'Unmark as Featured' : 'Mark as Featured'}
                             >
@@ -567,10 +567,10 @@ const Properties = () => {
                             </button>
                             <button 
                               onClick={() => toggleVerified(property.id)}
-                              className={`p-1.5 transition-colors rounded hover:bg-gray-100 dark:hover:bg-gray-700 ${
+                              className={`p-1.5 transition-colors rounded hover:bg-surface-100 dark:hover:bg-surface-700 ${
                                 property.isVerified 
                                   ? 'text-blue-500 hover:text-blue-600 dark:hover:text-blue-400' 
-                                  : 'text-gray-400 hover:text-blue-600 dark:hover:text-blue-400'
+                                  : 'text-surface-400 hover:text-blue-600 dark:hover:text-blue-400'
                               }`}
                               title={property.isVerified ? 'Unmark as Verified' : 'Mark as Verified'}
                             >
@@ -580,21 +580,21 @@ const Properties = () => {
                         )}
                         <Link 
                           to={`/owner/properties/${property.id}`} 
-                          className="p-1.5 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors rounded hover:bg-gray-100 dark:hover:bg-gray-700" 
+                          className="p-1.5 text-surface-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors rounded hover:bg-surface-100 dark:hover:bg-surface-700" 
                           title="View"
                         >
                           <Eye className="w-3.5 h-3.5" />
                         </Link>
                         <Link 
                           to={`/owner/properties/${property.id}/edit`} 
-                          className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors rounded hover:bg-gray-100 dark:hover:bg-gray-700" 
+                          className="p-1.5 text-surface-400 hover:text-surface-600 dark:hover:text-surface-300 transition-colors rounded hover:bg-surface-100 dark:hover:bg-surface-700" 
                           title="Edit"
                         >
                           <Edit className="w-3.5 h-3.5" />
                         </Link>
                         <button 
                           onClick={() => deleteProperty(property.id)}
-                          className="p-1.5 text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors rounded hover:bg-gray-100 dark:hover:bg-gray-700"
+                          className="p-1.5 text-surface-400 hover:text-red-600 dark:hover:text-red-400 transition-colors rounded hover:bg-surface-100 dark:hover:bg-surface-700"
                           title="Delete"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -625,9 +625,9 @@ const Properties = () => {
               {filteredAndSortedProperties.slice(4).map((property) => {
                 const CategoryIcon = categoryIcons[property.category] || Package
                 return (
-                  <div key={property.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-lg transition-all duration-200 group">
+                  <div key={property.id} className="bg-white dark:bg-surface-800 rounded-lg shadow-sm border border-surface-200 dark:border-surface-700 overflow-hidden hover:shadow-soft dark:shadow-dark-soft transition-all duration-200 group">
                     {/* Property Image */}
-                    <div className="relative h-32 bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                    <div className="relative h-32 bg-surface-200 dark:bg-surface-700 flex items-center justify-center">
                       {property.images && property.images.length > 0 ? (
                         <img
                           src={property.images[0]}
@@ -635,7 +635,7 @@ const Properties = () => {
                           className="object-cover w-full h-full"
                         />
                       ) : (
-                        <CategoryIcon className="w-8 h-8 text-gray-400" />
+                        <CategoryIcon className="w-8 h-8 text-surface-400" />
                       )}
                       
                       {/* Status & Category Badges */}
@@ -668,26 +668,26 @@ const Properties = () => {
                     <div className="p-3">
                       {/* Title & Price */}
                       <div className="mb-2">
-                        <h3 className="font-semibold text-gray-900 dark:text-white text-sm line-clamp-1 mb-1">
+                        <h3 className="font-semibold text-surface-900 dark:text-white text-sm line-clamp-1 mb-1">
                           {property.title}
                         </h3>
                         <div className="flex items-center justify-between">
                           <span className="text-lg font-bold text-primary-600 dark:text-primary-400">
                             ${property.price}
                           </span>
-                          <span className="text-xs text-gray-500 dark:text-gray-400">/month</span>
+                          <span className="text-xs text-surface-500 dark:text-surface-400">/month</span>
                         </div>
                       </div>
 
                       {/* Location */}
-                      <div className="flex items-center text-xs text-gray-600 dark:text-gray-400 mb-2">
+                      <div className="flex items-center text-xs text-surface-500 dark:text-surface-400 mb-2">
                         <MapPin className="w-3 h-3 mr-1 flex-shrink-0" />
                         <span className="line-clamp-1">{property.location}</span>
                       </div>
 
                       {/* Stats */}
                       <div className="flex items-center justify-between py-2 border-t border-gray-100 dark:border-gray-700">
-                        <div className="flex items-center text-xs text-gray-600 dark:text-gray-400">
+                        <div className="flex items-center text-xs text-surface-500 dark:text-surface-400">
                           <div className="flex items-center mr-3">
                             <div className="w-2 h-2 bg-green-500 rounded-full mr-1"></div>
                             <span>{property.bookings}</span>
@@ -697,7 +697,7 @@ const Properties = () => {
                             <span>{property.rating}</span>
                           </div>
                         </div>
-                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                        <span className="text-xs text-surface-500 dark:text-surface-400">
                           {property.reviews} reviews
                         </span>
                       </div>
@@ -710,7 +710,7 @@ const Properties = () => {
                           className={`flex items-center text-xs px-2 py-1 rounded-full transition-colors ${
                             property.status === 'active' 
                               ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300' 
-                              : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400'
+                              : 'bg-surface-100 text-surface-600 dark:bg-surface-700 dark:text-surface-400'
                           }`}
                         >
                           {property.status === 'active' ? (
@@ -729,10 +729,10 @@ const Properties = () => {
                         <div className="flex items-center space-x-1">
                           <button 
                             onClick={() => toggleFeatured(property.id)}
-                            className={`p-1.5 transition-colors rounded hover:bg-gray-100 dark:hover:bg-gray-700 ${
+                            className={`p-1.5 transition-colors rounded hover:bg-surface-100 dark:hover:bg-surface-700 ${
                               property.isFeatured 
                                 ? 'text-yellow-500 hover:text-yellow-600 dark:hover:text-yellow-400' 
-                                : 'text-gray-400 hover:text-yellow-600 dark:hover:text-yellow-400'
+                                : 'text-surface-400 hover:text-yellow-600 dark:hover:text-yellow-400'
                             }`}
                             title={property.isFeatured ? 'Unmark as Featured' : 'Mark as Featured'}
                           >
@@ -740,10 +740,10 @@ const Properties = () => {
                           </button>
                           <button 
                             onClick={() => toggleVerified(property.id)}
-                            className={`p-1.5 transition-colors rounded hover:bg-gray-100 dark:hover:bg-gray-700 ${
+                            className={`p-1.5 transition-colors rounded hover:bg-surface-100 dark:hover:bg-surface-700 ${
                               property.isVerified 
                                 ? 'text-blue-500 hover:text-blue-600 dark:hover:text-blue-400' 
-                                : 'text-gray-400 hover:text-blue-600 dark:hover:text-blue-400'
+                                : 'text-surface-400 hover:text-blue-600 dark:hover:text-blue-400'
                             }`}
                             title={property.isVerified ? 'Unmark as Verified' : 'Mark as Verified'}
                           >
@@ -751,21 +751,21 @@ const Properties = () => {
                           </button>
                           <Link 
                             to={`/owner/properties/${property.id}`} 
-                            className="p-1.5 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors rounded hover:bg-gray-100 dark:hover:bg-gray-700" 
+                            className="p-1.5 text-surface-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors rounded hover:bg-surface-100 dark:hover:bg-surface-700" 
                             title="View"
                           >
                             <Eye className="w-3.5 h-3.5" />
                           </Link>
                           <Link 
                             to={`/owner/properties/${property.id}/edit`} 
-                            className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors rounded hover:bg-gray-100 dark:hover:bg-gray-700" 
+                            className="p-1.5 text-surface-400 hover:text-surface-600 dark:hover:text-surface-300 transition-colors rounded hover:bg-surface-100 dark:hover:bg-surface-700" 
                             title="Edit"
                           >
                             <Edit className="w-3.5 h-3.5" />
                           </Link>
                           <button 
                             onClick={() => deleteProperty(property.id)}
-                            className="p-1.5 text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors rounded hover:bg-gray-100 dark:hover:bg-gray-700"
+                            className="p-1.5 text-surface-400 hover:text-red-600 dark:hover:text-red-400 transition-colors rounded hover:bg-surface-100 dark:hover:bg-surface-700"
                             title="Delete"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
@@ -785,3 +785,5 @@ const Properties = () => {
 }
 
 export default Properties
+
+

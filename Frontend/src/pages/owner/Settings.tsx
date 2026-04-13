@@ -198,8 +198,8 @@ const Settings = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Settings</h1>
-        <p className="text-gray-600 dark:text-gray-400">Manage your account settings</p>
+        <h1 className="text-3xl font-bold text-surface-900 dark:text-white mb-2">Settings</h1>
+        <p className="text-surface-500 dark:text-surface-400">Manage your account settings</p>
       </div>
 
       {feedback && (
@@ -226,7 +226,7 @@ const Settings = () => {
                   className={`w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
                     activeTab === tab.id
                       ? 'bg-primary-100 text-primary-700 dark:bg-primary-900 dark:text-primary-300'
-                      : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'
+                      : 'text-surface-700 hover:bg-surface-100 dark:text-surface-300 dark:hover:bg-surface-700'
                   }`}
                 >
                   <Icon className="w-5 h-5 mr-3" />
@@ -239,46 +239,46 @@ const Settings = () => {
 
         <div className="flex-1">
           {activeTab === 'profile' && (
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Profile Information</h2>
+            <div className="bg-white dark:bg-surface-800 rounded-2xl shadow-sm border border-surface-200 dark:border-surface-700 p-6">
+              <h2 className="text-lg font-semibold text-surface-900 dark:text-white mb-6">Profile Information</h2>
 
               {isProfileLoading ? (
-                <p className="text-sm text-gray-500 dark:text-gray-400">Loading profile...</p>
+                <p className="text-sm text-surface-500 dark:text-surface-400">Loading profile...</p>
               ) : (
                 <>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">First Name</label>
+                      <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">First Name</label>
                       <input
                         type="text"
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        className="w-full px-3 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white"
                         value={profileData.firstName}
                         onChange={(e) => setProfileData({ ...profileData, firstName: e.target.value })}
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Last Name</label>
+                      <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">Last Name</label>
                       <input
                         type="text"
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        className="w-full px-3 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white"
                         value={profileData.lastName}
                         onChange={(e) => setProfileData({ ...profileData, lastName: e.target.value })}
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email Address</label>
+                      <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">Email Address</label>
                       <input
                         type="email"
                         readOnly
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300"
+                        className="w-full px-3 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-surface-100 dark:bg-surface-700 text-surface-600 dark:text-surface-300"
                         value={profileData.email}
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Phone Number</label>
+                      <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">Phone Number</label>
                       <input
                         type="tel"
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        className="w-full px-3 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white"
                         value={profileData.phone}
                         onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
                       />
@@ -302,25 +302,25 @@ const Settings = () => {
 
           {activeTab === 'security' && (
             <div className="space-y-6">
-              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Privacy & Settings</h2>
+              <div className="bg-white dark:bg-surface-800 rounded-2xl shadow-sm border border-surface-200 dark:border-surface-700 p-6">
+              <h2 className="text-lg font-semibold text-surface-900 dark:text-white mb-6">Privacy & Settings</h2>
 
-              <h3 className="text-md font-medium text-gray-900 dark:text-white mb-4">Change Password</h3>
+              <h3 className="text-md font-medium text-surface-900 dark:text-white mb-4">Change Password</h3>
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Current Password</label>
+                  <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">Current Password</label>
                   <div className="relative">
                     <input
                       type={showPassword ? 'text' : 'password'}
-                      className="w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="w-full px-3 py-2 pr-10 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white"
                       value={passwordData.currentPassword}
                       onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-surface-400 hover:text-surface-600"
                     >
                       {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>
@@ -328,20 +328,20 @@ const Settings = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">New Password</label>
+                  <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">New Password</label>
                   <input
                     type="password"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    className="w-full px-3 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white"
                     value={passwordData.newPassword}
                     onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Confirm New Password</label>
+                  <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">Confirm New Password</label>
                   <input
                     type="password"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    className="w-full px-3 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white"
                     value={passwordData.confirmPassword}
                     onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
                   />
@@ -364,19 +364,19 @@ const Settings = () => {
 
           {activeTab === 'preferences' && (
             <div className="space-y-6">
-              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Preferences</h2>
+              <div className="bg-white dark:bg-surface-800 rounded-2xl shadow-sm border border-surface-200 dark:border-surface-700 p-6">
+                <h2 className="text-lg font-semibold text-surface-900 dark:text-white mb-6">Preferences</h2>
 
                 <div className="space-y-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="font-medium text-gray-900 dark:text-white">Dark Mode</p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Use dark theme across the platform</p>
+                      <p className="font-medium text-surface-900 dark:text-white">Dark Mode</p>
+                      <p className="text-sm text-surface-500 dark:text-surface-400">Use dark theme across the platform</p>
                     </div>
                     <button
                       onClick={toggleTheme}
                       className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                        isDarkMode ? 'bg-primary-600' : 'bg-gray-200 dark:bg-gray-700'
+                        isDarkMode ? 'bg-primary-600' : 'bg-surface-200 dark:bg-surface-700'
                       }`}
                     >
                       <span
@@ -389,8 +389,8 @@ const Settings = () => {
                 </div>
               </div>
 
-              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Data Management</h2>
+              <div className="bg-white dark:bg-surface-800 rounded-2xl shadow-sm border border-surface-200 dark:border-surface-700 p-6">
+                <h2 className="text-lg font-semibold text-surface-900 dark:text-white mb-6">Data Management</h2>
 
                 <div className="space-y-4">
                   <UserDataReportDownloadButton
@@ -420,26 +420,26 @@ const Settings = () => {
 
       {showDeleteModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl dark:bg-gray-800">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Delete My Account</h3>
-            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl dark:bg-surface-800">
+            <h3 className="text-lg font-semibold text-surface-900 dark:text-white">Delete My Account</h3>
+            <p className="mt-2 text-sm text-surface-500 dark:text-surface-400">
               Enter your current password to permanently delete your account. This action cannot be undone.
             </p>
 
             <div className="mt-4">
-              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Current Password</label>
+              <label className="mb-2 block text-sm font-medium text-surface-700 dark:text-surface-300">Current Password</label>
               <div className="relative">
                 <input
                   type={showDeletePassword ? 'text' : 'password'}
                   value={deletePassword}
                   onChange={(e) => setDeletePassword(e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 pr-10 text-sm text-gray-900 focus:border-primary-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 pr-10 text-sm text-gray-900 focus:border-primary-500 focus:outline-none dark:border-surface-600 dark:bg-surface-700 dark:text-white"
                   placeholder="Enter current password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowDeletePassword((prev) => !prev)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-surface-400 hover:text-surface-600 dark:hover:text-surface-300"
                 >
                   {showDeletePassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
@@ -450,7 +450,7 @@ const Settings = () => {
               <button
                 onClick={closeDeleteModal}
                 disabled={isDeletingAccount}
-                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-surface-700 hover:bg-surface-50 disabled:opacity-50 dark:border-surface-600 dark:text-surface-300 dark:hover:bg-surface-700"
               >
                 Cancel
               </button>
@@ -470,3 +470,5 @@ const Settings = () => {
 }
 
 export default Settings
+
+

@@ -153,7 +153,7 @@ const Reviews = () => {
             className={`${sizeClasses[size]} ${
               star <= rating 
                 ? 'text-yellow-500 fill-current' 
-                : 'text-gray-300 dark:text-gray-600'
+                : 'text-surface-300 dark:text-surface-600'
             } ${onRate ? 'cursor-pointer hover:text-yellow-400' : ''}`}
             onClick={() => onRate && onRate(star)}
           />
@@ -194,61 +194,61 @@ const Reviews = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+        <h1 className="text-3xl font-bold text-surface-900 dark:text-white mb-2">
           Reviews Management
         </h1>
-        <p className="text-gray-600 dark:text-gray-400">
+        <p className="text-surface-500 dark:text-surface-400">
           Manage guest reviews and maintain your property reputation
         </p>
       </div>
 
       {/* Stats Overview */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+        <div className="bg-white dark:bg-surface-800 rounded-lg p-4 border border-surface-200 dark:border-surface-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Total Reviews</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.totalReviews}</p>
+              <p className="text-sm text-surface-500 dark:text-surface-400">Total Reviews</p>
+              <p className="text-2xl font-bold text-surface-900 dark:text-white">{stats.totalReviews}</p>
             </div>
             <MessageSquare className="w-8 h-8 text-blue-500" />
           </div>
         </div>
         
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+        <div className="bg-white dark:bg-surface-800 rounded-lg p-4 border border-surface-200 dark:border-surface-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Average Rating</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.averageRating}</p>
+              <p className="text-sm text-surface-500 dark:text-surface-400">Average Rating</p>
+              <p className="text-2xl font-bold text-surface-900 dark:text-white">{stats.averageRating}</p>
             </div>
             <Star className="w-8 h-8 text-yellow-500" />
           </div>
         </div>
         
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+        <div className="bg-white dark:bg-surface-800 rounded-lg p-4 border border-surface-200 dark:border-surface-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">5-Star Reviews</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.fiveStarReviews}</p>
+              <p className="text-sm text-surface-500 dark:text-surface-400">5-Star Reviews</p>
+              <p className="text-2xl font-bold text-surface-900 dark:text-white">{stats.fiveStarReviews}</p>
             </div>
             <TrendingUp className="w-8 h-8 text-green-500" />
           </div>
         </div>
         
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+        <div className="bg-white dark:bg-surface-800 rounded-lg p-4 border border-surface-200 dark:border-surface-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Response Rate</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.responseRate}%</p>
+              <p className="text-sm text-surface-500 dark:text-surface-400">Response Rate</p>
+              <p className="text-2xl font-bold text-surface-900 dark:text-white">{stats.responseRate}%</p>
             </div>
             <CheckCircle className="w-8 h-8 text-green-500" />
           </div>
         </div>
         
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+        <div className="bg-white dark:bg-surface-800 rounded-lg p-4 border border-surface-200 dark:border-surface-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Avg Response</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.averageResponseTime}</p>
+              <p className="text-sm text-surface-500 dark:text-surface-400">Avg Response</p>
+              <p className="text-2xl font-bold text-surface-900 dark:text-white">{stats.averageResponseTime}</p>
             </div>
             <Clock className="w-8 h-8 text-purple-500" />
           </div>
@@ -256,7 +256,7 @@ const Reviews = () => {
       </div>
 
       {/* Tabs */}
-      <div className="border-b border-gray-200 dark:border-gray-700 mb-6">
+      <div className="border-b border-surface-200 dark:border-surface-700 mb-6">
         <nav className="flex space-x-8">
           {tabs.map((tab) => (
             <button
@@ -265,11 +265,11 @@ const Reviews = () => {
               className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
                 activeTab === tab.id
                   ? 'border-primary-500 text-primary-600 dark:text-primary-400'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
+                  : 'border-transparent text-surface-500 hover:text-surface-700 hover:border-gray-300 dark:text-surface-400 dark:hover:text-surface-300'
               }`}
             >
               {tab.label}
-              <span className="ml-2 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-0.5 rounded-full text-xs">
+              <span className="ml-2 bg-surface-100 dark:bg-surface-700 text-surface-600 dark:text-surface-300 px-2 py-0.5 rounded-full text-xs">
                 {tab.count}
               </span>
             </button>
@@ -278,14 +278,14 @@ const Reviews = () => {
       </div>
 
       {/* Search and Filter */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 mb-6">
+      <div className="bg-white dark:bg-surface-800 rounded-2xl shadow-sm border border-surface-200 dark:border-surface-700 p-4 mb-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-surface-400 w-4 h-4" />
             <input
               type="text"
               placeholder="Search reviews..."
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              className="w-full pl-10 pr-4 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -295,7 +295,7 @@ const Reviews = () => {
             <select
               value={filterRating}
               onChange={(e) => setFilterRating(e.target.value)}
-              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+              className="px-3 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white text-sm"
             >
               <option value="all">All Ratings</option>
               <option value="5">5 Stars</option>
@@ -308,7 +308,7 @@ const Reviews = () => {
             <select
               value={filterProperty}
               onChange={(e) => setFilterProperty(e.target.value)}
-              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+              className="px-3 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white text-sm"
             >
               <option value="all">All Properties</option>
               {/* Dynamically generate property options from reviews if available */}
@@ -317,7 +317,7 @@ const Reviews = () => {
               ))} */}
             </select>
             
-            <button className="flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm">
+            <button className="flex items-center px-4 py-2 border border-surface-200 dark:border-surface-600 rounded-lg hover:bg-surface-50 dark:hover:bg-surface-700 transition-colors text-sm">
               <Filter className="w-4 h-4 mr-2" />
               More Filters
             </button>
@@ -330,17 +330,17 @@ const Reviews = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {filteredReviews.length === 0 ? (
             <div className="col-span-full text-center py-12">
-              <MessageSquare className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+              <MessageSquare className="w-16 h-16 text-surface-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-surface-900 dark:text-white mb-2">
                 No reviews found
               </h3>
-              <p className="text-gray-600 dark:text-gray-400">
+              <p className="text-surface-500 dark:text-surface-400">
                 Try adjusting your search filters
               </p>
             </div>
           ) : (
             filteredReviews.map((review) => (
-              <div key={review.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-md transition-shadow">
+              <div key={review.id} className="bg-white dark:bg-surface-800 rounded-lg shadow-sm border border-surface-200 dark:border-surface-700 overflow-hidden hover:shadow-md transition-shadow">
                 {/* Review Header */}
                 <div className="p-4 border-b border-gray-100 dark:border-gray-700">
                   <div className="flex items-start justify-between mb-3">
@@ -356,14 +356,14 @@ const Reviews = () => {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center space-x-2 mb-1">
-                          <h3 className="font-semibold text-gray-900 dark:text-white text-sm truncate">
+                          <h3 className="font-semibold text-surface-900 dark:text-white text-sm truncate">
                             {review.guest}
                           </h3>
                           {review.verified && (
                             <CheckCircle className="w-3.5 h-3.5 text-green-500 flex-shrink-0" />
                           )}
                         </div>
-                        <div className="flex items-center space-x-2 text-xs text-gray-500 dark:text-gray-400">
+                        <div className="flex items-center space-x-2 text-xs text-surface-500 dark:text-surface-400">
                           <span>{review.date}</span>
                           <span>•</span>
                           <span className="truncate">{review.property}</span>
@@ -372,10 +372,10 @@ const Reviews = () => {
                     </div>
                     
                     <div className="flex items-center space-x-1">
-                      <button className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                      <button className="p-1.5 text-surface-400 hover:text-surface-600 dark:hover:text-surface-300 rounded hover:bg-surface-100 dark:hover:bg-surface-700 transition-colors">
                         <Flag className="w-3.5 h-3.5" />
                       </button>
-                      <button className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                      <button className="p-1.5 text-surface-400 hover:text-surface-600 dark:hover:text-surface-300 rounded hover:bg-surface-100 dark:hover:bg-surface-700 transition-colors">
                         <MoreVertical className="w-3.5 h-3.5" />
                       </button>
                     </div>
@@ -387,11 +387,11 @@ const Reviews = () => {
                       <div className="flex items-center">
                         {renderStars(review.rating)}
                       </div>
-                      <span className="text-sm font-medium text-gray-900 dark:text-white">
+                      <span className="text-sm font-medium text-surface-900 dark:text-white">
                         {review.rating}.0
                       </span>
                     </div>
-                    <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
+                    <div className="flex items-center text-xs text-surface-500 dark:text-surface-400">
                       <MapPin className="w-3 h-3 mr-1" />
                       <span className="truncate">{review.location}</span>
                     </div>
@@ -400,7 +400,7 @@ const Reviews = () => {
 
                 {/* Review Content */}
                 <div className="p-4">
-                  <p className="text-sm text-gray-700 dark:text-gray-300 mb-3 line-clamp-3">
+                  <p className="text-sm text-surface-700 dark:text-surface-300 mb-3 line-clamp-3">
                     {review.review}
                   </p>
                   
@@ -412,32 +412,32 @@ const Reviews = () => {
                   )}
                   
                   {/* Detailed Ratings */}
-                  <div className="grid grid-cols-3 gap-2 mb-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                  <div className="grid grid-cols-3 gap-2 mb-3 p-3 bg-surface-50 dark:bg-surface-700 rounded-lg">
                     <div className="text-center">
-                      <p className="text-xs font-medium text-gray-600 dark:text-gray-400">Cleanliness</p>
+                      <p className="text-xs font-medium text-surface-500 dark:text-surface-400">Cleanliness</p>
                       <div className="flex justify-center items-center mt-1">
                         <Star className="w-3 h-3 text-yellow-500 fill-current" />
-                        <span className="text-xs font-medium text-gray-900 dark:text-white ml-1">{review.cleanliness}</span>
+                        <span className="text-xs font-medium text-surface-900 dark:text-white ml-1">{review.cleanliness}</span>
                       </div>
                     </div>
                     <div className="text-center">
-                      <p className="text-xs font-medium text-gray-600 dark:text-gray-400">Communication</p>
+                      <p className="text-xs font-medium text-surface-500 dark:text-surface-400">Communication</p>
                       <div className="flex justify-center items-center mt-1">
                         <Star className="w-3 h-3 text-yellow-500 fill-current" />
-                        <span className="text-xs font-medium text-gray-900 dark:text-white ml-1">{review.communication}</span>
+                        <span className="text-xs font-medium text-surface-900 dark:text-white ml-1">{review.communication}</span>
                       </div>
                     </div>
                     <div className="text-center">
-                      <p className="text-xs font-medium text-gray-600 dark:text-gray-400">Value</p>
+                      <p className="text-xs font-medium text-surface-500 dark:text-surface-400">Value</p>
                       <div className="flex justify-center items-center mt-1">
                         <Star className="w-3 h-3 text-yellow-500 fill-current" />
-                        <span className="text-xs font-medium text-gray-900 dark:text-white ml-1">{review.value}</span>
+                        <span className="text-xs font-medium text-surface-900 dark:text-white ml-1">{review.value}</span>
                       </div>
                     </div>
                   </div>
 
                   {/* Booking Info */}
-                  <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-3">
+                  <div className="flex items-center justify-between text-xs text-surface-500 dark:text-surface-400 mb-3">
                     <span>{review.checkIn} - {review.checkOut}</span>
                     <span>#{review.bookingId}</span>
                   </div>
@@ -446,10 +446,10 @@ const Reviews = () => {
                   {review.hostResponse ? (
                     <div className="border-t border-gray-100 dark:border-gray-700 pt-3">
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Your Response</span>
-                        <span className="text-xs text-gray-500 dark:text-gray-400">{review.hostResponseDate}</span>
+                        <span className="text-xs font-medium text-surface-500 dark:text-surface-400">Your Response</span>
+                        <span className="text-xs text-surface-500 dark:text-surface-400">{review.hostResponseDate}</span>
                       </div>
-                      <p className="text-xs text-gray-700 dark:text-gray-300 bg-blue-50 dark:bg-blue-900/20 p-2 rounded">
+                      <p className="text-xs text-surface-700 dark:text-surface-300 bg-blue-50 dark:bg-blue-900/20 p-2 rounded">
                         {review.hostResponse}
                       </p>
                     </div>
@@ -459,12 +459,12 @@ const Reviews = () => {
                         <Reply className="w-3 h-3 mr-1" />
                         Respond to review
                       </button>
-                      <div className="flex items-center space-x-3 text-xs text-gray-500 dark:text-gray-400">
-                        <button className="flex items-center hover:text-gray-700 dark:hover:text-gray-300">
+                      <div className="flex items-center space-x-3 text-xs text-surface-500 dark:text-surface-400">
+                        <button className="flex items-center hover:text-surface-700 dark:hover:text-surface-300">
                           <ThumbsUp className="w-3 h-3 mr-1" />
                           {review.helpful}
                         </button>
-                        <button className="flex items-center hover:text-gray-700 dark:hover:text-gray-300">
+                        <button className="flex items-center hover:text-surface-700 dark:hover:text-surface-300">
                           <ThumbsDown className="w-3 h-3 mr-1" />
                           {review.notHelpful}
                         </button>
@@ -480,25 +480,25 @@ const Reviews = () => {
         <div className="space-y-6">
           {reviewsToWrite.length === 0 ? (
             <div className="text-center py-12">
-              <Star className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+              <Star className="w-16 h-16 text-surface-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-surface-900 dark:text-white mb-2">
                 No reviews to write
               </h3>
-              <p className="text-gray-600 dark:text-gray-400">
+              <p className="text-surface-500 dark:text-surface-400">
                 You'll see reviews to write here after guests complete their stays
               </p>
             </div>
           ) : (
             reviewsToWrite.map((review) => (
-              <div key={review.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+              <div key={review.id} className="bg-white dark:bg-surface-800 rounded-2xl shadow-sm border border-surface-200 dark:border-surface-700 p-6">
                 <div className="mb-6">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                  <h3 className="text-lg font-semibold text-surface-900 dark:text-white mb-2">
                     Write a Review for {review.guest}
                   </h3>
-                  <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-400">
+                  <div className="flex items-center space-x-4 text-sm text-surface-500 dark:text-surface-400">
                     <span className="text-lg">{review.image}</span>
                     <div>
-                      <p className="font-medium text-gray-900 dark:text-white">{review.property}</p>
+                      <p className="font-medium text-surface-900 dark:text-white">{review.property}</p>
                       <p className="flex items-center">
                         <MapPin className="w-3 h-3 mr-1" />
                         {review.location}
@@ -512,7 +512,7 @@ const Reviews = () => {
 
                 {/* Overall Rating */}
                 <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
                     Overall Rating
                   </label>
                   {renderStars(reviewForm.rating, (rating) => 
@@ -522,7 +522,7 @@ const Reviews = () => {
 
                 {/* Detailed Ratings */}
                 <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">
+                  <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-4">
                     Detailed Ratings
                   </label>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -535,7 +535,7 @@ const Reviews = () => {
                       { key: 'value', label: 'Value' }
                     ].map(({ key, label }) => (
                       <div key={key} className="flex items-center justify-between">
-                        <span className="text-sm text-gray-700 dark:text-gray-300">{label}</span>
+                        <span className="text-sm text-surface-700 dark:text-surface-300">{label}</span>
                         {renderStars(reviewForm[key as keyof typeof reviewForm] as number, (rating) => 
                           setReviewForm({...reviewForm, [key]: rating}), 'sm'
                         )}
@@ -546,7 +546,7 @@ const Reviews = () => {
 
                 {/* Would Recommend */}
                 <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
                     Would you host this guest again?
                   </label>
                   <div className="flex space-x-4">
@@ -555,7 +555,7 @@ const Reviews = () => {
                       className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                         reviewForm.wouldRecommend === true
                           ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                          : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
+                          : 'bg-surface-100 text-surface-700 dark:bg-surface-700 dark:text-surface-300'
                       }`}
                     >
                       Yes
@@ -565,7 +565,7 @@ const Reviews = () => {
                       className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                         reviewForm.wouldRecommend === false
                           ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                          : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
+                          : 'bg-surface-100 text-surface-700 dark:bg-surface-700 dark:text-surface-300'
                       }`}
                     >
                       No
@@ -575,12 +575,12 @@ const Reviews = () => {
 
                 {/* Written Review */}
                 <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
                     Written Review (Optional)
                   </label>
                   <textarea
                     rows={4}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    className="w-full px-3 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white"
                     placeholder="Share your experience with this guest..."
                     value={reviewForm.review}
                     onChange={(e) => setReviewForm({...reviewForm, review: e.target.value})}
@@ -592,7 +592,7 @@ const Reviews = () => {
                   <button
                     onClick={handleReviewSubmit}
                     disabled={reviewForm.rating === 0}
-                    className="px-6 py-2 bg-primary-600 hover:bg-primary-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors"
+                    className="px-6 py-2 bg-primary-600 hover:bg-primary-700 disabled:bg-surface-300 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors"
                   >
                     Submit Review
                   </button>
@@ -607,3 +607,5 @@ const Reviews = () => {
 }
 
 export default Reviews
+
+

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { apiFetch } from '../../utils/api'
-import { Calendar, MapPin, Users, CheckCircle, XCircle, AlertCircle, Filter, Search, ChevronDown, ChevronUp, Clock } from 'lucide-react'
+import { Calendar, MapPin, Users, CheckCircle, XCircle, AlertCircle, Filter, Search, ChevronDown, ChevronUp, Clock, Eye } from 'lucide-react'
 
 const Bookings = () => {
   const [activeTab, setActiveTab] = useState('upcoming')
@@ -50,7 +50,7 @@ const Bookings = () => {
       case 'pending': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
       case 'completed': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
       case 'cancelled': return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
+      default: return 'bg-surface-100 text-gray-800 dark:bg-surface-900 dark:text-surface-200'
     }
   }
 
@@ -69,7 +69,7 @@ const Bookings = () => {
       case 'paid': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
       case 'pending': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
       case 'refunded': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
+      default: return 'bg-surface-100 text-gray-800 dark:bg-surface-900 dark:text-surface-200'
     }
   }
 
@@ -170,28 +170,28 @@ const Bookings = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+        <h1 className="text-3xl font-bold text-surface-900 dark:text-white mb-2">
           My Bookings
         </h1>
-        <p className="text-gray-600 dark:text-gray-400">
+        <p className="text-surface-500 dark:text-surface-400">
           Manage all your property reservations and bookings
         </p>
       </div>
 
       {/* Search and Filter */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 mb-6">
+      <div className="bg-white dark:bg-surface-800 rounded-2xl shadow-sm border border-surface-200 dark:border-surface-700 p-4 mb-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-surface-400 w-4 h-4" />
             <input
               type="text"
               placeholder="Search by property name or location..."
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              className="w-full pl-10 pr-4 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <button className="flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+          <button className="flex items-center px-4 py-2 border border-surface-200 dark:border-surface-600 rounded-lg hover:bg-surface-50 dark:hover:bg-surface-700 transition-colors">
             <Filter className="w-4 h-4 mr-2" />
             Filters
           </button>
@@ -199,7 +199,7 @@ const Bookings = () => {
       </div>
 
       {/* Tabs */}
-      <div className="border-b border-gray-200 dark:border-gray-700 mb-6">
+      <div className="border-b border-surface-200 dark:border-surface-700 mb-6">
         <nav className="flex space-x-8">
           {tabs.map((tab) => (
             <button
@@ -208,11 +208,11 @@ const Bookings = () => {
               className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
                 activeTab === tab.id
                   ? 'border-primary-500 text-primary-600 dark:text-primary-400'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
+                  : 'border-transparent text-surface-500 hover:text-surface-700 hover:border-gray-300 dark:text-surface-400 dark:hover:text-surface-300'
               }`}
             >
               {tab.label}
-              <span className="ml-2 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-0.5 rounded-full text-xs">
+              <span className="ml-2 bg-surface-100 dark:bg-surface-700 text-surface-600 dark:text-surface-300 px-2 py-0.5 rounded-full text-xs">
                 {tab.count}
               </span>
             </button>
@@ -224,11 +224,11 @@ const Bookings = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
         {filteredBookings.length === 0 ? (
           <div className="col-span-full text-center py-12">
-            <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+            <Calendar className="w-16 h-16 text-surface-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-surface-900 dark:text-white mb-2">
               No {activeTab} bookings
             </h3>
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="text-surface-500 dark:text-surface-400">
               {activeTab === 'upcoming' && 'You have no upcoming reservations. Book a property to get started!'}
               {activeTab === 'completed' && 'You haven\'t completed any stays yet.'}
               {activeTab === 'cancelled' && 'You have no cancelled bookings.'}
@@ -236,12 +236,12 @@ const Bookings = () => {
           </div>
         ) : (
           filteredBookings.map((booking) => (
-            <div key={booking.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-md transition-shadow">
+            <div key={booking.id} className="bg-white dark:bg-surface-800 rounded-lg shadow-sm border border-surface-200 dark:border-surface-700 overflow-hidden hover:shadow-md transition-shadow">
               {/* Card Header - Always Visible */}
               <div className="p-4">
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-start space-x-3">
-                    <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
+                    <div className="w-12 h-12 bg-surface-200 dark:bg-surface-700 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
                       {booking.property?.image ? (
                         <img
                           src={
@@ -253,14 +253,14 @@ const Bookings = () => {
                           className="object-cover w-full h-full rounded-lg"
                         />
                       ) : (
-                        <MapPin className="w-6 h-6 text-gray-400" />
+                        <MapPin className="w-6 h-6 text-surface-400" />
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-gray-900 dark:text-white text-sm line-clamp-1 mb-1">
+                      <h3 className="font-semibold text-surface-900 dark:text-white text-sm line-clamp-1 mb-1">
                         {booking.property?.title}
                       </h3>
-                      <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
+                      <div className="flex items-center text-xs text-surface-500 dark:text-surface-400">
                         <MapPin className="w-3 h-3 mr-1 flex-shrink-0" />
                         <span className="line-clamp-1">{booking.property?.location}</span>
                       </div>
@@ -280,7 +280,7 @@ const Bookings = () => {
 
                 {/* Quick Info */}
                 <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center text-xs text-gray-600 dark:text-gray-400">
+                  <div className="flex items-center text-xs text-surface-500 dark:text-surface-400">
                     <Calendar className="w-3 h-3 mr-1" />
                     <span>{calculateNights(booking.startDate, booking.endDate)} nights</span>
                   </div>
@@ -292,7 +292,7 @@ const Bookings = () => {
                 {/* Expand/Collapse Button */}
                 <button
                   onClick={() => toggleCardExpansion(booking.id)}
-                  className="flex items-center justify-center w-full py-2 text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors border-t border-gray-100 dark:border-gray-700"
+                  className="flex items-center justify-center w-full py-2 text-xs text-surface-500 dark:text-surface-400 hover:text-surface-700 dark:hover:text-surface-300 transition-colors border-t border-gray-100 dark:border-gray-700"
                 >
                   {expandedCards.has(booking.id) ? (
                     <>
@@ -313,20 +313,20 @@ const Bookings = () => {
                 <div className="px-4 pb-4 border-t border-gray-100 dark:border-gray-700">
                   <div className="pt-3 space-y-3">
                     {/* Dates */}
-                    <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                    <div className="flex items-center text-sm text-surface-500 dark:text-surface-400">
                       <Clock className="w-4 h-4 mr-2 flex-shrink-0" />
                       <div>
-                        <p className="font-medium text-gray-900 dark:text-white">Booking Dates</p>
+                        <p className="font-medium text-surface-900 dark:text-white">Booking Dates</p>
                         <p className="text-xs">{booking.startDate} to {booking.endDate}</p>
                       </div>
                     </div>
 
                     {/* Host Info */}
                     {booking.property?.ownerName && (
-                      <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                      <div className="flex items-center text-sm text-surface-500 dark:text-surface-400">
                         <Users className="w-4 h-4 mr-2 flex-shrink-0" />
                         <div>
-                          <p className="font-medium text-gray-900 dark:text-white">Host</p>
+                          <p className="font-medium text-surface-900 dark:text-white">Host</p>
                           <p className="text-xs">{booking.property.ownerName}</p>
                         </div>
                       </div>
@@ -358,10 +358,11 @@ const Bookings = () => {
                     <div className="flex space-x-2 pt-2">
                       {(booking.status || '').toLowerCase() === 'confirmed' && (
                         <>
-                          <button className="flex-1 px-3 py-2 bg-primary-600 hover:bg-primary-700 text-white text-xs rounded-lg font-medium transition-colors">
-                            View Details
+                          <button className="flex-1 flex justify-center items-center px-2 py-2 bg-primary-600 hover:bg-primary-700 text-white text-xs rounded-lg font-medium transition-colors whitespace-nowrap">
+                            <Eye className="w-3.5 h-3.5 mr-1" />
+                            View
                           </button>
-                          <button className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 text-xs rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                          <button className="flex-1 px-3 py-2 border border-surface-200 dark:border-surface-600 text-surface-700 dark:text-surface-300 text-xs rounded-lg hover:bg-surface-50 dark:hover:bg-surface-700 transition-colors">
                             Contact Host
                           </button>
                         </>
@@ -392,14 +393,14 @@ const Bookings = () => {
 
       {showCancelModal && selectedBookingForCancel && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl dark:bg-gray-800">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Cancel Booking</h3>
-            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl dark:bg-surface-800">
+            <h3 className="text-lg font-semibold text-surface-900 dark:text-white">Cancel Booking</h3>
+            <p className="mt-2 text-sm text-surface-500 dark:text-surface-400">
               Are you sure you want to cancel booking #{selectedBookingForCancel.id}? You can add a reason below.
             </p>
 
             <div className="mt-4">
-              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label className="mb-2 block text-sm font-medium text-surface-700 dark:text-surface-300">
                 Cancellation Reason (optional)
               </label>
               <textarea
@@ -407,7 +408,7 @@ const Bookings = () => {
                 onChange={(e) => setCancelReasonInput(e.target.value)}
                 rows={4}
                 placeholder="Tell us why you are cancelling..."
-                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-primary-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-primary-500 focus:outline-none dark:border-surface-600 dark:bg-surface-700 dark:text-white"
               />
             </div>
 
@@ -415,7 +416,7 @@ const Bookings = () => {
               <button
                 onClick={closeCancelModal}
                 disabled={cancellingBookingId === selectedBookingForCancel.id}
-                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-surface-700 hover:bg-surface-50 disabled:opacity-50 dark:border-surface-600 dark:text-surface-300 dark:hover:bg-surface-700"
               >
                 Keep Booking
               </button>
@@ -435,3 +436,5 @@ const Bookings = () => {
 }
 
 export default Bookings
+
+

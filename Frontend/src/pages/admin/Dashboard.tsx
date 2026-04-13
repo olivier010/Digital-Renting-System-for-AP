@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react'
 import { apiFetch } from '../../utils/api'
 import { Link } from 'react-router-dom'
 import { Users, Home, TrendingUp, DollarSign, AlertCircle, CheckCircle, FileText, BarChart, Settings } from 'lucide-react'
+import StatCard from '../../components/ui/StatCard'
+import PageHeader from '../../components/ui/PageHeader'
 
 const Dashboard = () => {
   // Dashboard state
@@ -38,27 +40,19 @@ const Dashboard = () => {
   const [recentUsers, setRecentUsers] = useState<any[]>([])
   const [systemLogs, setSystemLogs] = useState<any[]>([])
 
-
-
-
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
-        // Fetch stats
         const statsRes = await apiFetch('/admin/dashboard')
         setStats(statsRes.data || {})
-        // Fetch system status
         const statusRes = await apiFetch('/admin/system-status')
         setSystemStatus(statusRes.data || {})
-        // Fetch recent users
         const usersRes = await apiFetch('/users?page=0&size=5')
         setRecentUsers(Array.isArray(usersRes.data?.content) ? usersRes.data.content : [])
-        // Fetch system logs
         const logsRes = await apiFetch('/admin/logs?page=0&size=5')
         setSystemLogs(Array.isArray(logsRes.data) ? logsRes.data : [])
-        // await fetchNotifications()
       } catch (err: any) {
-        // Optionally handle error here if you want to show a message
+        // Optionally handle error
       }
     }
     fetchDashboard()
@@ -70,283 +64,197 @@ const Dashboard = () => {
     return ((current - last) / last) * 100;
   };
 
+  const statusItems = [
+    { label: 'Health', value: `${typeof systemStatus.systemHealth === 'number' ? systemStatus.systemHealth : 0}%`, color: systemStatus.systemHealth >= 90 ? 'text-green-600 dark:text-green-400' : systemStatus.systemHealth >= 70 ? 'text-amber-600 dark:text-amber-400' : 'text-red-600 dark:text-red-400', dot: systemStatus.systemHealth >= 90 ? 'bg-green-500' : systemStatus.systemHealth >= 70 ? 'bg-amber-500' : 'bg-red-500' },
+    { label: 'Database', value: systemStatus.database, color: systemStatus.database === 'UP' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400', dot: systemStatus.database === 'UP' ? 'bg-green-500' : 'bg-red-500' },
+    { label: 'File Storage', value: systemStatus.fileStorage, color: systemStatus.fileStorage === 'UP' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400', dot: systemStatus.fileStorage === 'UP' ? 'bg-green-500' : 'bg-red-500' },
+    { label: 'Message Queue', value: systemStatus.messageQueue, color: systemStatus.messageQueue === 'UP' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400', dot: systemStatus.messageQueue === 'UP' ? 'bg-green-500' : 'bg-red-500' },
+    { label: 'Cache', value: systemStatus.cache, color: systemStatus.cache === 'UP' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400', dot: systemStatus.cache === 'UP' ? 'bg-green-500' : 'bg-red-500' },
+    { label: 'Uptime', value: systemStatus.uptime || '-', color: 'text-blue-600 dark:text-blue-400', dot: 'bg-blue-500' },
+    { label: 'Pending', value: `${typeof systemStatus.pendingApprovals === 'number' ? systemStatus.pendingApprovals : 0}`, color: 'text-amber-600 dark:text-amber-400', dot: 'bg-amber-500' },
+    { label: 'Errors', value: `${typeof systemStatus.errorCount === 'number' ? systemStatus.errorCount : 0}`, color: 'text-red-600 dark:text-red-400', dot: 'bg-red-500' },
+  ]
+
   return (
-    <div className="p-6">
-      {/* Page Title */}
-      <div className="mb-8">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Admin Dashboard
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Manage your rental platform
-          </p>
-        </div>
-      </div>
+    <div className="p-4 sm:p-6 lg:p-8">
+      <PageHeader
+        title="Admin Dashboard"
+        subtitle="Manage your rental platform"
+      />
 
       {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Users</p>
-              <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{typeof stats.totalUsers === 'number' ? stats.totalUsers.toLocaleString() : '0'}</p>
-              <p className={`text-sm mt-2 ${percentChange(stats.totalUsers, stats.totalUsersLastMonth) >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                {percentChange(stats.totalUsers, stats.totalUsersLastMonth) >= 0 ? '+' : ''}
-                {percentChange(stats.totalUsers, stats.totalUsersLastMonth).toFixed(1)}% from last month
-              </p>
-            </div>
-            <div className="p-3 bg-blue-100 dark:bg-blue-900 rounded-lg">
-              <Users className="w-6 h-6 text-blue-600 dark:text-blue-300" />
-            </div>
-          </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
+        <div className="animate-fade-in-up stagger-1">
+          <StatCard
+            label="Total Users"
+            value={typeof stats.totalUsers === 'number' ? stats.totalUsers.toLocaleString() : '0'}
+            icon={<Users className="w-6 h-6" />}
+            trend={percentChange(stats.totalUsers, stats.totalUsersLastMonth)}
+            iconBg="bg-blue-100 dark:bg-blue-900/30"
+            iconColor="text-blue-600 dark:text-blue-400"
+          />
         </div>
-
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Properties</p>
-              <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{typeof stats.totalProperties === 'number' ? stats.totalProperties.toLocaleString() : '0'}</p>
-              <p className={`text-sm mt-2 ${percentChange(stats.totalProperties, stats.totalPropertiesLastMonth) >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                {percentChange(stats.totalProperties, stats.totalPropertiesLastMonth) >= 0 ? '+' : ''}
-                {percentChange(stats.totalProperties, stats.totalPropertiesLastMonth).toFixed(1)}% from last month
-              </p>
-            </div>
-            <div className="p-3 bg-green-100 dark:bg-green-900 rounded-lg">
-              <Home className="w-6 h-6 text-green-600 dark:text-green-300" />
-            </div>
-          </div>
+        <div className="animate-fade-in-up stagger-2">
+          <StatCard
+            label="Total Properties"
+            value={typeof stats.totalProperties === 'number' ? stats.totalProperties.toLocaleString() : '0'}
+            icon={<Home className="w-6 h-6" />}
+            trend={percentChange(stats.totalProperties, stats.totalPropertiesLastMonth)}
+            iconBg="bg-green-100 dark:bg-green-900/30"
+            iconColor="text-green-600 dark:text-green-400"
+          />
         </div>
-
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Revenue</p>
-              <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">${typeof stats.totalRevenue === 'number' ? (stats.totalRevenue / 1000000).toFixed(1) : '0.0'}M</p>
-              <p className={`text-sm mt-2 ${percentChange(stats.totalRevenue, stats.totalRevenueLastMonth) >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                {percentChange(stats.totalRevenue, stats.totalRevenueLastMonth) >= 0 ? '+' : ''}
-                {percentChange(stats.totalRevenue, stats.totalRevenueLastMonth).toFixed(1)}% from last month
-              </p>
-            </div>
-            <div className="p-3 bg-purple-100 dark:bg-purple-900 rounded-lg">
-              <DollarSign className="w-6 h-6 text-purple-600 dark:text-purple-300" />
-            </div>
-          </div>
+        <div className="animate-fade-in-up stagger-3">
+          <StatCard
+            label="Total Revenue"
+            value={`$${typeof stats.totalRevenue === 'number' ? (stats.totalRevenue / 1000000).toFixed(1) : '0.0'}M`}
+            icon={<DollarSign className="w-6 h-6" />}
+            trend={percentChange(stats.totalRevenue, stats.totalRevenueLastMonth)}
+            iconBg="bg-purple-100 dark:bg-purple-900/30"
+            iconColor="text-purple-600 dark:text-purple-400"
+          />
         </div>
-
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Active Users</p>
-              <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{typeof stats.activeUsers === 'number' ? stats.activeUsers.toLocaleString() : '0'}</p>
-              <p className={`text-sm mt-2 ${percentChange(stats.activeUsers, stats.activeUsersLastMonth) >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                {percentChange(stats.activeUsers, stats.activeUsersLastMonth) >= 0 ? '+' : ''}
-                {percentChange(stats.activeUsers, stats.activeUsersLastMonth).toFixed(1)}% from last month
-              </p>
-            </div>
-            <div className="p-3 bg-orange-100 dark:bg-orange-900 rounded-lg">
-              <TrendingUp className="w-6 h-6 text-orange-600 dark:text-orange-300" />
-            </div>
-          </div>
+        <div className="animate-fade-in-up stagger-4">
+          <StatCard
+            label="Active Users"
+            value={typeof stats.activeUsers === 'number' ? stats.activeUsers.toLocaleString() : '0'}
+            icon={<TrendingUp className="w-6 h-6" />}
+            trend={percentChange(stats.activeUsers, stats.activeUsersLastMonth)}
+            iconBg="bg-amber-100 dark:bg-amber-900/30"
+            iconColor="text-amber-600 dark:text-amber-400"
+          />
         </div>
       </div>
 
-      {/* Quick Actions & Alerts */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* Quick Actions & System Status */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Quick Actions */}
-        <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Quick Actions</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Link to="/admin/users" className="flex flex-col items-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors group">
-              <Users className="w-6 h-6 text-blue-600 dark:text-blue-400 mb-2 group-hover:scale-110 transition-transform" />
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Manage Users</span>
-            </Link>
-            <Link to="/admin/properties" className="flex flex-col items-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors group">
-              <Home className="w-6 h-6 text-green-600 dark:text-green-400 mb-2 group-hover:scale-110 transition-transform" />
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Properties</span>
-            </Link>
-            <Link to="/admin/reports" className="flex flex-col items-center p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-colors group">
-              <BarChart className="w-6 h-6 text-purple-600 dark:text-purple-400 mb-2 group-hover:scale-110 transition-transform" />
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Reports</span>
-            </Link>
-            <Link to="/admin/settings" className="flex flex-col items-center p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg hover:bg-orange-100 dark:hover:bg-orange-900/30 transition-colors group">
-              <Settings className="w-6 h-6 text-orange-600 dark:text-orange-400 mb-2 group-hover:scale-110 transition-transform" />
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Settings</span>
-            </Link>
+        <div className="lg:col-span-2 card-elevated p-6 animate-fade-in-up stagger-5">
+          <h3 className="text-lg font-semibold text-surface-900 dark:text-white mb-6">Quick Actions</h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {[
+              { name: 'Manage Users', href: '/admin/users', icon: Users, color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30' },
+              { name: 'Properties', href: '/admin/properties', icon: Home, color: 'text-green-600 dark:text-green-400', bg: 'bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/30' },
+              { name: 'Reports', href: '/admin/reports', icon: BarChart, color: 'text-purple-600 dark:text-purple-400', bg: 'bg-purple-50 dark:bg-purple-900/20 hover:bg-purple-100 dark:hover:bg-purple-900/30' },
+              { name: 'Settings', href: '/admin/settings', icon: Settings, color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-50 dark:bg-amber-900/20 hover:bg-amber-100 dark:hover:bg-amber-900/30' },
+            ].map((action) => {
+              const Icon = action.icon
+              return (
+                <Link key={action.name} to={action.href} className={`flex flex-col items-center p-4 rounded-2xl ${action.bg} transition-all duration-200 group`}>
+                  <Icon className={`w-6 h-6 ${action.color} mb-2 group-hover:scale-110 transition-transform duration-200`} />
+                  <span className="text-sm font-medium text-surface-700 dark:text-surface-300">{action.name}</span>
+                </Link>
+              )
+            })}
           </div>
         </div>
 
-            {/* System Status */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        {/* System Status */}
+        <div className="card-elevated p-6 animate-fade-in-up stagger-6">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">System Status</h3>
+            <h3 className="text-lg font-semibold text-surface-900 dark:text-white">System Status</h3>
             <button
-              className="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 focus:outline-none"
+              className="text-sm font-medium text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 px-2 py-1 rounded-lg hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors"
               onClick={() => setShowAllStatus(true)}
             >
               View all
             </button>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600 dark:text-gray-400">Health</span>
-              <div className="flex items-center">
-                <div className={`w-2 h-2 rounded-full mr-2 ${systemStatus.systemHealth >= 90 ? 'bg-green-500' : systemStatus.systemHealth >= 70 ? 'bg-yellow-500' : 'bg-red-500'}`}></div>
-                <span className="text-sm font-medium" style={{ color: systemStatus.systemHealth >= 90 ? '#16a34a' : systemStatus.systemHealth >= 70 ? '#eab308' : '#dc2626' }}>{typeof systemStatus.systemHealth === 'number' ? systemStatus.systemHealth : '0'}%</span>
+          <div className="space-y-3">
+            {statusItems.slice(0, 5).map((item) => (
+              <div key={item.label} className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className={`w-2 h-2 rounded-full ${item.dot}`}></div>
+                  <span className="text-sm text-surface-600 dark:text-surface-400">{item.label}</span>
+                </div>
+                <span className={`text-sm font-semibold ${item.color}`}>{item.value}</span>
               </div>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600 dark:text-gray-400">Pending</span>
-              <span className="text-sm font-medium text-yellow-600 dark:text-yellow-400">{typeof systemStatus.pendingApprovals === 'number' ? systemStatus.pendingApprovals : '0'}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600 dark:text-gray-400">Issues</span>
-              <span className="text-sm font-medium text-red-600 dark:text-red-400">{typeof systemStatus.reportedIssues === 'number' ? systemStatus.reportedIssues : '0'}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600 dark:text-gray-400">Database</span>
-              <span className={`text-sm font-medium ${systemStatus.database === 'UP' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>{systemStatus.database}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600 dark:text-gray-400">File Storage</span>
-              <span className={`text-sm font-medium ${systemStatus.fileStorage === 'UP' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>{systemStatus.fileStorage}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600 dark:text-gray-400">Message Queue</span>
-              <span className={`text-sm font-medium ${systemStatus.messageQueue === 'UP' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>{systemStatus.messageQueue}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600 dark:text-gray-400">Cache</span>
-              <span className={`text-sm font-medium ${systemStatus.cache === 'UP' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>{systemStatus.cache}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600 dark:text-gray-400">Uptime</span>
-              <span className="text-sm font-medium text-blue-600 dark:text-blue-400">{systemStatus.uptime || '-'}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600 dark:text-gray-400">Error Count</span>
-              <span className="text-sm font-medium text-red-600 dark:text-red-400">{typeof systemStatus.errorCount === 'number' ? systemStatus.errorCount : '0'}</span>
-            </div>
+            ))}
           </div>
         </div>
 
-        {/* Modal for full metric card */}
+        {/* Modal for full system status */}
         {showAllStatus && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 w-full max-w-lg relative">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-surface-900/50 dark:bg-black/60 backdrop-blur-sm" onClick={() => setShowAllStatus(false)} />
+            <div className="relative bg-white dark:bg-surface-800 rounded-2xl shadow-soft-xl dark:shadow-dark-xl p-6 sm:p-8 w-full max-w-lg animate-scale-in border border-surface-200 dark:border-surface-700">
               <button
-                className="absolute top-2 right-2 text-gray-500 hover:text-gray-900 dark:hover:text-white"
+                className="absolute top-4 right-4 p-1.5 rounded-lg text-surface-400 hover:text-surface-600 hover:bg-surface-100 dark:hover:bg-surface-700 transition-colors"
                 onClick={() => setShowAllStatus(false)}
               >
-                &times;
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">System Status - Full Details</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
-                {/* Repeat all metrics here for full view */}
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Health</span>
-                  <div className="flex items-center">
-                    <div className={`w-2 h-2 rounded-full mr-2 ${systemStatus.systemHealth >= 90 ? 'bg-green-500' : systemStatus.systemHealth >= 70 ? 'bg-yellow-500' : 'bg-red-500'}`}></div>
-                    <span className="text-sm font-medium" style={{ color: systemStatus.systemHealth >= 90 ? '#16a34a' : systemStatus.systemHealth >= 70 ? '#eab308' : '#dc2626' }}>{typeof systemStatus.systemHealth === 'number' ? systemStatus.systemHealth : '0'}%</span>
+              <h3 className="text-xl font-bold text-surface-900 dark:text-white mb-6">System Status — Full Details</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {statusItems.map((item) => (
+                  <div key={item.label} className="flex items-center justify-between py-2 px-3 rounded-2xl bg-surface-50 dark:bg-surface-700/50">
+                    <div className="flex items-center gap-2">
+                      <div className={`w-2 h-2 rounded-full ${item.dot}`}></div>
+                      <span className="text-sm text-surface-600 dark:text-surface-400">{item.label}</span>
+                    </div>
+                    <span className={`text-sm font-semibold ${item.color}`}>{item.value}</span>
                   </div>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Pending</span>
-                  <span className="text-sm font-medium text-yellow-600 dark:text-yellow-400">{typeof systemStatus.pendingApprovals === 'number' ? systemStatus.pendingApprovals : '0'}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Issues</span>
-                  <span className="text-sm font-medium text-red-600 dark:text-red-400">{typeof systemStatus.reportedIssues === 'number' ? systemStatus.reportedIssues : '0'}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Database</span>
-                  <span className={`text-sm font-medium ${systemStatus.database === 'UP' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>{systemStatus.database}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">File Storage</span>
-                  <span className={`text-sm font-medium ${systemStatus.fileStorage === 'UP' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>{systemStatus.fileStorage}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Message Queue</span>
-                  <span className={`text-sm font-medium ${systemStatus.messageQueue === 'UP' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>{systemStatus.messageQueue}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Cache</span>
-                  <span className={`text-sm font-medium ${systemStatus.cache === 'UP' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>{systemStatus.cache}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Uptime</span>
-                  <span className="text-sm font-medium text-blue-600 dark:text-blue-400">{systemStatus.uptime || '-'}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Error Count</span>
-                  <span className="text-sm font-medium text-red-600 dark:text-red-400">{typeof systemStatus.errorCount === 'number' ? systemStatus.errorCount : '0'}</span>
-                </div>
+                ))}
               </div>
             </div>
           </div>
         )}
       </div>
 
-
-
-          {/* Recent Activity & System Logs */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-10">
+      {/* Recent Activity & System Logs */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mt-8">
         {/* Recent Users */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 mb-8 lg:mb-0">
-          <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Recent Users</h3>
-              <Link to="/admin/users" className="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300">
-                View all
-              </Link>
-            </div>
+        <div className="card-elevated overflow-hidden">
+          <div className="px-6 py-4 border-b border-surface-200 dark:border-surface-700 flex items-center justify-between">
+            <h3 className="text-lg font-semibold text-surface-900 dark:text-white">Recent Users</h3>
+            <Link to="/admin/users" className="text-sm font-medium text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 px-2 py-1 rounded-lg hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors">
+              View all
+            </Link>
           </div>
-          <div className="p-6">
-            <div className="space-y-4">
-              {recentUsers.slice(0, 4).map((user) => {
-                const status = user.isActive ? 'Active' : 'Pending';
-                return (
-                  <div key={user.id} className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900 rounded-full flex items-center justify-center">
-                        <span className="text-sm font-medium text-primary-600 dark:text-primary-400">
-                          {user.firstName?.charAt(0)}{user.lastName?.charAt(0)}
-                        </span>
-                      </div>
-                      <div className="ml-3">
-                        <p className="text-sm font-medium text-gray-900 dark:text-white">
-                          {user.firstName} {user.lastName}
-                        </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">{user.email}</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
-                        status === 'Active' 
-                          ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                          : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-                      }`}>
-                        {status}
+          <div className="p-6 space-y-4">
+            {recentUsers.slice(0, 4).map((user) => {
+              const status = user.isActive ? 'Active' : 'Pending';
+              return (
+                <div key={user.id} className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-gradient-to-br from-primary-400 to-primary-600 rounded-2xl flex items-center justify-center shadow-sm">
+                      <span className="text-xs font-bold text-white">
+                        {user.firstName?.charAt(0)}{user.lastName?.charAt(0)}
                       </span>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{user.joinedAt ? (typeof user.joinedAt === 'string' ? user.joinedAt : new Date(user.joinedAt).toLocaleDateString()) : ''}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-surface-900 dark:text-white">
+                        {user.firstName} {user.lastName}
+                      </p>
+                      <p className="text-xs text-surface-400 dark:text-surface-500">{user.email}</p>
                     </div>
                   </div>
-                );
-              })}
-            </div>
+                  <div className="text-right">
+                    <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-semibold rounded-full ${
+                      status === 'Active' 
+                        ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                        : 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300'
+                    }`}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${status === 'Active' ? 'bg-green-500' : 'bg-amber-500'}`}></span>
+                      {status}
+                    </span>
+                    <p className="text-[11px] text-surface-400 dark:text-surface-500 mt-1">
+                      {user.joinedAt ? (typeof user.joinedAt === 'string' ? user.joinedAt : new Date(user.joinedAt).toLocaleDateString()) : ''}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
 
         {/* System Logs */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 mb-8 lg:mb-0">
-          <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">System Logs</h3>
-              <Link to="/admin/reports" className="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300">
-                View all
-              </Link>
-            </div>
+        <div className="card-elevated overflow-hidden">
+          <div className="px-6 py-4 border-b border-surface-200 dark:border-surface-700 flex items-center justify-between">
+            <h3 className="text-lg font-semibold text-surface-900 dark:text-white">System Logs</h3>
+            <Link to="/admin/reports" className="text-sm font-medium text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 px-2 py-1 rounded-lg hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors">
+              View all
+            </Link>
           </div>
           <div className="p-6">
             <div className="notification-marquee-viewport">
@@ -355,30 +263,27 @@ const Dashboard = () => {
                   const logs = [...systemLogs]
                     .filter(log => log.level !== 'WARN' && log.level !== 'WARNING')
                     .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-                  // Duplicate logs for seamless looping
                   return [...logs, ...logs].map((log, idx) => (
-                    <div key={log.id + '-' + idx} className="flex items-start space-x-3">
+                    <div key={log.id + '-' + idx} className="flex items-start gap-3 p-2.5 rounded-2xl hover:bg-surface-50 dark:hover:bg-surface-800 transition-colors">
                       <div className="mt-0.5">
-                        {log.level === 'ERROR' && <AlertCircle className="w-4 h-4 text-red-500 inline-block" />}
-                        {log.level === 'INFO' && <FileText className="w-4 h-4 text-blue-500 inline-block" />}
-                        {log.level === 'DEBUG' && <CheckCircle className="w-4 h-4 text-green-500 inline-block" />}
+                        {log.level === 'ERROR' && <AlertCircle className="w-4 h-4 text-red-500" />}
+                        {log.level === 'INFO' && <FileText className="w-4 h-4 text-blue-500" />}
+                        {log.level === 'DEBUG' && <CheckCircle className="w-4 h-4 text-green-500" />}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between">
-                          <p className="text-sm text-gray-900 dark:text-white truncate">{log.message}</p>
-                          <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ml-2 ${
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="text-sm text-surface-800 dark:text-surface-200 truncate">{log.message}</p>
+                          <span className={`flex-shrink-0 inline-flex px-2 py-0.5 text-[10px] font-semibold rounded-full ${
                             log.level === 'ERROR'
-                              ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                              ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300'
                               : log.level === 'INFO'
-                              ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-                              : log.level === 'DEBUG'
-                              ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                              : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
+                              ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
+                              : 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
                           }`}>
                             {log.level}
                           </span>
                         </div>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">{log.timestamp}</p>
+                        <p className="text-[11px] text-surface-400 dark:text-surface-500 mt-0.5">{log.timestamp}</p>
                       </div>
                     </div>
                   ));
@@ -388,9 +293,10 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
-
     </div>
   )
 }
 
 export default Dashboard
+
+

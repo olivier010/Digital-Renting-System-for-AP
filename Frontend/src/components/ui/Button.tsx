@@ -2,30 +2,34 @@ import type { ButtonHTMLAttributes } from 'react'
 import { forwardRef } from 'react'
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger'
-  size?: 'sm' | 'md' | 'lg'
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger' | 'gradient' | 'accent'
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'icon'
   loading?: boolean
 }
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className = '', variant = 'primary', size = 'md', loading = false, children, disabled, ...props }, ref) => {
-    const baseClasses = 'inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2'
+    const baseClasses = 'inline-flex items-center justify-center font-semibold rounded-2xl transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 active:scale-[0.98]'
     
-    const variants = {
-      primary: 'bg-primary-600 hover:bg-primary-700 text-white focus:ring-primary-500 dark:bg-primary-500 dark:hover:bg-primary-600',
-      secondary: 'bg-gray-600 hover:bg-gray-700 text-white focus:ring-gray-500 dark:bg-gray-700 dark:hover:bg-gray-600',
-      outline: 'border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 focus:ring-primary-500 dark:border-gray-600 dark:text-gray-300 dark:bg-gray-800 dark:hover:bg-gray-700',
-      ghost: 'text-gray-700 hover:bg-gray-100 focus:ring-primary-500 dark:text-gray-300 dark:hover:bg-gray-800',
-      danger: 'bg-red-600 hover:bg-red-700 text-white focus:ring-red-500 dark:bg-red-700 dark:hover:bg-red-600'
+    const variants: Record<string, string> = {
+      primary: 'bg-primary-600 hover:bg-primary-700 text-white focus-visible:ring-primary-500 shadow-sm hover:shadow-md dark:bg-primary-500 dark:hover:bg-primary-600',
+      secondary: 'bg-surface-600 hover:bg-surface-700 text-white focus-visible:ring-surface-500 shadow-sm hover:shadow-md dark:bg-surface-600 dark:hover:bg-surface-500',
+      outline: 'border-2 border-surface-300 text-surface-700 bg-white hover:bg-surface-50 focus-visible:ring-primary-500 dark:border-surface-600 dark:text-surface-200 dark:bg-surface-800 dark:hover:bg-surface-700',
+      ghost: 'text-surface-600 hover:bg-surface-100 focus-visible:ring-primary-500 dark:text-surface-300 dark:hover:bg-surface-800',
+      danger: 'bg-red-600 hover:bg-red-700 text-white focus-visible:ring-red-500 shadow-sm hover:shadow-md dark:bg-red-600 dark:hover:bg-red-500',
+      gradient: 'bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-700 hover:to-primary-600 text-white focus-visible:ring-primary-500 shadow-md hover:shadow-soft dark:shadow-dark-soft hover:scale-[1.02]',
+      accent: 'bg-gradient-to-r from-accent-500 to-accent-400 hover:from-accent-600 hover:to-accent-500 text-white focus-visible:ring-accent-500 shadow-md hover:shadow-soft dark:shadow-dark-soft hover:scale-[1.02]',
     }
     
-    const sizes = {
-      sm: 'px-3 py-1.5 text-sm',
-      md: 'px-4 py-2 text-base',
-      lg: 'px-6 py-3 text-lg'
+    const sizes: Record<string, string> = {
+      xs: 'px-2.5 py-1 text-xs gap-1',
+      sm: 'px-3.5 py-1.5 text-sm gap-1.5',
+      md: 'px-5 py-2.5 text-sm gap-2',
+      lg: 'px-7 py-3.5 text-base gap-2',
+      icon: 'p-2.5',
     }
 
-    const classes = `${baseClasses} ${variants[variant]} ${sizes[size]} ${disabled ? 'opacity-50 cursor-not-allowed' : ''} ${className}`
+    const classes = `${baseClasses} ${variants[variant] || variants.primary} ${sizes[size]} ${disabled || loading ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''} ${className}`
 
     return (
       <button
@@ -49,3 +53,5 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 Button.displayName = 'Button'
 
 export default Button
+
+

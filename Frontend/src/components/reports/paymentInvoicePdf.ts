@@ -107,3 +107,5 @@ export const downloadPaymentInvoicePdf = (payment: PaymentInvoiceData) => {
 
   doc.save(`rentwise-invoice-${invoiceId}.pdf`)
 }
+
+
