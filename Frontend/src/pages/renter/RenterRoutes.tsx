@@ -23,3 +23,5 @@ const RenterRoutes = () => {
 }
 
 export default RenterRoutes
+
+

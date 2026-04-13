@@ -21,7 +21,7 @@ function App() {
     <AuthProvider>
       <ThemeProvider>
         <Router>
-          <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
+          <div className="min-h-screen bg-surface-50 dark:bg-surface-900 transition-colors duration-300">
             <Routes>
               {/* Admin Routes - No Navbar */}
               <Route path="/admin/*" element={<AdminRoute />} />
@@ -60,3 +60,5 @@ function App() {
 }
 
 export default App
+
+

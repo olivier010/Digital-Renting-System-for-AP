@@ -167,3 +167,5 @@ export const downloadUserDataPdfReport = (payload: UserDataExportPayload) => {
   const filenameDate = new Date().toISOString().slice(0, 10)
   doc.save(`rentwise-user-data-report-${filenameDate}.pdf`)
 }
+
+

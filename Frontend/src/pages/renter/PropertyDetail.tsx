@@ -78,7 +78,7 @@ const PropertyDetail = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <span className="text-lg text-gray-600 dark:text-gray-300">Loading property details...</span>
+        <span className="text-lg text-surface-600 dark:text-surface-300">Loading property details...</span>
       </div>
     )
   }
@@ -91,24 +91,24 @@ const PropertyDetail = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-surface-50 dark:bg-surface-900">
       {/* Header */}
-      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+      <div className="bg-white dark:bg-surface-800 border-b border-surface-200 dark:border-surface-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
-            <Link to="/properties" className="flex items-center text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+            <Link to="/properties" className="flex items-center text-surface-600 dark:text-surface-300 hover:text-gray-900 dark:hover:text-white">
               <ChevronLeft className="w-5 h-5 mr-1" />
               Back to Properties
             </Link>
             <div className="flex items-center space-x-4">
-              <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
-                <Share2 className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+              <button className="p-2 rounded-full hover:bg-surface-100 dark:hover:bg-surface-700">
+                <Share2 className="w-5 h-5 text-surface-600 dark:text-surface-300" />
               </button>
               <button 
                 onClick={toggleSave}
-                className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
+                className="p-2 rounded-full hover:bg-surface-100 dark:hover:bg-surface-700"
               >
-                <Heart className={`w-5 h-5 ${saved ? 'fill-red-500 text-red-500' : 'text-gray-600 dark:text-gray-300'}`} />
+                <Heart className={`w-5 h-5 ${saved ? 'fill-red-500 text-red-500' : 'text-surface-600 dark:text-surface-300'}`} />
               </button>
             </div>
           </div>
@@ -121,7 +121,7 @@ const PropertyDetail = () => {
           <div className="lg:col-span-2 space-y-8">
             {/* Image Gallery */}
             <div className="relative">
-              <div className="aspect-w-16 aspect-h-9 bg-gray-200 dark:bg-gray-700 rounded-xl overflow-hidden">
+              <div className="aspect-w-16 aspect-h-9 bg-surface-200 dark:bg-surface-700 rounded-2xl overflow-hidden">
                 {property.images.length > 0 ? (
                   <img 
                     src={property.images[currentImage]} 
@@ -136,13 +136,13 @@ const PropertyDetail = () => {
               {property.images.length > 1 && <>
                 <button 
                   onClick={prevImage}
-                  className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow-lg"
+                  className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow-soft dark:shadow-dark-soft"
                 >
                   <ChevronLeft className="w-5 h-5" />
                 </button>
                 <button 
                   onClick={nextImage}
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow-lg"
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow-soft dark:shadow-dark-soft"
                 >
                   <ChevronRight className="w-5 h-5" />
                 </button>
@@ -166,13 +166,13 @@ const PropertyDetail = () => {
             </div>
 
             {/* Property Info */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
+            <div className="bg-white dark:bg-surface-800 rounded-2xl p-6 shadow-sm">
               <div className="flex items-start justify-between mb-4">
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                  <h1 className="text-2xl font-bold text-surface-900 dark:text-white mb-2">
                     {property.title}
                   </h1>
-                  <div className="flex items-center text-gray-600 dark:text-gray-300">
+                  <div className="flex items-center text-surface-600 dark:text-surface-300">
                     <MapPin className="w-4 h-4 mr-1" />
                     <span>{property.location}</span>
                   </div>
@@ -181,17 +181,17 @@ const PropertyDetail = () => {
                   <p className="text-2xl font-bold text-primary-600 dark:text-primary-400">
                     ${property.price}
                   </p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">per month</p>
+                  <p className="text-sm text-surface-500 dark:text-surface-400">per month</p>
                 </div>
               </div>
 
               <div className="flex items-center space-x-6 mb-6">
                 <div className="flex items-center">
                   <Star className="w-5 h-5 text-yellow-500 mr-1" />
-                  <span className="font-medium text-gray-900 dark:text-white">
+                  <span className="font-medium text-surface-900 dark:text-white">
                     {property.rating}
                   </span>
-                  <span className="text-gray-500 dark:text-gray-400 ml-1">
+                  <span className="text-surface-500 dark:text-surface-400 ml-1">
                     ({property.reviews} reviews)
                   </span>
                 </div>
@@ -199,26 +199,26 @@ const PropertyDetail = () => {
                   <CategoryIcon className="w-4 h-4 mr-1" />
                   {property.category}
                 </span>
-                <span className="text-sm text-gray-600 dark:text-gray-400">
+                <span className="text-sm text-surface-500 dark:text-surface-400">
                   {property.bookings} bookings
                 </span>
               </div>
 
-              <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">About this property</h3>
-                <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+              <div className="border-t border-surface-200 dark:border-surface-700 pt-6">
+                <h3 className="text-lg font-semibold text-surface-900 dark:text-white mb-3">About this property</h3>
+                <p className="text-surface-600 dark:text-surface-300 leading-relaxed">
                   {property.description}
                 </p>
               </div>
 
               {/* Contact Info */}
-              <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Contact</h3>
-                <div className="flex items-center text-gray-600 dark:text-gray-300 mb-2">
+              <div className="border-t border-surface-200 dark:border-surface-700 pt-6 mt-6">
+                <h3 className="text-lg font-semibold text-surface-900 dark:text-white mb-3">Contact</h3>
+                <div className="flex items-center text-surface-600 dark:text-surface-300 mb-2">
                   <Phone className="w-4 h-4 mr-2" />
                   <span>{property.owner.phone}</span>
                 </div>
-                <div className="flex items-center text-gray-600 dark:text-gray-300">
+                <div className="flex items-center text-surface-600 dark:text-surface-300">
                   <span className="font-medium">Email:</span>
                   <span className="ml-2">{property.owner.email}</span>
                 </div>
@@ -227,11 +227,11 @@ const PropertyDetail = () => {
 
             {/* House Rules (only if present) */}
             {Array.isArray((property as any).rules) && (property as any).rules.length > 0 && (
-              <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">House Rules</h3>
+              <div className="bg-white dark:bg-surface-800 rounded-2xl p-6 shadow-sm">
+                <h3 className="text-lg font-semibold text-surface-900 dark:text-white mb-4">House Rules</h3>
                 <ul className="space-y-2">
                   {(property as any).rules.map((rule: string, index: number) => (
-                    <li key={index} className="flex items-center text-sm text-gray-600 dark:text-gray-300">
+                    <li key={index} className="flex items-center text-sm text-surface-600 dark:text-surface-300">
                       <X className="w-4 h-4 mr-2 text-red-500" />
                       {rule}
                     </li>
@@ -243,13 +243,13 @@ const PropertyDetail = () => {
 
           {/* Booking Sidebar */}
           <div className="lg:col-span-1">
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm sticky top-4">
+            <div className="bg-white dark:bg-surface-800 rounded-2xl p-6 shadow-sm sticky top-4">
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                  <p className="text-2xl font-bold text-surface-900 dark:text-white">
                     ${property.price}
                   </p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">per month</p>
+                  <p className="text-sm text-surface-500 dark:text-surface-400">per month</p>
                 </div>
                 <div className="flex items-center">
                   <Star className="w-5 h-5 text-yellow-500 mr-1" />
@@ -287,36 +287,36 @@ const PropertyDetail = () => {
                 }}
               >
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
                     Start Date
                   </label>
                   <input
                     type="date"
                     value={checkIn}
                     onChange={(e) => setCheckIn(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    className="w-full px-3 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
                     End Date
                   </label>
                   <input
                     type="date"
                     value={checkOut}
                     onChange={(e) => setCheckOut(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    className="w-full px-3 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
                     Special Request (optional)
                   </label>
                   <textarea
                     rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white resize-none"
+                    className="w-full px-3 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white resize-none"
                     placeholder="Add any special request for the owner..."
                     value={specialRequest}
                     onChange={e => setSpecialRequest(e.target.value)}
@@ -338,30 +338,30 @@ const PropertyDetail = () => {
               </form>
 
               {/* Price Breakdown */}
-              <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mb-6">
+              <div className="border-t border-surface-200 dark:border-surface-700 pt-4 mb-6">
                 <div className="flex justify-between text-sm mb-2">
-                  <span className="text-gray-600 dark:text-gray-300">
+                  <span className="text-surface-600 dark:text-surface-300">
                     ${property.price} x {checkIn && checkOut ? Math.ceil((new Date(checkOut).getTime() - new Date(checkIn).getTime()) / (1000 * 60 * 60 * 24 * 30)) : 0} months
                   </span>
-                  <span className="text-gray-900 dark:text-white">
+                  <span className="text-surface-900 dark:text-white">
                     ${calculateTotal()}
                   </span>
                 </div>
-                <div className="flex justify-between font-semibold pt-2 border-t border-gray-200 dark:border-gray-700">
+                <div className="flex justify-between font-semibold pt-2 border-t border-surface-200 dark:border-surface-700">
                   <span>Total</span>
                   <span>${calculateTotal()}</span>
                 </div>
               </div>
 
               {/* Book Button removed (duplicate) */}
-              <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-4">
+              <p className="text-center text-sm text-surface-500 dark:text-surface-400 mt-4">
                 You won't be charged yet
               </p>
             </div>
 
             {/* Owner Info */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm mt-6">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Owner: {property.owner.name}</h3>
+            <div className="bg-white dark:bg-surface-800 rounded-2xl p-6 shadow-sm mt-6">
+              <h3 className="text-lg font-semibold text-surface-900 dark:text-white mb-4">Owner: {property.owner.name}</h3>
               <div className="flex items-center mb-4">
                 <div className="w-12 h-12 bg-primary-100 dark:bg-primary-900 rounded-full flex items-center justify-center mr-3">
                   <span className="text-lg font-medium text-primary-600 dark:text-primary-300">
@@ -370,11 +370,11 @@ const PropertyDetail = () => {
                 </div>
                 <div>
                   <div className="flex items-center">
-                    <p className="font-medium text-gray-900 dark:text-white">{property.owner.name}</p>
+                    <p className="font-medium text-surface-900 dark:text-white">{property.owner.name}</p>
                   </div>
                 </div>
               </div>
-              <div className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
+              <div className="space-y-2 text-sm text-surface-600 dark:text-surface-300">
                 <p className="flex items-center">
                   <Phone className="w-4 h-4 mr-2" />
                   {property.owner.phone}
@@ -384,7 +384,7 @@ const PropertyDetail = () => {
                   <span className="ml-2">{property.owner.email}</span>
                 </p>
               </div>
-              <button className="w-full mt-4 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 py-2 px-4 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+              <button className="w-full mt-4 border border-surface-200 dark:border-surface-600 text-surface-700 dark:text-surface-300 py-2 px-4 rounded-lg hover:bg-surface-50 dark:hover:bg-surface-700 transition-colors">
                 Contact Owner
               </button>
             </div>
@@ -396,3 +396,5 @@ const PropertyDetail = () => {
 }
 
 export default PropertyDetail
+
+

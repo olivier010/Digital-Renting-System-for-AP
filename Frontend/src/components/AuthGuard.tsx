@@ -20,7 +20,7 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+      <div className="min-h-screen flex items-center justify-center bg-surface-50 dark:bg-surface-900">
         <Loading />
       </div>
     )
@@ -84,3 +84,5 @@ export const AnyUserGuard: React.FC<{ children: ReactNode }> = ({ children }) =>
     {children}
   </AuthGuard>
 )
+
+

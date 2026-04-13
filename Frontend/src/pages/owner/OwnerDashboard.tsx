@@ -198,19 +198,19 @@ const OwnerDashboard = () => {
       case 'cancelled': return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
       case 'active': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
       case 'maintenance': return 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200'
-      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
+      default: return 'bg-surface-100 text-gray-800 dark:bg-surface-900 dark:text-surface-200'
     }
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-surface-50 dark:bg-surface-900">
       {/* Enhanced Header */}
       <div className="bg-transparent">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Owner Dashboard</h1>
-              <p className="text-gray-600 dark:text-gray-400 mt-1">Welcome back! Here's what's happening with your properties</p>
+              <h1 className="text-3xl font-bold text-surface-900 dark:text-white">Owner Dashboard</h1>
+              <p className="text-surface-500 dark:text-surface-400 mt-1">Welcome back! Here's what's happening with your properties</p>
             </div>
             <div className="flex items-center space-x-4">
               <Link
@@ -232,8 +232,8 @@ const OwnerDashboard = () => {
             <CardBody>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Properties</p>
-                  <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{stats?.myProperties ?? 0}</p>
+                  <p className="text-sm font-medium text-surface-500 dark:text-surface-400">Total Properties</p>
+                  <p className="text-3xl font-bold text-surface-900 dark:text-white mt-2">{stats?.myProperties ?? 0}</p>
                   <p className="text-sm text-green-600 dark:text-green-400 mt-2 flex items-center">
                     <ArrowUpRight className="w-4 h-4 mr-1" />
                     +2 this month
@@ -249,8 +249,8 @@ const OwnerDashboard = () => {
             <CardBody>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Monthly Revenue</p>
-                  <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">${stats?.myEarnings ? Number(stats.myEarnings).toLocaleString() : '0'}</p>
+                  <p className="text-sm font-medium text-surface-500 dark:text-surface-400">Monthly Revenue</p>
+                  <p className="text-3xl font-bold text-surface-900 dark:text-white mt-2">${stats?.myEarnings ? Number(stats.myEarnings).toLocaleString() : '0'}</p>
                   <p className="text-sm text-green-600 dark:text-green-400 mt-2 flex items-center">
                     <ArrowUpRight className="w-4 h-4 mr-1" />
                     +12% from last month
@@ -266,8 +266,8 @@ const OwnerDashboard = () => {
             <CardBody>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Average Rating</p>
-                  <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{averageRatingValue.toFixed(1)}</p>
+                  <p className="text-sm font-medium text-surface-500 dark:text-surface-400">Average Rating</p>
+                  <p className="text-3xl font-bold text-surface-900 dark:text-white mt-2">{averageRatingValue.toFixed(1)}</p>
                   <p className="text-sm text-green-600 dark:text-green-400 mt-2 flex items-center">
                     <ArrowUpRight className="w-4 h-4 mr-1" />
                     {totalReviewsValue} reviews
@@ -283,8 +283,8 @@ const OwnerDashboard = () => {
             <CardBody>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Bookings</p>
-                  <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{stats?.myBookings ?? 0}</p>
+                  <p className="text-sm font-medium text-surface-500 dark:text-surface-400">Total Bookings</p>
+                  <p className="text-3xl font-bold text-surface-900 dark:text-white mt-2">{stats?.myBookings ?? 0}</p>
                   <p className="text-sm text-green-600 dark:text-green-400 mt-2 flex items-center">
                     <ArrowUpRight className="w-4 h-4 mr-1" />
                     +18 this month
@@ -301,19 +301,19 @@ const OwnerDashboard = () => {
         {/* Booking Chart and Quick Actions */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
           {/* Booking Chart */}
-          <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+          <div className="lg:col-span-2 bg-white dark:bg-surface-800 rounded-2xl shadow-sm border border-surface-200 dark:border-surface-700 p-6">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Booking Overview</h2>
+              <h2 className="text-lg font-semibold text-surface-900 dark:text-white">Booking Overview</h2>
             </div>
             
             {/* Booking Status Breakdown */}
             <div className="space-y-4">
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Confirmed</span>
+                  <span className="text-sm font-medium text-surface-700 dark:text-surface-300">Confirmed</span>
                   <span className="text-sm font-semibold text-green-600 dark:text-green-400">{allBookings.filter(b => b.status === 'confirmed').length}</span>
                 </div>
-                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                <div className="w-full bg-surface-200 dark:bg-surface-700 rounded-full h-2">
                   <div 
                     className="bg-green-500 h-2 rounded-full transition-all"
                     style={{ width: `${allBookings.length > 0 ? (allBookings.filter(b => b.status === 'confirmed').length / allBookings.length) * 100 : 0}%` }}
@@ -323,10 +323,10 @@ const OwnerDashboard = () => {
 
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Pending</span>
+                  <span className="text-sm font-medium text-surface-700 dark:text-surface-300">Pending</span>
                   <span className="text-sm font-semibold text-yellow-600 dark:text-yellow-400">{allBookings.filter(b => b.status === 'pending').length}</span>
                 </div>
-                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                <div className="w-full bg-surface-200 dark:bg-surface-700 rounded-full h-2">
                   <div 
                     className="bg-yellow-500 h-2 rounded-full transition-all"
                     style={{ width: `${allBookings.length > 0 ? (allBookings.filter(b => b.status === 'pending').length / allBookings.length) * 100 : 0}%` }}
@@ -336,10 +336,10 @@ const OwnerDashboard = () => {
 
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Completed</span>
+                  <span className="text-sm font-medium text-surface-700 dark:text-surface-300">Completed</span>
                   <span className="text-sm font-semibold text-blue-600 dark:text-blue-400">{allBookings.filter(b => b.status === 'completed').length}</span>
                 </div>
-                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                <div className="w-full bg-surface-200 dark:bg-surface-700 rounded-full h-2">
                   <div 
                     className="bg-blue-500 h-2 rounded-full transition-all"
                     style={{ width: `${allBookings.length > 0 ? (allBookings.filter(b => b.status === 'completed').length / allBookings.length) * 100 : 0}%` }}
@@ -349,10 +349,10 @@ const OwnerDashboard = () => {
 
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Cancelled</span>
+                  <span className="text-sm font-medium text-surface-700 dark:text-surface-300">Cancelled</span>
                   <span className="text-sm font-semibold text-red-600 dark:text-red-400">{allBookings.filter(b => b.status === 'cancelled').length}</span>
                 </div>
-                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                <div className="w-full bg-surface-200 dark:bg-surface-700 rounded-full h-2">
                   <div 
                     className="bg-red-500 h-2 rounded-full transition-all"
                     style={{ width: `${allBookings.length > 0 ? (allBookings.filter(b => b.status === 'cancelled').length / allBookings.length) * 100 : 0}%` }}
@@ -364,7 +364,7 @@ const OwnerDashboard = () => {
             {/* Monthly Booking Trend */}
             {revenueData.length > 0 && (
               <div className="mt-4 pt-4">
-                <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">
+                <h3 className="text-sm font-semibold text-surface-900 dark:text-white mb-4">
                   Monthly Booking Trend
                 </h3>
                 <div className="h-40 flex items-end justify-between space-x-2">
@@ -374,8 +374,8 @@ const OwnerDashboard = () => {
                         className="w-full bg-primary-600 dark:bg-primary-500 rounded-t-lg hover:bg-primary-700 transition-colors"
                         style={{ height: `${(data.bookings / 25) * 100}%` }}
                       ></div>
-                      <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">{data.month}</p>
-                      <p className="text-xs font-medium text-gray-900 dark:text-white">{data.bookings}</p>
+                      <p className="text-xs text-surface-500 dark:text-surface-400 mt-2">{data.month}</p>
+                      <p className="text-xs font-medium text-surface-900 dark:text-white">{data.bookings}</p>
                     </div>
                   ))}
                 </div>
@@ -384,33 +384,33 @@ const OwnerDashboard = () => {
           </div>
 
           {/* Quick Actions */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Quick Actions</h2>
+          <div className="bg-white dark:bg-surface-800 rounded-2xl shadow-sm border border-surface-200 dark:border-surface-700 p-6">
+            <h2 className="text-lg font-semibold text-surface-900 dark:text-white mb-4">Quick Actions</h2>
             <div className="space-y-3">
               <Link
                 to="/owner/add-property"
-                className="flex items-center p-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                className="flex items-center p-3 text-surface-700 dark:text-surface-300 hover:bg-surface-50 dark:hover:bg-surface-700 rounded-lg transition-colors"
               >
                 <Plus className="w-5 h-5 mr-3 text-primary-600" />
                 <span>Add New Property</span>
               </Link>
               <Link
                 to="/owner/bookings"
-                className="flex items-center p-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                className="flex items-center p-3 text-surface-700 dark:text-surface-300 hover:bg-surface-50 dark:hover:bg-surface-700 rounded-lg transition-colors"
               >
                 <Calendar className="w-5 h-5 mr-3 text-primary-600" />
                 <span>Manage Bookings</span>
               </Link>
               <Link
                 to="/owner/reviews"
-                className="flex items-center p-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                className="flex items-center p-3 text-surface-700 dark:text-surface-300 hover:bg-surface-50 dark:hover:bg-surface-700 rounded-lg transition-colors"
               >
                 <Star className="w-5 h-5 mr-3 text-primary-600" />
                 <span>View Reviews</span>
               </Link>
               <Link
                 to="/owner/settings"
-                className="flex items-center p-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                className="flex items-center p-3 text-surface-700 dark:text-surface-300 hover:bg-surface-50 dark:hover:bg-surface-700 rounded-lg transition-colors"
               >
                 <Edit className="w-5 h-5 mr-3 text-primary-600" />
                 <span>Account Settings</span>
@@ -422,9 +422,9 @@ const OwnerDashboard = () => {
         {/* Enhanced Bookings and Properties */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Recent Bookings */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
-            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Recent Bookings</h2>
+          <div className="bg-white dark:bg-surface-800 rounded-2xl shadow-sm border border-surface-200 dark:border-surface-700">
+            <div className="px-6 py-4 border-b border-surface-200 dark:border-surface-700 flex justify-between items-center">
+              <h2 className="text-lg font-semibold text-surface-900 dark:text-white">Recent Bookings</h2>
               <Link to="/owner/bookings" className="text-primary-600 hover:text-primary-500 dark:text-primary-400 text-sm font-medium">
                 View All
               </Link>
@@ -432,9 +432,9 @@ const OwnerDashboard = () => {
             <div className="p-6">
               <div className="space-y-4">
                 {recentBookings.length === 0 ? (
-                  <div className="text-gray-400 text-center">No recent bookings</div>
+                  <div className="text-surface-400 text-center">No recent bookings</div>
                 ) : recentBookings.map((booking) => (
-                  <div key={booking.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                  <div key={booking.id} className="flex items-center justify-between p-4 bg-surface-50 dark:bg-surface-700 rounded-lg hover:bg-surface-100 dark:hover:bg-surface-600 transition-colors">
                     <div className="flex items-center space-x-3">
                       <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900 rounded-full flex items-center justify-center">
                         <span className="text-sm font-medium text-primary-600 dark:text-primary-300">
@@ -442,22 +442,22 @@ const OwnerDashboard = () => {
                         </span>
                       </div>
                       <div>
-                        <p className="font-medium text-gray-900 dark:text-white">{booking.guest}</p>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">{booking.property}</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-500">
+                        <p className="font-medium text-surface-900 dark:text-white">{booking.guest}</p>
+                        <p className="text-sm text-surface-500 dark:text-surface-400">{booking.property}</p>
+                        <p className="text-xs text-surface-500 dark:text-surface-500">
                           {booking.checkIn} - {booking.checkOut}
                         </p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="font-semibold text-gray-900 dark:text-white">${booking.amount}</p>
+                      <p className="font-semibold text-surface-900 dark:text-white">${booking.amount}</p>
                       <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(booking.status)}`}>
                         {booking.status}
                       </span>
                       {booking.rating && (
                         <div className="flex items-center mt-1">
                           <Star className="w-3 h-3 text-yellow-500 fill-current" />
-                          <span className="text-xs text-gray-600 dark:text-gray-400 ml-1">{booking.rating}</span>
+                          <span className="text-xs text-surface-500 dark:text-surface-400 ml-1">{booking.rating}</span>
                         </div>
                       )}
                     </div>
@@ -468,9 +468,9 @@ const OwnerDashboard = () => {
           </div>
 
           {/* My Properties */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
-            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">My Properties</h2>
+          <div className="bg-white dark:bg-surface-800 rounded-2xl shadow-sm border border-surface-200 dark:border-surface-700">
+            <div className="px-6 py-4 border-b border-surface-200 dark:border-surface-700 flex justify-between items-center">
+              <h2 className="text-lg font-semibold text-surface-900 dark:text-white">My Properties</h2>
               <Link to="/owner/properties" className="text-primary-600 hover:text-primary-500 dark:text-primary-400 text-sm font-medium">
                 Manage All
               </Link>
@@ -478,11 +478,11 @@ const OwnerDashboard = () => {
             <div className="p-6">
               <div className="space-y-4">
                 {properties.length === 0 ? (
-                  <div className="text-gray-400 text-center">No properties</div>
+                  <div className="text-surface-400 text-center">No properties</div>
                 ) : properties.map((property) => (
-                  <div key={property.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                  <div key={property.id} className="flex items-center justify-between p-4 bg-surface-50 dark:bg-surface-700 rounded-lg hover:bg-surface-100 dark:hover:bg-surface-600 transition-colors">
                     <div className="flex items-center space-x-3">
-                      <div className="w-12 h-12 bg-gray-200 dark:bg-gray-600 rounded-lg flex items-center justify-center text-2xl overflow-hidden">
+                      <div className="w-12 h-12 bg-surface-200 dark:bg-surface-600 rounded-lg flex items-center justify-center text-2xl overflow-hidden">
                         {property.images && property.images.length > 0 ? (
                           <img
                             src={property.images[0]}
@@ -490,32 +490,32 @@ const OwnerDashboard = () => {
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <span className="text-gray-400">No Image</span>
+                          <span className="text-surface-400">No Image</span>
                         )}
                       </div>
                       <div>
-                        <p className="font-medium text-gray-900 dark:text-white">{property.title}</p>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">{property.location}</p>
+                        <p className="font-medium text-surface-900 dark:text-white">{property.title}</p>
+                        <p className="text-sm text-surface-500 dark:text-surface-400">{property.location}</p>
                         <div className="flex items-center mt-1 space-x-3">
                           <div className="flex items-center">
                             <Star className="w-3 h-3 text-yellow-500 fill-current" />
-                            <span className="text-xs text-gray-600 dark:text-gray-400 ml-1">{property.rating} ({property.reviews})</span>
+                            <span className="text-xs text-surface-500 dark:text-surface-400 ml-1">{property.rating} ({property.reviews})</span>
                           </div>
-                          <span className="text-xs text-gray-500 dark:text-gray-400">• {property.bookings} bookings</span>
-                          <span className="text-xs text-gray-500 dark:text-gray-400 capitalize">• {property.category}</span>
+                          <span className="text-xs text-surface-500 dark:text-surface-400">• {property.bookings} bookings</span>
+                          <span className="text-xs text-surface-500 dark:text-surface-400 capitalize">• {property.category}</span>
                         </div>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="font-semibold text-gray-900 dark:text-white">${property.price}/mo</p>
+                      <p className="font-semibold text-surface-900 dark:text-white">${property.price}/mo</p>
                       <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(property.status)}`}>
                         {property.status}
                       </span>
                       <div className="flex space-x-1 mt-2">
-                        <button className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                        <button className="p-1 text-surface-400 hover:text-surface-600 dark:hover:text-surface-300">
                           <Eye className="w-4 h-4" />
                         </button>
-                        <button className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                        <button className="p-1 text-surface-400 hover:text-surface-600 dark:hover:text-surface-300">
                           <Edit className="w-4 h-4" />
                         </button>
                       </div>
@@ -530,7 +530,7 @@ const OwnerDashboard = () => {
         {/* Notifications Section */}
         <div className="mt-8 p-0">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Recent Notifications</h2>
+            <h2 className="text-lg font-semibold text-surface-900 dark:text-white">Recent Notifications</h2>
             <button
               className="text-primary-600 hover:text-primary-500 dark:text-primary-400 text-sm font-medium"
               onClick={markAllNotificationsAsRead}
@@ -546,7 +546,7 @@ const OwnerDashboard = () => {
           `}</style>
           <div className="relative min-h-48 md:min-h-64 lg:h-80 overflow-hidden rounded-lg p-0">
             {notifications.length === 0 ? (
-              <div className="text-gray-400 text-center py-8">No notifications</div>
+              <div className="text-surface-400 text-center py-8">No notifications</div>
             ) : (
               <div
                 className="absolute left-0 top-0 w-full space-y-2"
@@ -567,14 +567,14 @@ const OwnerDashboard = () => {
                       markNotificationAsRead(notification.id)
                       setOpenNotificationMenuId(null)
                     }}
-                    className="w-full text-left flex items-center justify-between p-2 md:p-3 rounded transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
+                    className="w-full text-left flex items-center justify-between p-2 md:p-3 rounded transition-colors hover:bg-surface-50 dark:hover:bg-surface-800"
                   >
                     <div className="flex items-center space-x-2 md:space-x-3 flex-1 min-w-0">
-                      <div className={`w-2 h-2 rounded-full flex-shrink-0 ${notification.read ? 'bg-gray-300' : 'bg-blue-500'}`}></div>
+                      <div className={`w-2 h-2 rounded-full flex-shrink-0 ${notification.read ? 'bg-surface-300' : 'bg-blue-500'}`}></div>
                       <div className="min-w-0 flex-1">
-                        <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide truncate">{notification.title}</p>
-                        <p className="text-sm font-medium text-gray-900 dark:text-white line-clamp-2">{notification.message}</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">{notification.time}</p>
+                        <p className="text-xs font-semibold text-surface-700 dark:text-surface-300 uppercase tracking-wide truncate">{notification.title}</p>
+                        <p className="text-sm font-medium text-surface-900 dark:text-white line-clamp-2">{notification.message}</p>
+                        <p className="text-xs text-surface-500 dark:text-surface-400">{notification.time}</p>
                       </div>
                     </div>
                     <div className="relative flex-shrink-0 ml-2" onClick={(e) => e.stopPropagation()}>
@@ -588,12 +588,12 @@ const OwnerDashboard = () => {
                             setOpenNotificationMenuId(openNotificationMenuId === notification.id ? null : notification.id)
                           }
                         }}
-                        className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-pointer"
+                        className="text-surface-400 hover:text-surface-600 dark:hover:text-surface-300 cursor-pointer"
                       >
                         <MoreVertical className="w-4 h-4" />
                       </span>
                       {openNotificationMenuId === notification.id && (
-                        <div className="absolute right-0 top-6 z-20 min-w-24 rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-lg py-1">
+                        <div className="absolute right-0 top-6 z-20 min-w-24 rounded-md border border-surface-200 dark:border-surface-700 bg-white dark:bg-surface-900 shadow-soft dark:shadow-dark-soft py-1">
                           <span
                             role="button"
                             tabIndex={0}
@@ -622,14 +622,14 @@ const OwnerDashboard = () => {
                       markNotificationAsRead(notification.id)
                       setOpenNotificationMenuId(null)
                     }}
-                    className="w-full text-left flex items-center justify-between p-2 md:p-3 rounded transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
+                    className="w-full text-left flex items-center justify-between p-2 md:p-3 rounded transition-colors hover:bg-surface-50 dark:hover:bg-surface-800"
                   >
                     <div className="flex items-center space-x-2 md:space-x-3 flex-1 min-w-0">
-                      <div className={`w-2 h-2 rounded-full flex-shrink-0 ${notification.read ? 'bg-gray-300' : 'bg-blue-500'}`}></div>
+                      <div className={`w-2 h-2 rounded-full flex-shrink-0 ${notification.read ? 'bg-surface-300' : 'bg-blue-500'}`}></div>
                       <div className="min-w-0 flex-1">
-                        <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide truncate">{notification.title}</p>
-                        <p className="text-sm font-medium text-gray-900 dark:text-white line-clamp-2">{notification.message}</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">{notification.time}</p>
+                        <p className="text-xs font-semibold text-surface-700 dark:text-surface-300 uppercase tracking-wide truncate">{notification.title}</p>
+                        <p className="text-sm font-medium text-surface-900 dark:text-white line-clamp-2">{notification.message}</p>
+                        <p className="text-xs text-surface-500 dark:text-surface-400">{notification.time}</p>
                       </div>
                     </div>
                     <div className="relative flex-shrink-0 ml-2" onClick={(e) => e.stopPropagation()}>
@@ -643,12 +643,12 @@ const OwnerDashboard = () => {
                             setOpenNotificationMenuId(openNotificationMenuId === notification.id ? null : notification.id)
                           }
                         }}
-                        className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-pointer"
+                        className="text-surface-400 hover:text-surface-600 dark:hover:text-surface-300 cursor-pointer"
                       >
                         <MoreVertical className="w-4 h-4" />
                       </span>
                       {openNotificationMenuId === notification.id && (
-                        <div className="absolute right-0 top-6 z-20 min-w-24 rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-lg py-1">
+                        <div className="absolute right-0 top-6 z-20 min-w-24 rounded-md border border-surface-200 dark:border-surface-700 bg-white dark:bg-surface-900 shadow-soft dark:shadow-dark-soft py-1">
                           <span
                             role="button"
                             tabIndex={0}
@@ -679,3 +679,5 @@ const OwnerDashboard = () => {
 }
 
 export default OwnerDashboard
+
+

@@ -4,6 +4,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { Shield, Settings as SettingsIcon, LogOut, Menu, X, Home, Users, Building, FileText, BarChart, Bell } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import Loading from './ui/Loading'
+import ThemeToggle from './ui/ThemeToggle'
 import NotificationModal from './NotificationModal'
 import { apiFetch } from '../utils/api'
 import AdminRoutes from '../pages/admin/AdminRoutes'
@@ -41,107 +42,82 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const handleLogout = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    console.log('Admin logout clicked')
     try {
       logout()
-      console.log('Logout function called, navigating to home...')
       navigate('/shared/home')
-      console.log('Navigation to home initiated')
-
-      // Fallback: Force navigation with window.location if React Router doesn't work
       setTimeout(() => {
         if (window.location.pathname !== '/') {
-          console.log('React Router navigation failed, using window.location')
           window.location.href = '/'
         }
       }, 1000)
     } catch (error) {
       console.error('Logout error:', error)
-      // Force navigation with window.location as fallback
       window.location.href = '/'
     }
   }
 
   const navigation = [
-    {
-      name: 'Dashboard',
-      href: '/admin',
-      icon: Home,
-      current: location.pathname === '/admin' || location.pathname === '/admin/dashboard'
-    },
-    {
-      name: 'Users',
-      href: '/admin/users',
-      icon: Users,
-      current: location.pathname === '/admin/users'
-    },
-    {
-      name: 'Properties',
-      href: '/admin/properties',
-      icon: Building,
-      current: location.pathname === '/admin/properties'
-    },
-    {
-      name: 'Bookings',
-      href: '/admin/bookings',
-      icon: FileText,
-      current: location.pathname === '/admin/bookings'
-    },
-    {
-      name: 'Reports',
-      href: '/admin/reports',
-      icon: BarChart,
-      current: location.pathname === '/admin/reports'
-    },
-    {
-      name: 'Settings',
-      href: '/admin/settings',
-      icon: SettingsIcon,
-      current: location.pathname === '/admin/settings'
-    }
+    { name: 'Dashboard', href: '/admin', icon: Home, current: location.pathname === '/admin' || location.pathname === '/admin/dashboard' },
+    { name: 'Users', href: '/admin/users', icon: Users, current: location.pathname === '/admin/users' },
+    { name: 'Properties', href: '/admin/properties', icon: Building, current: location.pathname === '/admin/properties' },
+    { name: 'Bookings', href: '/admin/bookings', icon: FileText, current: location.pathname === '/admin/bookings' },
+    { name: 'Reports', href: '/admin/reports', icon: BarChart, current: location.pathname === '/admin/reports' },
+    { name: 'Settings', href: '/admin/settings', icon: SettingsIcon, current: location.pathname === '/admin/settings' },
   ]
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+      <div className="min-h-screen flex items-center justify-center bg-surface-50 dark:bg-surface-900">
         <Loading />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex">
+    <div className="min-h-screen bg-surface-50 dark:bg-surface-900 flex">
       {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 z-40 lg:hidden bg-gray-600 bg-opacity-75"
+          className="fixed inset-0 z-40 lg:hidden bg-surface-900/50 dark:bg-black/60 backdrop-blur-sm animate-fade-in"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
-      {/* Sidebar - Fixed on desktop, overlay on mobile */}
+      {/* Sidebar */}
       <div className={`
-        fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 shadow-xl transform transition-transform duration-300 ease-in-out flex flex-col
+        fixed inset-y-0 left-0 z-50 w-[280px] flex flex-col
+        bg-white dark:bg-surface-900 
+        border-r border-surface-200 dark:border-surface-800
+        transform transition-transform duration-300 ease-out
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
-        lg:translate-x-0 lg:shadow-none lg:border-r lg:border-gray-200 lg:dark:border-gray-700
+        lg:translate-x-0
       `}>
-        <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200 dark:border-gray-700 lg:border-b-0 flex-shrink-0">
-          <div className="flex items-center">
-            <Shield className="w-8 h-8 text-primary-600 dark:text-primary-400" />
-            <span className="ml-2 text-xl font-bold text-gray-900 dark:text-white">
-              Admin Panel
-            </span>
+        {/* Sidebar Header */}
+        <div className="flex items-center justify-between h-16 px-6 flex-shrink-0">
+          <div className="flex items-center gap-2.5">
+            <div className="bg-gradient-to-br from-primary-500 to-primary-700 text-white w-9 h-9 rounded-2xl flex items-center justify-center shadow-md">
+              <Shield className="w-5 h-5" />
+            </div>
+            <div>
+              <span className="text-base font-bold text-surface-900 dark:text-white block leading-tight">
+                Admin Panel
+              </span>
+              <span className="text-[10px] font-medium text-surface-400 dark:text-surface-500 uppercase tracking-wider">
+                Management
+              </span>
+            </div>
           </div>
           <button
             onClick={() => setSidebarOpen(false)}
-            className="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            className="lg:hidden p-1.5 rounded-lg text-surface-400 hover:text-surface-600 hover:bg-surface-100 dark:hover:text-surface-300 dark:hover:bg-surface-800 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <nav className="flex-1 mt-6 px-3 overflow-y-auto">
-          <div className="space-y-1">
+        {/* Navigation */}
+        <nav className="flex-1 mt-2 px-3 overflow-y-auto">
+          <div className="space-y-0.5">
             {navigation.map((item) => {
               const Icon = item.icon
               return (
@@ -149,17 +125,21 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                   key={item.name}
                   to={item.href}
                   className={`
-                    group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200
+                    group flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-2xl transition-all duration-200
                     ${item.current
-                      ? 'bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300 shadow-sm'
-                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
+                      ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 shadow-sm'
+                      : 'text-surface-600 dark:text-surface-400 hover:bg-surface-100 dark:hover:bg-surface-800 hover:text-surface-900 dark:hover:text-white'
                     }
                   `}
                 >
-                  <Icon className={`w-5 h-5 mr-3 ${item.current ? 'text-primary-600 dark:text-primary-400' : 'text-gray-400 group-hover:text-gray-500 dark:group-hover:text-gray-300'}`} />
-                  {item.name}
+                  <Icon className={`w-5 h-5 flex-shrink-0 ${
+                    item.current 
+                      ? 'text-primary-600 dark:text-primary-400' 
+                      : 'text-surface-400 dark:text-surface-500 group-hover:text-surface-600 dark:group-hover:text-surface-300'
+                  }`} />
+                  <span className="flex-1">{item.name}</span>
                   {item.current && (
-                    <div className="ml-auto w-2 h-2 bg-primary-600 dark:bg-primary-400 rounded-full"></div>
+                    <div className="w-1.5 h-1.5 bg-primary-500 dark:bg-primary-400 rounded-full"></div>
                   )}
                 </Link>
               )
@@ -167,60 +147,60 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           </div>
         </nav>
 
-        {/* User info and logout - Fixed at bottom */}
-        <div className="p-4 border-t border-gray-200 dark:border-gray-700 flex-shrink-0">
-          <div className="flex items-center mb-3">
-            <div className="w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center">
-              <span className="text-white text-sm font-medium">
+        {/* User info and logout */}
+        <div className="p-4 border-t border-surface-200 dark:border-surface-800 flex-shrink-0 space-y-3">
+          <ThemeToggle showLabel className="w-full justify-center" />
+          <div className="flex items-center gap-3 px-2">
+            <div className="w-9 h-9 bg-gradient-to-br from-primary-500 to-primary-700 rounded-2xl flex items-center justify-center shadow-sm">
+              <span className="text-white text-xs font-bold">
                 {user.firstName.charAt(0)}{user.lastName.charAt(0)}
               </span>
             </div>
-            <div className="ml-3">
-              <p className="text-sm font-medium text-gray-900 dark:text-white">
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-surface-900 dark:text-white truncate">
                 {user.firstName} {user.lastName}
               </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
+              <p className="text-xs text-surface-400 dark:text-surface-500 truncate">
                 {user.email}
               </p>
             </div>
           </div>
           <button
             onClick={handleLogout}
-            className="w-full flex items-center px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-surface-600 dark:text-surface-400 rounded-2xl hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20 dark:hover:text-red-400 transition-colors"
           >
-            <LogOut className="w-4 h-4 mr-2" />
-            Logout
+            <LogOut className="w-4 h-4" />
+            Sign Out
           </button>
         </div>
       </div>
 
-      {/* Main content - Scrollable with proper spacing */}
-      <div className="flex-1 flex flex-col min-h-screen lg:ml-64">
-        {/* Top bar - Fixed */}
-        <div className="sticky top-0 z-30 bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+      {/* Main content */}
+      <div className="flex-1 flex flex-col min-h-screen lg:ml-[280px]">
+        {/* Top bar */}
+        <div className="sticky top-0 z-30 glass-navbar flex-shrink-0">
           <div className="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
-            <button
-              onClick={() => setSidebarOpen(true)}
-              className="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-            >
-              <Menu className="w-5 h-5" />
-            </button>
-
-            <div className="flex-1 lg:flex-none">
-              <h1 className="text-lg font-semibold text-gray-900 dark:text-white">
-                Admin Dashboard
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => setSidebarOpen(true)}
+                className="lg:hidden p-2 rounded-2xl text-surface-500 hover:text-surface-700 hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors"
+              >
+                <Menu className="w-5 h-5" />
+              </button>
+              <h1 className="text-lg font-semibold text-surface-900 dark:text-white">
+                {navigation.find(n => n.current)?.name || 'Admin Dashboard'}
               </h1>
             </div>
 
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center gap-2">
               <div className="relative">
                 <button
-                  className="p-2 text-gray-400 hover:text-gray-500 relative"
+                  className="p-2 rounded-2xl text-surface-400 hover:text-surface-600 hover:bg-surface-100 dark:hover:text-surface-300 dark:hover:bg-surface-800 transition-colors relative"
                   onClick={() => setNotificationOpen(true)}
                 >
                   <Bell className="w-5 h-5" />
                   {unreadCount > 0 && (
-                    <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-red-500 text-white text-[10px] font-semibold leading-5 text-center shadow-sm">
+                    <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold leading-[18px] text-center shadow-sm animate-scale-in">
                       {unreadCount > 99 ? '99+' : unreadCount}
                     </span>
                   )}
@@ -228,16 +208,19 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
               </div>
               <Link
                 to="/"
-                className="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium transition-colors"
+                className="hidden sm:inline-flex items-center gap-1.5 text-sm text-surface-500 dark:text-surface-400 hover:text-primary-600 dark:hover:text-primary-400 font-medium transition-colors px-3 py-2 rounded-2xl hover:bg-surface-100 dark:hover:bg-surface-800"
               >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
                 View Site
               </Link>
             </div>
           </div>
         </div>
 
-        {/* Page content - Scrollable */}
-        <main className="flex-1 bg-gray-50 dark:bg-gray-900 overflow-y-auto">
+        {/* Page content */}
+        <main className="flex-1 overflow-y-auto">
           {children || <AdminRoutes />}
         </main>
       </div>
@@ -256,3 +239,5 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 }
 
 export default AdminLayout
+
+

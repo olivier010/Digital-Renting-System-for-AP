@@ -120,10 +120,10 @@ const Settings = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+        <h1 className="text-3xl font-bold text-surface-900 dark:text-white mb-2">
           System Settings
         </h1>
-        <p className="text-gray-600 dark:text-gray-400">
+        <p className="text-surface-500 dark:text-surface-400">
           Configure and manage your platform settings
         </p>
       </div>
@@ -141,7 +141,7 @@ const Settings = () => {
                   className={`w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
                     activeTab === tab.id
                       ? 'bg-primary-100 text-primary-700 dark:bg-primary-900 dark:text-primary-300'
-                      : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'
+                      : 'text-surface-700 hover:bg-surface-100 dark:text-surface-300 dark:hover:bg-surface-700'
                   }`}
                 >
                   <Icon className="w-5 h-5 mr-3" />
@@ -154,52 +154,52 @@ const Settings = () => {
 
         {/* Content */}
         <div className="flex-1">
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+          <div className="bg-white dark:bg-surface-800 rounded-2xl shadow-sm border border-surface-200 dark:border-surface-700 p-6">
             {/* General Settings */}
             {activeTab === 'general' && (
               <div className="space-y-6">
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">General Settings</h2>
+                <h2 className="text-xl font-semibold text-surface-900 dark:text-white mb-6">General Settings</h2>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
                       Site Name
                     </label>
                     <input
                       type="text"
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="w-full px-3 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white"
                       value={generalSettings.siteName}
                       onChange={(e) => setGeneralSettings({...generalSettings, siteName: e.target.value})}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
                       Contact Email
                     </label>
                     <input
                       type="email"
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="w-full px-3 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white"
                       value={generalSettings.contactEmail}
                       onChange={(e) => setGeneralSettings({...generalSettings, contactEmail: e.target.value})}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
                       Support Phone
                     </label>
                     <input
                       type="tel"
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="w-full px-3 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white"
                       value={generalSettings.supportPhone}
                       onChange={(e) => setGeneralSettings({...generalSettings, supportPhone: e.target.value})}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
                       Timezone
                     </label>
                     <select
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="w-full px-3 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white"
                       value={generalSettings.timezone}
                       onChange={(e) => setGeneralSettings({...generalSettings, timezone: e.target.value})}
                     >
@@ -210,11 +210,11 @@ const Settings = () => {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
                       Language
                     </label>
                     <select
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="w-full px-3 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white"
                       value={generalSettings.language}
                       onChange={(e) => setGeneralSettings({...generalSettings, language: e.target.value})}
                     >
@@ -225,11 +225,11 @@ const Settings = () => {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
                       Currency
                     </label>
                     <select
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="w-full px-3 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white"
                       value={generalSettings.currency}
                       onChange={(e) => setGeneralSettings({...generalSettings, currency: e.target.value})}
                     >
@@ -242,12 +242,12 @@ const Settings = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
                     Site Description
                   </label>
                   <textarea
                     rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    className="w-full px-3 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white"
                     value={generalSettings.siteDescription}
                     onChange={(e) => setGeneralSettings({...generalSettings, siteDescription: e.target.value})}
                   />
@@ -257,20 +257,20 @@ const Settings = () => {
                   <label className="flex items-center">
                     <input
                       type="checkbox"
-                      className="rounded border-gray-300 dark:border-gray-600"
+                      className="rounded border-surface-200 dark:border-surface-600"
                       checked={generalSettings.maintenanceMode}
                       onChange={(e) => setGeneralSettings({...generalSettings, maintenanceMode: e.target.checked})}
                     />
-                    <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Maintenance Mode</span>
+                    <span className="ml-2 text-sm text-surface-700 dark:text-surface-300">Maintenance Mode</span>
                   </label>
                   <label className="flex items-center">
                     <input
                       type="checkbox"
-                      className="rounded border-gray-300 dark:border-gray-600"
+                      className="rounded border-surface-200 dark:border-surface-600"
                       checked={generalSettings.debugMode}
                       onChange={(e) => setGeneralSettings({...generalSettings, debugMode: e.target.checked})}
                     />
-                    <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Debug Mode</span>
+                    <span className="ml-2 text-sm text-surface-700 dark:text-surface-300">Debug Mode</span>
                   </label>
                 </div>
               </div>
@@ -279,70 +279,70 @@ const Settings = () => {
             {/* Security Settings */}
             {activeTab === 'security' && (
               <div className="space-y-6">
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">Security Settings</h2>
+                <h2 className="text-xl font-semibold text-surface-900 dark:text-white mb-6">Security Settings</h2>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
                       Session Timeout (minutes)
                     </label>
                     <input
                       type="number"
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="w-full px-3 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white"
                       value={securitySettings.sessionTimeout}
                       onChange={(e) => setSecuritySettings({...securitySettings, sessionTimeout: parseInt(e.target.value)})}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
                       Password Minimum Length
                     </label>
                     <input
                       type="number"
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="w-full px-3 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white"
                       value={securitySettings.passwordMinLength}
                       onChange={(e) => setSecuritySettings({...securitySettings, passwordMinLength: parseInt(e.target.value)})}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
                       Max Login Attempts
                     </label>
                     <input
                       type="number"
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="w-full px-3 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white"
                       value={securitySettings.maxLoginAttempts}
                       onChange={(e) => setSecuritySettings({...securitySettings, maxLoginAttempts: parseInt(e.target.value)})}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
                       Lockout Duration (minutes)
                     </label>
                     <input
                       type="number"
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="w-full px-3 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white"
                       value={securitySettings.lockoutDuration}
                       onChange={(e) => setSecuritySettings({...securitySettings, lockoutDuration: parseInt(e.target.value)})}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
                       API Rate Limit (requests/minute)
                     </label>
                     <input
                       type="number"
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="w-full px-3 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white"
                       value={securitySettings.apiRateLimit}
                       onChange={(e) => setSecuritySettings({...securitySettings, apiRateLimit: parseInt(e.target.value)})}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
                       Log Level
                     </label>
                     <select
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="w-full px-3 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white"
                       value={securitySettings.logLevel}
                       onChange={(e) => setSecuritySettings({...securitySettings, logLevel: e.target.value})}
                     >
@@ -355,12 +355,12 @@ const Settings = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
                     IP Whitelist (one per line)
                   </label>
                   <textarea
                     rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    className="w-full px-3 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white"
                     placeholder="192.168.1.1&#10;10.0.0.1"
                     value={securitySettings.ipWhitelist}
                     onChange={(e) => setSecuritySettings({...securitySettings, ipWhitelist: e.target.value})}
@@ -371,29 +371,29 @@ const Settings = () => {
                   <label className="flex items-center">
                     <input
                       type="checkbox"
-                      className="rounded border-gray-300 dark:border-gray-600"
+                      className="rounded border-surface-200 dark:border-surface-600"
                       checked={securitySettings.twoFactorAuth}
                       onChange={(e) => setSecuritySettings({...securitySettings, twoFactorAuth: e.target.checked})}
                     />
-                    <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Two-Factor Authentication</span>
+                    <span className="ml-2 text-sm text-surface-700 dark:text-surface-300">Two-Factor Authentication</span>
                   </label>
                   <label className="flex items-center">
                     <input
                       type="checkbox"
-                      className="rounded border-gray-300 dark:border-gray-600"
+                      className="rounded border-surface-200 dark:border-surface-600"
                       checked={securitySettings.requireSpecialChars}
                       onChange={(e) => setSecuritySettings({...securitySettings, requireSpecialChars: e.target.checked})}
                     />
-                    <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Require Special Characters in Password</span>
+                    <span className="ml-2 text-sm text-surface-700 dark:text-surface-300">Require Special Characters in Password</span>
                   </label>
                   <label className="flex items-center">
                     <input
                       type="checkbox"
-                      className="rounded border-gray-300 dark:border-gray-600"
+                      className="rounded border-surface-200 dark:border-surface-600"
                       checked={securitySettings.enforceHttps}
                       onChange={(e) => setSecuritySettings({...securitySettings, enforceHttps: e.target.checked})}
                     />
-                    <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Enforce HTTPS</span>
+                    <span className="ml-2 text-sm text-surface-700 dark:text-surface-300">Enforce HTTPS</span>
                   </label>
                 </div>
               </div>
@@ -402,18 +402,18 @@ const Settings = () => {
             {/* Notification Settings */}
             {activeTab === 'notifications' && (
               <div className="space-y-6">
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">Notification Settings</h2>
+                <h2 className="text-xl font-semibold text-surface-900 dark:text-white mb-6">Notification Settings</h2>
                 
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center justify-between py-3 border-b border-surface-200 dark:border-surface-700">
                     <div>
-                      <p className="font-medium text-gray-900 dark:text-white">Email Notifications</p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Send notifications via email</p>
+                      <p className="font-medium text-surface-900 dark:text-white">Email Notifications</p>
+                      <p className="text-sm text-surface-500 dark:text-surface-400">Send notifications via email</p>
                     </div>
                     <button
                       onClick={() => setNotificationSettings({...notificationSettings, emailNotifications: !notificationSettings.emailNotifications})}
                       className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                        notificationSettings.emailNotifications ? 'bg-primary-600' : 'bg-gray-200 dark:bg-gray-700'
+                        notificationSettings.emailNotifications ? 'bg-primary-600' : 'bg-surface-200 dark:bg-surface-700'
                       }`}
                     >
                       <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
@@ -422,15 +422,15 @@ const Settings = () => {
                     </button>
                   </div>
 
-                  <div className="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center justify-between py-3 border-b border-surface-200 dark:border-surface-700">
                     <div>
-                      <p className="font-medium text-gray-900 dark:text-white">SMS Notifications</p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Send notifications via SMS</p>
+                      <p className="font-medium text-surface-900 dark:text-white">SMS Notifications</p>
+                      <p className="text-sm text-surface-500 dark:text-surface-400">Send notifications via SMS</p>
                     </div>
                     <button
                       onClick={() => setNotificationSettings({...notificationSettings, smsNotifications: !notificationSettings.smsNotifications})}
                       className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                        notificationSettings.smsNotifications ? 'bg-primary-600' : 'bg-gray-200 dark:bg-gray-700'
+                        notificationSettings.smsNotifications ? 'bg-primary-600' : 'bg-surface-200 dark:bg-surface-700'
                       }`}
                     >
                       <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
@@ -439,15 +439,15 @@ const Settings = () => {
                     </button>
                   </div>
 
-                  <div className="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center justify-between py-3 border-b border-surface-200 dark:border-surface-700">
                     <div>
-                      <p className="font-medium text-gray-900 dark:text-white">Push Notifications</p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Send browser push notifications</p>
+                      <p className="font-medium text-surface-900 dark:text-white">Push Notifications</p>
+                      <p className="text-sm text-surface-500 dark:text-surface-400">Send browser push notifications</p>
                     </div>
                     <button
                       onClick={() => setNotificationSettings({...notificationSettings, pushNotifications: !notificationSettings.pushNotifications})}
                       className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                        notificationSettings.pushNotifications ? 'bg-primary-600' : 'bg-gray-200 dark:bg-gray-700'
+                        notificationSettings.pushNotifications ? 'bg-primary-600' : 'bg-surface-200 dark:bg-surface-700'
                       }`}
                     >
                       <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
@@ -456,15 +456,15 @@ const Settings = () => {
                     </button>
                   </div>
 
-                  <div className="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center justify-between py-3 border-b border-surface-200 dark:border-surface-700">
                     <div>
-                      <p className="font-medium text-gray-900 dark:text-white">New User Alerts</p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Alert when new users register</p>
+                      <p className="font-medium text-surface-900 dark:text-white">New User Alerts</p>
+                      <p className="text-sm text-surface-500 dark:text-surface-400">Alert when new users register</p>
                     </div>
                     <button
                       onClick={() => setNotificationSettings({...notificationSettings, newUserAlerts: !notificationSettings.newUserAlerts})}
                       className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                        notificationSettings.newUserAlerts ? 'bg-primary-600' : 'bg-gray-200 dark:bg-gray-700'
+                        notificationSettings.newUserAlerts ? 'bg-primary-600' : 'bg-surface-200 dark:bg-surface-700'
                       }`}
                     >
                       <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
@@ -473,15 +473,15 @@ const Settings = () => {
                     </button>
                   </div>
 
-                  <div className="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center justify-between py-3 border-b border-surface-200 dark:border-surface-700">
                     <div>
-                      <p className="font-medium text-gray-900 dark:text-white">Booking Alerts</p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Alert for new bookings</p>
+                      <p className="font-medium text-surface-900 dark:text-white">Booking Alerts</p>
+                      <p className="text-sm text-surface-500 dark:text-surface-400">Alert for new bookings</p>
                     </div>
                     <button
                       onClick={() => setNotificationSettings({...notificationSettings, bookingAlerts: !notificationSettings.bookingAlerts})}
                       className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                        notificationSettings.bookingAlerts ? 'bg-primary-600' : 'bg-gray-200 dark:bg-gray-700'
+                        notificationSettings.bookingAlerts ? 'bg-primary-600' : 'bg-surface-200 dark:bg-surface-700'
                       }`}
                     >
                       <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
@@ -490,15 +490,15 @@ const Settings = () => {
                     </button>
                   </div>
 
-                  <div className="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center justify-between py-3 border-b border-surface-200 dark:border-surface-700">
                     <div>
-                      <p className="font-medium text-gray-900 dark:text-white">Payment Alerts</p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Alert for payment issues</p>
+                      <p className="font-medium text-surface-900 dark:text-white">Payment Alerts</p>
+                      <p className="text-sm text-surface-500 dark:text-surface-400">Alert for payment issues</p>
                     </div>
                     <button
                       onClick={() => setNotificationSettings({...notificationSettings, paymentAlerts: !notificationSettings.paymentAlerts})}
                       className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                        notificationSettings.paymentAlerts ? 'bg-primary-600' : 'bg-gray-200 dark:bg-gray-700'
+                        notificationSettings.paymentAlerts ? 'bg-primary-600' : 'bg-surface-200 dark:bg-surface-700'
                       }`}
                     >
                       <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
@@ -507,15 +507,15 @@ const Settings = () => {
                     </button>
                   </div>
 
-                  <div className="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center justify-between py-3 border-b border-surface-200 dark:border-surface-700">
                     <div>
-                      <p className="font-medium text-gray-900 dark:text-white">System Alerts</p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Alert for system issues</p>
+                      <p className="font-medium text-surface-900 dark:text-white">System Alerts</p>
+                      <p className="text-sm text-surface-500 dark:text-surface-400">Alert for system issues</p>
                     </div>
                     <button
                       onClick={() => setNotificationSettings({...notificationSettings, systemAlerts: !notificationSettings.systemAlerts})}
                       className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                        notificationSettings.systemAlerts ? 'bg-primary-600' : 'bg-gray-200 dark:bg-gray-700'
+                        notificationSettings.systemAlerts ? 'bg-primary-600' : 'bg-surface-200 dark:bg-surface-700'
                       }`}
                     >
                       <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
@@ -524,15 +524,15 @@ const Settings = () => {
                     </button>
                   </div>
 
-                  <div className="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center justify-between py-3 border-b border-surface-200 dark:border-surface-700">
                     <div>
-                      <p className="font-medium text-gray-900 dark:text-white">Security Alerts</p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Alert for security threats</p>
+                      <p className="font-medium text-surface-900 dark:text-white">Security Alerts</p>
+                      <p className="text-sm text-surface-500 dark:text-surface-400">Alert for security threats</p>
                     </div>
                     <button
                       onClick={() => setNotificationSettings({...notificationSettings, securityAlerts: !notificationSettings.securityAlerts})}
                       className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                        notificationSettings.securityAlerts ? 'bg-primary-600' : 'bg-gray-200 dark:bg-gray-700'
+                        notificationSettings.securityAlerts ? 'bg-primary-600' : 'bg-surface-200 dark:bg-surface-700'
                       }`}
                     >
                       <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
@@ -541,15 +541,15 @@ const Settings = () => {
                     </button>
                   </div>
 
-                  <div className="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center justify-between py-3 border-b border-surface-200 dark:border-surface-700">
                     <div>
-                      <p className="font-medium text-gray-900 dark:text-white">Weekly Reports</p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Send weekly activity reports</p>
+                      <p className="font-medium text-surface-900 dark:text-white">Weekly Reports</p>
+                      <p className="text-sm text-surface-500 dark:text-surface-400">Send weekly activity reports</p>
                     </div>
                     <button
                       onClick={() => setNotificationSettings({...notificationSettings, weeklyReports: !notificationSettings.weeklyReports})}
                       className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                        notificationSettings.weeklyReports ? 'bg-primary-600' : 'bg-gray-200 dark:bg-gray-700'
+                        notificationSettings.weeklyReports ? 'bg-primary-600' : 'bg-surface-200 dark:bg-surface-700'
                       }`}
                     >
                       <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
@@ -560,13 +560,13 @@ const Settings = () => {
 
                   <div className="flex items-center justify-between py-3">
                     <div>
-                      <p className="font-medium text-gray-900 dark:text-white">Marketing Emails</p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Send marketing communications</p>
+                      <p className="font-medium text-surface-900 dark:text-white">Marketing Emails</p>
+                      <p className="text-sm text-surface-500 dark:text-surface-400">Send marketing communications</p>
                     </div>
                     <button
                       onClick={() => setNotificationSettings({...notificationSettings, marketingEmails: !notificationSettings.marketingEmails})}
                       className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                        notificationSettings.marketingEmails ? 'bg-primary-600' : 'bg-gray-200 dark:bg-gray-700'
+                        notificationSettings.marketingEmails ? 'bg-primary-600' : 'bg-surface-200 dark:bg-surface-700'
                       }`}
                     >
                       <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
@@ -581,7 +581,7 @@ const Settings = () => {
             {/* User Management */}
             {activeTab === 'users' && (
               <div className="space-y-6">
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">User Management Settings</h2>
+                <h2 className="text-xl font-semibold text-surface-900 dark:text-white mb-6">User Management Settings</h2>
                 
                 <div className="space-y-4">
                   <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
@@ -600,19 +600,19 @@ const Settings = () => {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
                         Default User Role
                       </label>
-                      <select className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                      <select className="w-full px-3 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white">
                         <option value="renter">Renter</option>
                         <option value="pending">Pending Approval</option>
                       </select>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
                         Account Verification
                       </label>
-                      <select className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                      <select className="w-full px-3 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white">
                         <option value="email">Email Verification</option>
                         <option value="admin">Admin Approval</option>
                         <option value="automatic">Automatic</option>
@@ -621,7 +621,7 @@ const Settings = () => {
                   </div>
 
                   <div className="space-y-4">
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-white">User Actions</h3>
+                    <h3 className="text-lg font-medium text-surface-900 dark:text-white">User Actions</h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <button className="flex items-center justify-center px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors">
                         <UserPlus className="w-4 h-4 mr-2" />
@@ -644,49 +644,49 @@ const Settings = () => {
             {/* System Settings */}
             {activeTab === 'system' && (
               <div className="space-y-6">
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">System Settings</h2>
+                <h2 className="text-xl font-semibold text-surface-900 dark:text-white mb-6">System Settings</h2>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
                       Max File Size (MB)
                     </label>
                     <input
                       type="number"
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="w-full px-3 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white"
                       value={systemSettings.maxFileSize}
                       onChange={(e) => setSystemSettings({...systemSettings, maxFileSize: parseInt(e.target.value)})}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
                       Cache Timeout (seconds)
                     </label>
                     <input
                       type="number"
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="w-full px-3 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white"
                       value={systemSettings.cacheTimeout}
                       onChange={(e) => setSystemSettings({...systemSettings, cacheTimeout: parseInt(e.target.value)})}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
                       Max Concurrent Users
                     </label>
                     <input
                       type="number"
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="w-full px-3 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white"
                       value={systemSettings.maxConcurrentUsers}
                       onChange={(e) => setSystemSettings({...systemSettings, maxConcurrentUsers: parseInt(e.target.value)})}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
                       Retention Period (days)
                     </label>
                     <input
                       type="number"
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="w-full px-3 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white"
                       value={systemSettings.retentionPeriod}
                       onChange={(e) => setSystemSettings({...systemSettings, retentionPeriod: parseInt(e.target.value)})}
                     />
@@ -694,12 +694,12 @@ const Settings = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
                     Allowed File Types
                   </label>
                   <input
                     type="text"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    className="w-full px-3 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white"
                     value={systemSettings.allowedFileTypes}
                     onChange={(e) => setSystemSettings({...systemSettings, allowedFileTypes: e.target.value})}
                   />
@@ -709,20 +709,20 @@ const Settings = () => {
                   <label className="flex items-center">
                     <input
                       type="checkbox"
-                      className="rounded border-gray-300 dark:border-gray-600"
+                      className="rounded border-surface-200 dark:border-surface-600"
                       checked={systemSettings.enableCaching}
                       onChange={(e) => setSystemSettings({...systemSettings, enableCaching: e.target.checked})}
                     />
-                    <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Enable Caching</span>
+                    <span className="ml-2 text-sm text-surface-700 dark:text-surface-300">Enable Caching</span>
                   </label>
                   <label className="flex items-center">
                     <input
                       type="checkbox"
-                      className="rounded border-gray-300 dark:border-gray-600"
+                      className="rounded border-surface-200 dark:border-surface-600"
                       checked={systemSettings.enableCDN}
                       onChange={(e) => setSystemSettings({...systemSettings, enableCDN: e.target.checked})}
                     />
-                    <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Enable CDN</span>
+                    <span className="ml-2 text-sm text-surface-700 dark:text-surface-300">Enable CDN</span>
                   </label>
                 </div>
               </div>
@@ -731,68 +731,68 @@ const Settings = () => {
             {/* Email Settings */}
             {activeTab === 'email' && (
               <div className="space-y-6">
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">Email Configuration</h2>
+                <h2 className="text-xl font-semibold text-surface-900 dark:text-white mb-6">Email Configuration</h2>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
                       SMTP Host
                     </label>
                     <input
                       type="text"
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="w-full px-3 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white"
                       value={emailSettings.smtpHost}
                       onChange={(e) => setEmailSettings({...emailSettings, smtpHost: e.target.value})}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
                       SMTP Port
                     </label>
                     <input
                       type="number"
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="w-full px-3 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white"
                       value={emailSettings.smtpPort}
                       onChange={(e) => setEmailSettings({...emailSettings, smtpPort: parseInt(e.target.value)})}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
                       SMTP Username
                     </label>
                     <input
                       type="email"
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="w-full px-3 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white"
                       value={emailSettings.smtpUsername}
                       onChange={(e) => setEmailSettings({...emailSettings, smtpUsername: e.target.value})}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
                       SMTP Password
                     </label>
                     <div className="relative">
                       <input
                         type={showPassword ? 'text' : 'password'}
-                        className="w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        className="w-full px-3 py-2 pr-10 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white"
                         value={emailSettings.smtpPassword}
                         onChange={(e) => setEmailSettings({...emailSettings, smtpPassword: e.target.value})}
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-surface-400 hover:text-surface-600"
                       >
                         {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                       </button>
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
                       SMTP Encryption
                     </label>
                     <select
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="w-full px-3 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white"
                       value={emailSettings.smtpEncryption}
                       onChange={(e) => setEmailSettings({...emailSettings, smtpEncryption: e.target.value})}
                     >
@@ -802,34 +802,34 @@ const Settings = () => {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
                       From Name
                     </label>
                     <input
                       type="text"
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="w-full px-3 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white"
                       value={emailSettings.fromName}
                       onChange={(e) => setEmailSettings({...emailSettings, fromName: e.target.value})}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
                       From Email
                     </label>
                     <input
                       type="email"
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="w-full px-3 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white"
                       value={emailSettings.fromEmail}
                       onChange={(e) => setEmailSettings({...emailSettings, fromEmail: e.target.value})}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
                       Reply To
                     </label>
                     <input
                       type="email"
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="w-full px-3 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white"
                       value={emailSettings.replyTo}
                       onChange={(e) => setEmailSettings({...emailSettings, replyTo: e.target.value})}
                     />
@@ -851,28 +851,28 @@ const Settings = () => {
             {/* Backup & Restore */}
             {activeTab === 'backup' && (
               <div className="space-y-6">
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">Backup & Restore</h2>
+                <h2 className="text-xl font-semibold text-surface-900 dark:text-white mb-6">Backup & Restore</h2>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div>
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Create Backup</h3>
+                    <h3 className="text-lg font-medium text-surface-900 dark:text-white mb-4">Create Backup</h3>
                     <div className="space-y-4">
-                      <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                      <div className="bg-surface-50 dark:bg-surface-700 rounded-lg p-4">
+                        <p className="text-sm text-surface-500 dark:text-surface-400 mb-3">
                           Last backup: 2 days ago
                         </p>
                         <div className="space-y-2">
                           <label className="flex items-center">
-                            <input type="checkbox" className="rounded border-gray-300 dark:border-gray-600" defaultChecked />
-                            <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Database</span>
+                            <input type="checkbox" className="rounded border-surface-200 dark:border-surface-600" defaultChecked />
+                            <span className="ml-2 text-sm text-surface-700 dark:text-surface-300">Database</span>
                           </label>
                           <label className="flex items-center">
-                            <input type="checkbox" className="rounded border-gray-300 dark:border-gray-600" defaultChecked />
-                            <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">User Files</span>
+                            <input type="checkbox" className="rounded border-surface-200 dark:border-surface-600" defaultChecked />
+                            <span className="ml-2 text-sm text-surface-700 dark:text-surface-300">User Files</span>
                           </label>
                           <label className="flex items-center">
-                            <input type="checkbox" className="rounded border-gray-300 dark:border-gray-600" defaultChecked />
-                            <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Configuration</span>
+                            <input type="checkbox" className="rounded border-surface-200 dark:border-surface-600" defaultChecked />
+                            <span className="ml-2 text-sm text-surface-700 dark:text-surface-300">Configuration</span>
                           </label>
                         </div>
                       </div>
@@ -888,17 +888,17 @@ const Settings = () => {
                   </div>
 
                   <div>
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Restore Backup</h3>
+                    <h3 className="text-lg font-medium text-surface-900 dark:text-white mb-4">Restore Backup</h3>
                     <div className="space-y-4">
-                      <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 text-center">
-                        <Upload className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                      <div className="border-2 border-dashed border-surface-200 dark:border-surface-600 rounded-lg p-8 text-center">
+                        <Upload className="w-12 h-12 text-surface-400 mx-auto mb-3" />
+                        <p className="text-sm text-surface-500 dark:text-surface-400 mb-2">
                           Drop backup file here or click to browse
                         </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                        <p className="text-xs text-surface-500 dark:text-surface-400">
                           Supported formats: .zip, .sql, .json
                         </p>
-                        <button className="mt-4 px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium transition-colors">
+                        <button className="mt-4 px-4 py-2 bg-surface-100 hover:bg-surface-200 dark:bg-surface-700 dark:hover:bg-surface-600 text-surface-700 dark:text-surface-300 rounded-lg text-sm font-medium transition-colors">
                           Browse Files
                         </button>
                       </div>
@@ -906,7 +906,7 @@ const Settings = () => {
                       <button
                         onClick={handleRestore}
                         disabled
-                        className="w-full flex items-center justify-center px-4 py-3 bg-red-600 hover:bg-red-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors"
+                        className="w-full flex items-center justify-center px-4 py-3 bg-red-600 hover:bg-red-700 disabled:bg-surface-300 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors"
                       >
                         <RefreshCw className="w-4 h-4 mr-2" />
                         Restore Backup
@@ -933,7 +933,7 @@ const Settings = () => {
             )}
 
             {/* Save Button */}
-            <div className="flex justify-end pt-6 border-t border-gray-200 dark:border-gray-700">
+            <div className="flex justify-end pt-6 border-t border-surface-200 dark:border-surface-700">
               <button
                 onClick={handleSaveSettings}
                 className="flex items-center px-6 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-colors"
@@ -950,3 +950,5 @@ const Settings = () => {
 }
 
 export default Settings
+
+
