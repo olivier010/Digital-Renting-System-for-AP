@@ -36,7 +36,7 @@ const Navbar = () => {
 
   return (
     <nav className={`sticky top-0 z-50 transition-all duration-300 ${
-      isScrolled
+      isScrolled || isMenuOpen
         ? 'glass-navbar shadow-soft dark:shadow-dark-soft'
         : 'bg-white/60 dark:bg-surface-900/60 backdrop-blur-md border-b border-transparent'
     }`}>

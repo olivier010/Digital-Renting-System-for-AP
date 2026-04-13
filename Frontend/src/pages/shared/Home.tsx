@@ -88,7 +88,7 @@ const Home = () => {
             </span>
           </div>
           
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white mb-6 tracking-tight animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-white mb-6 tracking-tight animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
             Rent Assets & Properties
             <br />
             <span className="text-accent-300">Anywhere, Anytime</span>
@@ -110,11 +110,11 @@ const Home = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyPress={handleKeyPress}
-                className="flex-1 px-4 py-3 bg-transparent text-surface-900 dark:text-white placeholder-surface-400 dark:placeholder-surface-500 focus:outline-none text-base"
+                className="flex-1 w-full min-w-0 px-2 sm:px-4 py-3 bg-transparent text-surface-900 dark:text-white placeholder-surface-400 dark:placeholder-surface-500 focus:outline-none text-sm sm:text-base"
               />
               <button
                 onClick={handleSearch}
-                className="bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-700 hover:to-primary-600 text-white px-6 py-3 rounded-2xl font-semibold text-sm transition-all duration-200 shadow-md hover:shadow-soft dark:shadow-dark-soft"
+                className="bg-gradient-to-r flex-shrink-0 from-primary-600 to-primary-500 hover:from-primary-700 hover:to-primary-600 text-white px-4 sm:px-6 py-3 rounded-xl sm:rounded-2xl font-semibold text-sm transition-all duration-200 shadow-md hover:shadow-soft dark:shadow-dark-soft"
               >
                 Search
               </button>

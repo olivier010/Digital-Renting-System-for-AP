@@ -256,6 +256,7 @@ const RenterDashboard = () => {
   }
 
   const shouldMarqueeNotifications = notifications.length > 1
+  // Always use a new array to avoid React re-render issues
   const marqueeNotifications = shouldMarqueeNotifications
     ? [...notifications, ...notifications]
     : notifications
@@ -580,7 +581,7 @@ const RenterDashboard = () => {
             </div>
             <div className="p-6">
               <div className={shouldMarqueeNotifications ? 'notification-marquee-viewport' : ''}>
-                <div className={shouldMarqueeNotifications ? 'notification-marquee-track pr-1' : 'space-y-3'}>
+                <div className={shouldMarqueeNotifications ? 'notification-marquee-track pr-1' : 'space-y-3'} key={marqueeNotifications.length}>
                 {notifications.length === 0 && (
                   <div className="text-surface-400 text-center">No notifications</div>
                 )}
