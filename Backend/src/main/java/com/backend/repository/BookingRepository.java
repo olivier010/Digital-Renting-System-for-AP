@@ -84,4 +84,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     @Query("SELECT FUNCTION('YEAR', b.createdAt), FUNCTION('MONTH', b.createdAt), COALESCE(SUM(b.totalPrice), 0) FROM Booking b WHERE b.status = 'COMPLETED' GROUP BY FUNCTION('YEAR', b.createdAt), FUNCTION('MONTH', b.createdAt)")
     List<Object[]> findMonthlyRevenue();
+
+    @Query("SELECT COUNT(b) FROM Booking b WHERE b.status = :status AND b.createdAt >= :start AND b.createdAt < :end")
+    long countByStatusAndCreatedAtBetween(@Param("status") BookingStatus status, @Param("start") java.time.LocalDateTime start, @Param("end") java.time.LocalDateTime end);
 }

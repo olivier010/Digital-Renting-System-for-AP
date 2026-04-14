@@ -45,6 +45,8 @@ public class DashboardService {
         long propertiesLastMonth = propertyRepository.countCreatedBetween(startOfLastMonth, startOfThisMonth);
         // Bookings
         long bookingsLastMonth = bookingRepository.countCreatedBetween(startOfLastMonth, startOfThisMonth);
+        long confirmedBookingsLastMonth = bookingRepository.countByStatusAndCreatedAtBetween(BookingStatus.CONFIRMED, startOfLastMonth, startOfThisMonth);
+        long completedBookingsLastMonth = bookingRepository.countByStatusAndCreatedAtBetween(BookingStatus.COMPLETED, startOfLastMonth, startOfThisMonth);
         // Revenue
         BigDecimal revenueLastMonth = bookingRepository.calculateRevenueBetween(startOfLastMonth, startOfThisMonth);
         // Ratings
@@ -66,6 +68,8 @@ public class DashboardService {
             .pendingBookings(bookingRepository.countByStatus(BookingStatus.PENDING))
             .confirmedBookings(bookingRepository.countByStatus(BookingStatus.CONFIRMED))
             .completedBookings(bookingRepository.countByStatus(BookingStatus.COMPLETED))
+            .confirmedBookingsLastMonth(confirmedBookingsLastMonth)
+            .completedBookingsLastMonth(completedBookingsLastMonth)
             .totalRevenue(bookingRepository.calculateTotalRevenue() != null ? bookingRepository.calculateTotalRevenue() : BigDecimal.ZERO)
             .totalRevenueLastMonth(revenueLastMonth != null ? revenueLastMonth : BigDecimal.ZERO)
             .activeUsers(userRepository.countByIsActive(true))

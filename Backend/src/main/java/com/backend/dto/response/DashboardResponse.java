@@ -27,6 +27,8 @@ public class DashboardResponse {
     private Long pendingBookings;
     private Long confirmedBookings;
     private Long completedBookings;
+    private Long confirmedBookingsLastMonth;
+    private Long completedBookingsLastMonth;
     private BigDecimal totalRevenue;
     private BigDecimal totalRevenueLastMonth;
     private Long activeUsers; // Only approved users (isActive=true)
