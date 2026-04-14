@@ -26,7 +26,7 @@ const Reports = () => {
 
   const [systemLogs, setSystemLogs] = useState<any[]>([])
 
-  const [reportedIssues] = useState<any[]>([])
+
 
   useEffect(() => {
     // Fetch dashboard stats
@@ -51,17 +51,6 @@ const Reports = () => {
     }
   }
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'resolved': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-      case 'in_progress': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-      case 'investigating': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-      case 'pending': return 'bg-surface-100 text-gray-800 dark:bg-surface-700 dark:text-surface-200'
-      case 'approved': return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
-      default: return 'bg-surface-100 text-gray-800 dark:bg-surface-700 dark:text-surface-200'
-    }
-  }
-
   const [logsPage, setLogsPage] = useState(0);
   const LOGS_PAGE_SIZE = 4;
   const filteredLogs = systemLogs
@@ -71,12 +60,6 @@ const Reports = () => {
     )
     .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
   const paginatedLogs = filteredLogs.slice(logsPage * LOGS_PAGE_SIZE, (logsPage + 1) * LOGS_PAGE_SIZE);
-
-  const filteredIssues = reportedIssues.filter(issue =>
-    issue.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    issue.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    issue.reporter.toLowerCase().includes(searchTerm.toLowerCase())
-  )
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
