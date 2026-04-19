@@ -1,13 +1,14 @@
 import { Link, useLocation } from 'react-router-dom'
-import { useState } from 'react'
-import { useTheme } from '../contexts/ThemeContext'
+import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '../contexts/AuthContext'
+import ThemeToggle from './ui/ThemeToggle'
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const { theme, toggleTheme } = useTheme()
+  const [isScrolled, setIsScrolled] = useState(false)
   const { isAuthenticated, user } = useAuth()
   const location = useLocation()
+  const menuRef = useRef<HTMLDivElement>(null)
 
   const isActive = (path: string) => location.pathname === path
   const dashboardPath =
@@ -15,202 +16,160 @@ const Navbar = () => {
       user?.type === 'owner' ? '/owner/dashboard' :
         '/renter/dashboard'
 
+  useEffect(() => {
+    const handleScroll = () => setIsScrolled(window.scrollY > 10)
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  // Close menu on route change
+  useEffect(() => {
+    setIsMenuOpen(false)
+  }, [location.pathname])
+
+  const navLinks = [
+    { name: 'Home', path: '/' },
+    { name: 'Explore', path: '/properties' },
+    { name: 'About', path: '/about' },
+    { name: 'Contact', path: '/contact' },
+  ]
+
   return (
-    <nav className="bg-white dark:bg-gray-900 shadow-sm sticky top-0 z-50 backdrop-blur-lg bg-opacity-95 dark:bg-opacity-95">
-      <div className="container mx-auto px-4">
+    <nav className={`sticky top-0 z-50 transition-all duration-300 ${
+      isScrolled || isMenuOpen
+        ? 'glass-navbar shadow-soft dark:shadow-dark-soft'
+        : 'bg-white/60 dark:bg-surface-900/60 backdrop-blur-md border-b border-transparent'
+    }`}>
+      <div className="container mx-auto px-4 sm:px-6">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2">
-            <div className="bg-primary-600 text-white w-8 h-8 rounded-lg flex items-center justify-center font-bold">
+          <Link to="/" className="flex items-center space-x-2.5 group">
+            <div className="bg-gradient-to-br from-primary-500 to-primary-700 text-white w-9 h-9 rounded-2xl flex items-center justify-center font-bold text-sm shadow-md group-hover:shadow-glow-primary transition-shadow duration-300">
               RW
             </div>
-            <span className="font-bold text-xl text-gray-800 dark:text-white">RentWise</span>
+            <span className="font-bold text-xl text-surface-800 dark:text-white tracking-tight">
+              Rent<span className="text-primary-600 dark:text-primary-400">Wise</span>
+            </span>
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
-            <Link
-              to="/"
-              className={`font-medium transition-colors ${isActive('/') ? 'text-primary-600 dark:text-primary-400' : 'text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400'
+          <div className="hidden md:flex items-center space-x-1">
+            {navLinks.map((link) => (
+              <Link
+                key={link.path}
+                to={link.path}
+                className={`nav-link px-4 py-2 rounded-lg text-sm ${
+                  isActive(link.path) || (link.path === '/properties' && isActive('/properties/'))
+                    ? 'text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/20'
+                    : 'text-surface-600 dark:text-surface-300 hover:text-surface-900 dark:hover:text-white hover:bg-surface-100 dark:hover:bg-surface-800'
                 }`}
-            >
-              Home
-            </Link>
-            <Link
-              to="/properties"
-              className={`font-medium transition-colors ${isActive('/properties') || isActive('/properties/') ? 'text-primary-600 dark:text-primary-400' : 'text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400'
-                }`}
-            >
-              Explore
-            </Link>
-            <Link
-              to="/about"
-              className={`font-medium transition-colors ${isActive('/about') ? 'text-primary-600 dark:text-primary-400' : 'text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400'
-                }`}
-            >
-              About
-            </Link>
-            <Link
-              to="/contact"
-              className={`font-medium transition-colors ${isActive('/contact') ? 'text-primary-600 dark:text-primary-400' : 'text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400'
-                }`}
-            >
-              Contact
-            </Link>
+              >
+                {link.name}
+              </Link>
+            ))}
           </div>
 
           {/* Right Side Controls */}
-          <div className="hidden md:flex items-center space-x-4">
-            {/* Theme Toggle */}
-            <button
-              onClick={toggleTheme}
-              className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-200"
-              aria-label="Toggle theme"
-            >
-              {theme === 'light' ? (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                </svg>
-              ) : (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-                </svg>
-              )}
-            </button>
+          <div className="hidden md:flex items-center space-x-3">
+            <ThemeToggle />
 
-            {/* Auth Buttons */}
             {isAuthenticated ? (
               <Link
                 to={dashboardPath}
-                className="bg-accent-500 text-white px-4 py-2 rounded-lg hover:bg-accent-600 transition-all duration-200 transform hover:scale-105"
+                className="inline-flex items-center gap-2 bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-700 hover:to-primary-600 text-white px-5 py-2.5 rounded-2xl font-semibold text-sm transition-all duration-200 shadow-md hover:shadow-soft dark:shadow-dark-soft hover:scale-[1.02]"
               >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                </svg>
                 Open Portal
               </Link>
             ) : (
               <>
                 <Link
                   to="/login"
-                  className="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 font-medium transition-colors"
+                  className="text-surface-600 dark:text-surface-300 hover:text-surface-900 dark:hover:text-white font-medium text-sm transition-colors px-3 py-2"
                 >
-                  Login
+                  Sign in
                 </Link>
                 <Link
                   to="/register"
-                  className="bg-accent-500 text-white px-4 py-2 rounded-lg hover:bg-accent-600 transition-all duration-200 transform hover:scale-105"
+                  className="inline-flex items-center bg-gradient-to-r from-accent-500 to-accent-400 hover:from-accent-600 hover:to-accent-500 text-white px-5 py-2.5 rounded-2xl font-semibold text-sm transition-all duration-200 shadow-md hover:shadow-soft dark:shadow-dark-soft hover:scale-[1.02]"
                 >
-                  Register
+                  Get Started
                 </Link>
               </>
             )}
           </div>
 
           {/* Mobile menu button */}
-          <button
-            className="md:hidden p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-gray-100 dark:hover:bg-gray-800"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              {isMenuOpen ? (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              )}
-            </svg>
-          </button>
+          <div className="flex items-center gap-2 md:hidden">
+            <ThemeToggle />
+            <button
+              className="p-2 rounded-2xl text-surface-600 dark:text-surface-300 hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+            >
+              <div className="w-5 h-5 relative">
+                <span className={`absolute left-0 w-5 h-0.5 bg-current rounded-full transition-all duration-300 ${isMenuOpen ? 'top-[10px] rotate-45' : 'top-[3px]'}`}></span>
+                <span className={`absolute left-0 top-[10px] w-5 h-0.5 bg-current rounded-full transition-all duration-300 ${isMenuOpen ? 'opacity-0 scale-0' : 'opacity-100'}`}></span>
+                <span className={`absolute left-0 w-5 h-0.5 bg-current rounded-full transition-all duration-300 ${isMenuOpen ? 'top-[10px] -rotate-45' : 'top-[17px]'}`}></span>
+              </div>
+            </button>
+          </div>
         </div>
 
         {/* Mobile Navigation */}
-        {isMenuOpen && (
-          <div className="md:hidden py-4 border-t border-gray-200 dark:border-gray-700">
-            <div className="flex flex-col space-y-3">
+        <div
+          ref={menuRef}
+          className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${
+            isMenuOpen ? 'max-h-96 opacity-100 pb-4' : 'max-h-0 opacity-0'
+          }`}
+        >
+          <div className="pt-2 space-y-1">
+            {navLinks.map((link) => (
               <Link
-                to="/"
-                className={`font-medium transition-colors ${isActive('/') ? 'text-primary-600 dark:text-primary-400' : 'text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400'
-                  }`}
-                onClick={() => setIsMenuOpen(false)}
+                key={link.path}
+                to={link.path}
+                className={`block px-4 py-2.5 rounded-2xl text-sm font-medium transition-colors ${
+                  isActive(link.path)
+                    ? 'text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/20'
+                    : 'text-surface-600 dark:text-surface-300 hover:text-surface-900 dark:hover:text-white hover:bg-surface-100 dark:hover:bg-surface-800'
+                }`}
               >
-                Home
+                {link.name}
               </Link>
-              <Link
-                to="/properties"
-                className={`font-medium transition-colors ${isActive('/properties') ? 'text-primary-600 dark:text-primary-400' : 'text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400'
-                  }`}
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Explore
-              </Link>
-              <Link
-                to="/about"
-                className={`font-medium transition-colors ${isActive('/about') ? 'text-primary-600 dark:text-primary-400' : 'text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400'
-                  }`}
-                onClick={() => setIsMenuOpen(false)}
-              >
-                About
-              </Link>
-              <Link
-                to="/contact"
-                className={`font-medium transition-colors ${isActive('/contact') ? 'text-primary-600 dark:text-primary-400' : 'text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400'
-                  }`}
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Contact
-              </Link>
-              <div className="flex flex-col space-y-2 pt-3 border-t border-gray-200 dark:border-gray-700">
-                {/* Mobile Theme Toggle */}
-                <button
-                  onClick={toggleTheme}
-                  className="flex items-center justify-center p-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-200"
+            ))}
+            <div className="pt-2 space-y-2 border-t border-surface-200 dark:border-surface-700 mt-2">
+              {isAuthenticated ? (
+                <Link
+                  to={dashboardPath}
+                  className="block w-full text-center bg-gradient-to-r from-primary-600 to-primary-500 text-white px-4 py-2.5 rounded-2xl font-semibold text-sm"
                 >
-                  {theme === 'light' ? (
-                    <>
-                      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                      </svg>
-                      Dark Mode
-                    </>
-                  ) : (
-                    <>
-                      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-                      </svg>
-                      Light Mode
-                    </>
-                  )}
-                </button>
-
-                {isAuthenticated ? (
+                  Open Portal
+                </Link>
+              ) : (
+                <>
                   <Link
-                    to={dashboardPath}
-                    className="bg-accent-500 text-white px-4 py-2 rounded-lg hover:bg-accent-600 transition-colors text-center"
-                    onClick={() => setIsMenuOpen(false)}
+                    to="/login"
+                    className="block w-full text-center text-surface-600 dark:text-surface-300 font-medium text-sm py-2.5 rounded-2xl hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors"
                   >
-                    Open Portal
+                    Sign in
                   </Link>
-                ) : (
-                  <>
-                    <Link
-                      to="/login"
-                      className="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 font-medium transition-colors text-center"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      Login
-                    </Link>
-                    <Link
-                      to="/register"
-                      className="bg-accent-500 text-white px-4 py-2 rounded-lg hover:bg-accent-600 transition-colors text-center"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      Register
-                    </Link>
-                  </>
-                )}
-              </div>
+                  <Link
+                    to="/register"
+                    className="block w-full text-center bg-gradient-to-r from-accent-500 to-accent-400 text-white px-4 py-2.5 rounded-2xl font-semibold text-sm"
+                  >
+                    Get Started
+                  </Link>
+                </>
+              )}
             </div>
           </div>
-        )}
+        </div>
       </div>
     </nav>
   )
 }
 
 export default Navbar
+
+

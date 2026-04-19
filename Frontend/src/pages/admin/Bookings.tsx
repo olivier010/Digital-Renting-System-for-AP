@@ -99,7 +99,7 @@ const Bookings = () => {
       case 'pending': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
       case 'cancelled': return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
       case 'completed': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
+      default: return 'bg-surface-100 text-gray-800 dark:bg-surface-700 dark:text-surface-200'
     }
   }
 
@@ -135,7 +135,7 @@ const Bookings = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <span className="text-lg text-gray-500 dark:text-gray-400">Loading bookings...</span>
+        <span className="text-lg text-surface-500 dark:text-surface-400">Loading bookings...</span>
       </div>
     )
   }
@@ -152,21 +152,21 @@ const Bookings = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+        <h1 className="text-3xl font-bold text-surface-900 dark:text-white mb-2">
           Booking Management
         </h1>
-        <p className="text-gray-600 dark:text-gray-400">
+        <p className="text-surface-500 dark:text-surface-400">
           Monitor and manage all booking transactions across the platform
         </p>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 mb-6">
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-3">
+        <div className="bg-white dark:bg-surface-800 rounded-lg shadow-sm border border-surface-200 dark:border-surface-700 p-3">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-[11px] font-medium text-gray-600 dark:text-gray-400">Total Bookings</p>
-              <p className="text-lg font-bold text-gray-900 dark:text-white">{stats.total}</p>
+              <p className="text-[11px] font-medium text-surface-500 dark:text-surface-400">Total Bookings</p>
+              <p className="text-lg font-bold text-surface-900 dark:text-white">{stats.total}</p>
             </div>
             <div className="p-1 bg-blue-100 dark:bg-blue-900 rounded-md">
               <Calendar className="w-4 h-4 text-blue-600 dark:text-blue-300" />
@@ -174,11 +174,11 @@ const Bookings = () => {
           </div>
         </div>
         
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-3">
+        <div className="bg-white dark:bg-surface-800 rounded-lg shadow-sm border border-surface-200 dark:border-surface-700 p-3">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-[11px] font-medium text-gray-600 dark:text-gray-400">Confirmed</p>
-              <p className="text-lg font-bold text-gray-900 dark:text-white">{stats.confirmed}</p>
+              <p className="text-[11px] font-medium text-surface-500 dark:text-surface-400">Confirmed</p>
+              <p className="text-lg font-bold text-surface-900 dark:text-white">{stats.confirmed}</p>
             </div>
             <div className="p-1 bg-green-100 dark:bg-green-900 rounded-md">
               <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-300" />
@@ -186,11 +186,11 @@ const Bookings = () => {
           </div>
         </div>
         
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-3">
+        <div className="bg-white dark:bg-surface-800 rounded-lg shadow-sm border border-surface-200 dark:border-surface-700 p-3">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-[11px] font-medium text-gray-600 dark:text-gray-400">Pending</p>
-              <p className="text-lg font-bold text-gray-900 dark:text-white">{stats.pending}</p>
+              <p className="text-[11px] font-medium text-surface-500 dark:text-surface-400">Pending</p>
+              <p className="text-lg font-bold text-surface-900 dark:text-white">{stats.pending}</p>
             </div>
             <div className="p-1 bg-yellow-100 dark:bg-yellow-900 rounded-md">
               <AlertCircle className="w-4 h-4 text-yellow-600 dark:text-yellow-300" />
@@ -198,22 +198,22 @@ const Bookings = () => {
           </div>
         </div>
         
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-3">
+        <div className="bg-white dark:bg-surface-800 rounded-lg shadow-sm border border-surface-200 dark:border-surface-700 p-3">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-[11px] font-medium text-gray-600 dark:text-gray-400">Completed</p>
-              <p className="text-lg font-bold text-gray-900 dark:text-white">{stats.completed}</p>
+              <p className="text-[11px] font-medium text-surface-500 dark:text-surface-400">Completed</p>
+              <p className="text-lg font-bold text-surface-900 dark:text-white">{stats.completed}</p>
             </div>
             <div className="p-1 bg-purple-100 dark:bg-purple-900 rounded-md">
               <CheckCircle className="w-4 h-4 text-purple-600 dark:text-purple-300" />
             </div>
           </div>
         </div>
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-3 col-span-2 lg:col-span-1">
+        <div className="bg-white dark:bg-surface-800 rounded-lg shadow-sm border border-surface-200 dark:border-surface-700 p-3 col-span-2 lg:col-span-1">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-[11px] font-medium text-gray-600 dark:text-gray-400">Total Revenue</p>
-              <p className="text-lg font-bold text-gray-900 dark:text-white break-words max-w-[120px]">${stats.totalRevenue.toLocaleString()}</p>
+              <p className="text-[11px] font-medium text-surface-500 dark:text-surface-400">Total Revenue</p>
+              <p className="text-lg font-bold text-surface-900 dark:text-white break-words max-w-[120px]">${stats.totalRevenue.toLocaleString()}</p>
             </div>
             <div className="p-1 bg-green-100 dark:bg-green-900 rounded-md">
               <DollarSign className="w-4 h-4 text-green-600 dark:text-green-300" />
@@ -223,15 +223,15 @@ const Bookings = () => {
       </div>
 
       {/* Search and Filter */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6">
+      <div className="bg-white dark:bg-surface-800 rounded-2xl shadow-sm border border-surface-200 dark:border-surface-700 p-6 mb-6">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div className="flex-1 max-w-md">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-surface-400 w-4 h-4" />
               <input
                 type="text"
                 placeholder="Search bookings..."
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                className="w-full pl-10 pr-4 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -242,7 +242,7 @@ const Bookings = () => {
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+              className="px-3 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white text-sm"
             >
               <option value="all">All Status</option>
               <option value="PENDING">Pending</option>
@@ -254,7 +254,7 @@ const Bookings = () => {
             <select
               value={filterDateRange}
               onChange={(e) => setFilterDateRange(e.target.value)}
-              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+              className="px-3 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white text-sm"
             >
               <option value="all">All Dates</option>
               <option value="today">Today</option>
@@ -263,7 +263,7 @@ const Bookings = () => {
               <option value="year">This Year</option>
             </select>
             
-            <button className="flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+            <button className="flex items-center px-4 py-2 border border-surface-200 dark:border-surface-600 rounded-lg hover:bg-surface-50 dark:hover:bg-surface-700 transition-colors">
               <Download className="w-4 h-4 mr-2" />
               Export
             </button>
@@ -289,50 +289,50 @@ const Bookings = () => {
           </div>
         </div>
       )}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+      <div className="bg-white dark:bg-surface-800 rounded-2xl shadow-sm border border-surface-200 dark:border-surface-700 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-50 dark:bg-gray-700">
+            <thead className="bg-surface-50 dark:bg-surface-700">
               <tr>
                 <th className="px-3 py-2 text-left">
                   <input
                     type="checkbox"
                     checked={selectedBookings.length === filteredBookings.length && filteredBookings.length > 0}
                     onChange={handleSelectAll}
-                    className="rounded border-gray-300 dark:border-gray-600"
+                    className="rounded border-surface-200 dark:border-surface-600"
                   />
                 </th>
-                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Booking No</th>
-                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Property</th>
-                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Owner</th>
-                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Renter</th>
-                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Dates</th>
-                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
-                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Payment</th>
-                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
+                <th className="px-3 py-2 text-left text-xs font-medium text-surface-500 dark:text-surface-300 uppercase tracking-wider">Booking No</th>
+                <th className="px-3 py-2 text-left text-xs font-medium text-surface-500 dark:text-surface-300 uppercase tracking-wider">Property</th>
+                <th className="px-3 py-2 text-left text-xs font-medium text-surface-500 dark:text-surface-300 uppercase tracking-wider">Owner</th>
+                <th className="px-3 py-2 text-left text-xs font-medium text-surface-500 dark:text-surface-300 uppercase tracking-wider">Renter</th>
+                <th className="px-3 py-2 text-left text-xs font-medium text-surface-500 dark:text-surface-300 uppercase tracking-wider">Dates</th>
+                <th className="px-3 py-2 text-left text-xs font-medium text-surface-500 dark:text-surface-300 uppercase tracking-wider">Status</th>
+                <th className="px-3 py-2 text-left text-xs font-medium text-surface-500 dark:text-surface-300 uppercase tracking-wider">Payment</th>
+                <th className="px-3 py-2 text-left text-xs font-medium text-surface-500 dark:text-surface-300 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
-            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+            <tbody className="bg-white dark:bg-surface-800 divide-y divide-gray-200 dark:divide-gray-700">
               {currentBookings.map((booking) => (
-                <tr key={booking.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                <tr key={booking.id} className="hover:bg-surface-50 dark:hover:bg-surface-700">
                   <td className="px-3 py-2">
                     <input
                       type="checkbox"
                       checked={selectedBookings.includes(Number(booking.id))}
                       onChange={() => handleSelectBooking(Number(booking.id))}
-                      className="rounded border-gray-300 dark:border-gray-600"
+                      className="rounded border-surface-200 dark:border-surface-600"
                     />
                   </td>
                   {/* Booking No */}
                   <td className="px-3 py-2">
-                    <div className="text-xs font-medium text-gray-900 dark:text-white">
+                    <div className="text-xs font-medium text-surface-900 dark:text-white">
                       BK{String(booking.id).padStart(4, '0')}
                     </div>
                   </td>
                   {/* Property */}
                   <td className="px-3 py-2">
                     <div className="flex items-center">
-                      <div className="w-6 h-6 bg-gray-200 dark:bg-gray-700 rounded flex items-center justify-center mr-2 overflow-hidden">
+                      <div className="w-6 h-6 bg-surface-200 dark:bg-surface-700 rounded flex items-center justify-center mr-2 overflow-hidden">
                         {booking.property?.image ? (
                           <img
                             src={booking.property.image.startsWith('http') ? booking.property.image : `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'}${booking.property.image}`}
@@ -344,10 +344,10 @@ const Bookings = () => {
                         )}
                       </div>
                       <div>
-                        <div className="text-xs font-medium text-gray-900 dark:text-white truncate max-w-32">
+                        <div className="text-xs font-medium text-surface-900 dark:text-white truncate max-w-32">
                           {booking.property?.title}
                         </div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center">
+                        <div className="text-xs text-surface-500 dark:text-surface-400 flex items-center">
                           {booking.property?.location}
                         </div>
                       </div>
@@ -362,10 +362,10 @@ const Bookings = () => {
                         </span>
                       </div>
                       <div>
-                        <div className="text-xs font-medium text-gray-900 dark:text-white">
+                        <div className="text-xs font-medium text-surface-900 dark:text-white">
                           {booking.property?.ownerName}
                         </div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-24">
+                        <div className="text-xs text-surface-500 dark:text-surface-400 truncate max-w-24">
                           ID: {booking.property?.ownerId}
                         </div>
                       </div>
@@ -380,10 +380,10 @@ const Bookings = () => {
                         </span>
                       </div>
                       <div>
-                        <div className="text-xs font-medium text-gray-900 dark:text-white">
+                        <div className="text-xs font-medium text-surface-900 dark:text-white">
                           {booking.renter?.name}
                         </div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-24">
+                        <div className="text-xs text-surface-500 dark:text-surface-400 truncate max-w-24">
                           {booking.renter?.email}
                         </div>
                       </div>
@@ -392,10 +392,10 @@ const Bookings = () => {
                   {/* Dates */}
                   <td className="px-3 py-2">
                     <div className="text-xs">
-                      <div className="font-medium text-gray-900 dark:text-white">
+                      <div className="font-medium text-surface-900 dark:text-white">
                         {booking.startDate}
                       </div>
-                      <div className="text-gray-500 dark:text-gray-400">
+                      <div className="text-surface-500 dark:text-surface-400">
                         to {booking.endDate}
                       </div>
                     </div>
@@ -409,7 +409,7 @@ const Bookings = () => {
                   {/* Payment */}
                   <td className="px-3 py-2">
                     <div className="text-xs">
-                      <div className="font-medium text-gray-900 dark:text-white">
+                      <div className="font-medium text-surface-900 dark:text-white">
                         ${Number(booking.totalPrice).toLocaleString()}
                       </div>
                       <div className={`inline-flex px-1 py-0.5 text-xs font-medium rounded-full ${getStatusColor(booking.paymentStatus?.toLowerCase?.() || '')}`}>
@@ -420,10 +420,10 @@ const Bookings = () => {
                   {/* Actions */}
                   <td className="px-3 py-2">
                     <div className="flex items-center space-x-1">
-                      <button className="p-0.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" onClick={() => setViewBooking(booking)}>
+                      <button className="p-0.5 text-surface-400 hover:text-surface-600 dark:hover:text-surface-300" onClick={() => setViewBooking(booking)}>
                         <Eye className="w-3 h-3" />
                       </button>
-                      <button className="p-0.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                      <button className="p-0.5 text-surface-400 hover:text-surface-600 dark:hover:text-surface-300">
                         <FileText className="w-3 h-3" />
                       </button>
                       {booking.status?.toLowerCase() === 'pending' && (
@@ -441,24 +441,24 @@ const Bookings = () => {
                             {/* Booking Details Modal - move outside table to avoid <div> in <tr> hydration error */}
                             {viewBooking && (
                               <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-                                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg max-w-lg w-full p-6 relative">
-                                  <button className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" onClick={() => setViewBooking(null)}>
+                                <div className="bg-white dark:bg-surface-800 rounded-lg shadow-soft dark:shadow-dark-soft max-w-lg w-full p-6 relative">
+                                  <button className="absolute top-2 right-2 text-surface-400 hover:text-surface-600 dark:hover:text-surface-300" onClick={() => setViewBooking(null)}>
                                     <span className="text-2xl">&times;</span>
                                   </button>
-                                  <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Booking Details</h2>
-                                  <div className="space-y-2 text-sm text-gray-900 dark:text-white">
-                                    <div><span className="font-medium text-gray-900 dark:text-white">Booking No:</span> BK{String(viewBooking.id).padStart(4, '0')}</div>
-                                    <div><span className="font-medium text-gray-900 dark:text-white">Status:</span> {viewBooking.status}</div>
-                                    <div><span className="font-medium text-gray-900 dark:text-white">Payment Status:</span> {viewBooking.paymentStatus}</div>
-                                    <div><span className="font-medium text-gray-900 dark:text-white">Property:</span> {viewBooking.property?.title} ({viewBooking.property?.location})</div>
-                                    <div><span className="font-medium text-gray-900 dark:text-white">Owner:</span> {viewBooking.property?.ownerName} (ID: {viewBooking.property?.ownerId})</div>
-                                    <div><span className="font-medium text-gray-900 dark:text-white">Renter:</span> {viewBooking.renter?.name} ({viewBooking.renter?.email})</div>
-                                    <div><span className="font-medium text-gray-900 dark:text-white">Dates:</span> {viewBooking.startDate} to {viewBooking.endDate}</div>
-                                    <div><span className="font-medium text-gray-900 dark:text-white">Total Price:</span> ${Number(viewBooking.totalPrice).toLocaleString()}</div>
-                                    {viewBooking.specialRequests && <div><span className="font-medium text-gray-900 dark:text-white">Special Requests:</span> {viewBooking.specialRequests}</div>}
-                                    {viewBooking.cancellationReason && <div><span className="font-medium text-gray-900 dark:text-white">Cancellation Reason:</span> {viewBooking.cancellationReason}</div>}
-                                    <div><span className="font-medium text-gray-900 dark:text-white">Created At:</span> {viewBooking.createdAt}</div>
-                                    <div><span className="font-medium text-gray-900 dark:text-white">Updated At:</span> {viewBooking.updatedAt}</div>
+                                  <h2 className="text-xl font-bold mb-4 text-surface-900 dark:text-white">Booking Details</h2>
+                                  <div className="space-y-2 text-sm text-surface-900 dark:text-white">
+                                    <div><span className="font-medium text-surface-900 dark:text-white">Booking No:</span> BK{String(viewBooking.id).padStart(4, '0')}</div>
+                                    <div><span className="font-medium text-surface-900 dark:text-white">Status:</span> {viewBooking.status}</div>
+                                    <div><span className="font-medium text-surface-900 dark:text-white">Payment Status:</span> {viewBooking.paymentStatus}</div>
+                                    <div><span className="font-medium text-surface-900 dark:text-white">Property:</span> {viewBooking.property?.title} ({viewBooking.property?.location})</div>
+                                    <div><span className="font-medium text-surface-900 dark:text-white">Owner:</span> {viewBooking.property?.ownerName} (ID: {viewBooking.property?.ownerId})</div>
+                                    <div><span className="font-medium text-surface-900 dark:text-white">Renter:</span> {viewBooking.renter?.name} ({viewBooking.renter?.email})</div>
+                                    <div><span className="font-medium text-surface-900 dark:text-white">Dates:</span> {viewBooking.startDate} to {viewBooking.endDate}</div>
+                                    <div><span className="font-medium text-surface-900 dark:text-white">Total Price:</span> ${Number(viewBooking.totalPrice).toLocaleString()}</div>
+                                    {viewBooking.specialRequests && <div><span className="font-medium text-surface-900 dark:text-white">Special Requests:</span> {viewBooking.specialRequests}</div>}
+                                    {viewBooking.cancellationReason && <div><span className="font-medium text-surface-900 dark:text-white">Cancellation Reason:</span> {viewBooking.cancellationReason}</div>}
+                                    <div><span className="font-medium text-surface-900 dark:text-white">Created At:</span> {viewBooking.createdAt}</div>
+                                    <div><span className="font-medium text-surface-900 dark:text-white">Updated At:</span> {viewBooking.updatedAt}</div>
                                   </div>
                                 </div>
                               </div>
@@ -471,9 +471,9 @@ const Bookings = () => {
         
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="border-t border-gray-200 dark:border-gray-700 px-4 py-3">
+          <div className="border-t border-surface-200 dark:border-surface-700 px-4 py-3">
             <div className="flex items-center justify-between">
-              <div className="text-xs text-gray-700 dark:text-gray-300">
+              <div className="text-xs text-surface-700 dark:text-surface-300">
                 Showing {indexOfFirstBooking + 1} to {Math.min(indexOfLastBooking, filteredBookings.length)} of{' '}
                 {filteredBookings.length} bookings
               </div>
@@ -481,17 +481,17 @@ const Bookings = () => {
                 <button
                   onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                   disabled={currentPage === 1}
-                  className="p-1 border border-gray-300 dark:border-gray-600 rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700"
+                  className="p-1 border border-surface-200 dark:border-surface-600 rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-surface-50 dark:hover:bg-surface-700"
                 >
                   <ChevronLeft className="w-3 h-3" />
                 </button>
-                <span className="text-xs text-gray-700 dark:text-gray-300 px-2">
+                <span className="text-xs text-surface-700 dark:text-surface-300 px-2">
                   Page {currentPage} of {totalPages}
                 </span>
                 <button
                   onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                   disabled={currentPage === totalPages}
-                  className="p-1 border border-gray-300 dark:border-gray-600 rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700"
+                  className="p-1 border border-surface-200 dark:border-surface-600 rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-surface-50 dark:hover:bg-surface-700"
                 >
                   <ChevronRight className="w-3 h-3" />
                 </button>
@@ -505,3 +505,5 @@ const Bookings = () => {
 }
 
 export default Bookings
+
+

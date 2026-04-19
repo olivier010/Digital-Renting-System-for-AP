@@ -36,12 +36,9 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
   })
 
   useEffect(() => {
-    // Apply theme to document
     const root = document.documentElement
     root.classList.remove('light', 'dark')
     root.classList.add(theme)
-    
-    // Save to localStorage
     localStorage.setItem('theme', theme)
   }, [theme])
 
@@ -55,3 +52,5 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
     </ThemeContext.Provider>
   )
 }
+
+

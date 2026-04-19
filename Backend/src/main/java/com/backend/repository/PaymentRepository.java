@@ -48,5 +48,10 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
     @Query("SELECT SUM(p.amount) FROM Payment p WHERE p.booking.property.owner.id = :ownerId AND p.status = 'COMPLETED'")
     BigDecimal calculateOwnerEarnings(@Param("ownerId") Long ownerId);
+
+    @Query("SELECT SUM(p.amount) FROM Payment p WHERE p.booking.property.owner.id = :ownerId AND p.status = 'COMPLETED' AND p.createdAt >= :start AND p.createdAt < :end")
+    BigDecimal sumOwnerCompletedPaymentsBetween(@Param("ownerId") Long ownerId,
+                                                @Param("start") java.time.LocalDateTime start,
+                                                @Param("end") java.time.LocalDateTime end);
 }
 

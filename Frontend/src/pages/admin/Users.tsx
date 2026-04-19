@@ -108,7 +108,7 @@ const Users = () => {
       case 'active': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
       case 'pending': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
       case 'suspended': return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
+      default: return 'bg-surface-100 text-gray-800 dark:bg-surface-700 dark:text-surface-200'
     }
   }
 
@@ -117,7 +117,7 @@ const Users = () => {
       case 'admin': return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
       case 'owner': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
       case 'renter': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
+      default: return 'bg-surface-100 text-gray-800 dark:bg-surface-700 dark:text-surface-200'
     }
   }
 
@@ -174,21 +174,21 @@ const Users = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+        <h1 className="text-3xl font-bold text-surface-900 dark:text-white mb-2">
           User Management
         </h1>
-        <p className="text-gray-600 dark:text-gray-400">
+        <p className="text-surface-500 dark:text-surface-400">
           Manage all platform users and their permissions
         </p>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <div className="bg-white dark:bg-surface-800 rounded-2xl shadow-sm border border-surface-200 dark:border-surface-700 p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Users</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.total}</p>
+              <p className="text-sm font-medium text-surface-500 dark:text-surface-400">Total Users</p>
+              <p className="text-2xl font-bold text-surface-900 dark:text-white">{stats.total}</p>
             </div>
             <div className="p-3 bg-blue-100 dark:bg-blue-900 rounded-lg">
               <UsersIcon className="w-6 h-6 text-blue-600 dark:text-blue-300" />
@@ -196,11 +196,11 @@ const Users = () => {
           </div>
         </div>
         
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <div className="bg-white dark:bg-surface-800 rounded-2xl shadow-sm border border-surface-200 dark:border-surface-700 p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Active Users</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.active}</p>
+              <p className="text-sm font-medium text-surface-500 dark:text-surface-400">Active Users</p>
+              <p className="text-2xl font-bold text-surface-900 dark:text-white">{stats.active}</p>
             </div>
             <div className="p-3 bg-green-100 dark:bg-green-900 rounded-lg">
               <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-300" />
@@ -208,11 +208,11 @@ const Users = () => {
           </div>
         </div>
         
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <div className="bg-white dark:bg-surface-800 rounded-2xl shadow-sm border border-surface-200 dark:border-surface-700 p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Pending</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.pending}</p>
+              <p className="text-sm font-medium text-surface-500 dark:text-surface-400">Pending</p>
+              <p className="text-2xl font-bold text-surface-900 dark:text-white">{stats.pending}</p>
             </div>
             <div className="p-3 bg-yellow-100 dark:bg-yellow-900 rounded-lg">
               <AlertCircle className="w-6 h-6 text-yellow-600 dark:text-yellow-300" />
@@ -220,11 +220,11 @@ const Users = () => {
           </div>
         </div>
         
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <div className="bg-white dark:bg-surface-800 rounded-2xl shadow-sm border border-surface-200 dark:border-surface-700 p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Suspended</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.suspended}</p>
+              <p className="text-sm font-medium text-surface-500 dark:text-surface-400">Suspended</p>
+              <p className="text-2xl font-bold text-surface-900 dark:text-white">{stats.suspended}</p>
             </div>
             <div className="p-3 bg-red-100 dark:bg-red-900 rounded-lg">
               <Ban className="w-6 h-6 text-red-600 dark:text-red-300" />
@@ -234,26 +234,26 @@ const Users = () => {
       </div>
 
       {/* Search and Filter */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6">
+      <div className="bg-white dark:bg-surface-800 rounded-2xl shadow-sm border border-surface-200 dark:border-surface-700 p-6 mb-6">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div className="flex-1 max-w-md">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-surface-400 w-4 h-4" />
               <input
                 type="text"
                 placeholder="Search users..."
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                className="w-full pl-10 pr-4 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
           </div>
           
-          <div className="flex items-center space-x-3">
+          <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto mt-4 lg:mt-0">
             <select
               value={filterRole}
               onChange={(e) => setFilterRole(e.target.value)}
-              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+              className="px-3 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white text-sm"
             >
               <option value="all">All Roles</option>
               <option value="admin">Admins</option>
@@ -264,7 +264,7 @@ const Users = () => {
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+              className="px-3 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white text-sm"
             >
               <option value="all">All Status</option>
               <option value="active">Active</option>
@@ -277,7 +277,7 @@ const Users = () => {
               Add User
             </button>
             
-            <button className="flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+            <button className="flex items-center px-4 py-2 border border-surface-200 dark:border-surface-600 rounded-lg hover:bg-surface-50 dark:hover:bg-surface-700 transition-colors">
               <Download className="w-4 h-4 mr-2" />
               Export
             </button>
@@ -287,18 +287,18 @@ const Users = () => {
 
       {/* Loading/Error States */}
       {loading && (
-        <div className="text-center py-8 text-gray-500 dark:text-gray-400">Loading users...</div>
+        <div className="text-center py-8 text-surface-500 dark:text-surface-400">Loading users...</div>
       )}
       {error && (
         <div className="text-center py-8 text-red-500 dark:text-red-400">{error}</div>
       )}
 
       {/* Pending Users Table with Bulk Actions */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden mb-8">
-        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Users Waiting for Approval</h2>
+      <div className="bg-white dark:bg-surface-800 rounded-2xl shadow-sm border border-surface-200 dark:border-surface-700 overflow-hidden mb-8">
+        <div className="px-6 py-4 border-b border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-700 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <h2 className="text-lg font-semibold text-surface-900 dark:text-white">Users Waiting for Approval</h2>
           {selectedPending.length > 0 && (
-            <div className="flex items-center space-x-2">
+            <div className="flex flex-wrap items-center gap-2">
               <button
                 className="px-3 py-1 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 rounded hover:bg-green-200 dark:hover:bg-green-800 text-xs font-medium"
                 onClick={() => handleApprove(selectedPending)}
@@ -316,7 +316,7 @@ const Users = () => {
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-50 dark:bg-gray-700">
+            <thead className="bg-surface-50 dark:bg-surface-700">
               <tr>
                 <th className="px-6 py-3 text-left">
                   <input
@@ -329,22 +329,22 @@ const Users = () => {
                         setSelectedPending(pendingUsers.map(u => u.id))
                       }
                     }}
-                    className="rounded border-gray-300 dark:border-gray-600"
+                    className="rounded border-surface-200 dark:border-surface-600"
                   />
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">User</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Role</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-surface-500 dark:text-surface-300 uppercase tracking-wider">User</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-surface-500 dark:text-surface-300 uppercase tracking-wider">Role</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-surface-500 dark:text-surface-300 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
-            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+            <tbody className="bg-white dark:bg-surface-800 divide-y divide-gray-200 dark:divide-gray-700">
               {pendingUsers.length === 0 && (
                 <tr>
-                  <td colSpan={4} className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">No users waiting for approval.</td>
+                  <td colSpan={4} className="px-6 py-4 text-center text-surface-500 dark:text-surface-400">No users waiting for approval.</td>
                 </tr>
               )}
               {pendingUsers.map((user) => (
-                <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                <tr key={user.id} className="hover:bg-surface-50 dark:hover:bg-surface-700">
                   <td className="px-6 py-4">
                     <input
                       type="checkbox"
@@ -356,7 +356,7 @@ const Users = () => {
                             : [...prev, user.id]
                         )
                       }}
-                      className="rounded border-gray-300 dark:border-gray-600"
+                      className="rounded border-surface-200 dark:border-surface-600"
                     />
                   </td>
                   <td className="px-6 py-4">
@@ -365,8 +365,8 @@ const Users = () => {
                         <span className="text-sm font-medium text-primary-600 dark:text-primary-400">{user.avatar}</span>
                       </div>
                       <div className="ml-4">
-                        <p className="text-sm font-medium text-gray-900 dark:text-white">{user.firstName} {user.lastName}</p>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">{user.email}</p>
+                        <p className="text-sm font-medium text-surface-900 dark:text-white">{user.firstName} {user.lastName}</p>
+                        <p className="text-sm text-surface-500 dark:text-surface-400">{user.email}</p>
                       </div>
                     </div>
                   </td>
@@ -397,7 +397,7 @@ const Users = () => {
       </div>
 
       {/* Approved Users Table */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+      <div className="bg-white dark:bg-surface-800 rounded-2xl shadow-sm border border-surface-200 dark:border-surface-700 overflow-hidden">
         {selectedUsers.length > 0 && (
           <div className="px-6 py-3 bg-blue-50 dark:bg-blue-900/20 border-b border-blue-200 dark:border-blue-800">
             <div className="flex items-center justify-between">
@@ -417,37 +417,37 @@ const Users = () => {
         )}
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-50 dark:bg-gray-700">
+            <thead className="bg-surface-50 dark:bg-surface-700">
               <tr>
                 <th className="px-6 py-3 text-left">
                   <input
                     type="checkbox"
                     checked={selectedUsers.length === approvedUsers.length && approvedUsers.length > 0}
                     onChange={handleSelectAll}
-                    className="rounded border-gray-300 dark:border-gray-600"
+                    className="rounded border-surface-200 dark:border-surface-600"
                   />
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">User</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Role</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Activity</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-surface-500 dark:text-surface-300 uppercase tracking-wider">User</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-surface-500 dark:text-surface-300 uppercase tracking-wider">Role</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-surface-500 dark:text-surface-300 uppercase tracking-wider">Status</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-surface-500 dark:text-surface-300 uppercase tracking-wider">Activity</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-surface-500 dark:text-surface-300 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
-            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+            <tbody className="bg-white dark:bg-surface-800 divide-y divide-gray-200 dark:divide-gray-700">
               {approvedUsers.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">No approved users found.</td>
+                  <td colSpan={6} className="px-6 py-4 text-center text-surface-500 dark:text-surface-400">No approved users found.</td>
                 </tr>
               )}
               {approvedUsers.map((user) => (
-                <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                <tr key={user.id} className="hover:bg-surface-50 dark:hover:bg-surface-700">
                   <td className="px-6 py-4">
                     <input
                       type="checkbox"
                       checked={selectedUsers.includes(user.id)}
                       onChange={() => handleSelectUser(user.id)}
-                      className="rounded border-gray-300 dark:border-gray-600"
+                      className="rounded border-surface-200 dark:border-surface-600"
                     />
                   </td>
                   <td className="px-6 py-4">
@@ -457,11 +457,11 @@ const Users = () => {
                       </div>
                       <div className="ml-4">
                         <div className="flex items-center">
-                          <p className="text-sm font-medium text-gray-900 dark:text-white">{user.firstName} {user.lastName}</p>
+                          <p className="text-sm font-medium text-surface-900 dark:text-white">{user.firstName} {user.lastName}</p>
                           {user.verified && (<CheckCircle className="w-4 h-4 text-blue-500 ml-2" />)}
                         </div>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">{user.email}</p>
-                        <p className="text-xs text-gray-400 dark:text-gray-500">Joined {user.joinedAt}</p>
+                        <p className="text-sm text-surface-500 dark:text-surface-400">{user.email}</p>
+                        <p className="text-xs text-surface-400 dark:text-surface-500">Joined {user.joinedAt}</p>
                       </div>
                     </div>
                   </td>
@@ -472,21 +472,21 @@ const Users = () => {
                     <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(user.status)}`}>{user.status}</span>
                   </td>
                   <td className="px-6 py-4">
-                    <div className="text-sm text-gray-900 dark:text-white">
+                    <div className="text-sm text-surface-900 dark:text-white">
                       <div className="flex items-center space-x-4 mb-1">
-                        <span className="text-xs text-gray-500 dark:text-gray-400">{user.properties} properties</span>
-                        <span className="text-xs text-gray-500 dark:text-gray-400">{user.bookings} bookings</span>
+                        <span className="text-xs text-surface-500 dark:text-surface-400">{user.properties} properties</span>
+                        <span className="text-xs text-surface-500 dark:text-surface-400">{user.bookings} bookings</span>
                       </div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400">Last: {user.lastLogin}</div>
+                      <div className="text-xs text-surface-500 dark:text-surface-400">Last: {user.lastLogin}</div>
                     </div>
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center space-x-2">
-                      <button className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"><Eye className="w-4 h-4" /></button>
-                      <button className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"><Edit className="w-4 h-4" /></button>
+                      <button className="p-1 text-surface-400 hover:text-surface-600 dark:hover:text-surface-300"><Eye className="w-4 h-4" /></button>
+                      <button className="p-1 text-surface-400 hover:text-surface-600 dark:hover:text-surface-300"><Edit className="w-4 h-4" /></button>
                       {user.status === 'active' ? (
                         <button
-                          className="p-1 text-gray-400 hover:text-yellow-600 dark:hover:text-yellow-400"
+                          className="p-1 text-surface-400 hover:text-yellow-600 dark:hover:text-yellow-400"
                           title="Lock user"
                           onClick={() => handleToggleLock(user)}
                         >
@@ -494,7 +494,7 @@ const Users = () => {
                         </button>
                       ) : (
                         <button
-                          className="p-1 text-gray-400 hover:text-green-600 dark:hover:text-green-400"
+                          className="p-1 text-surface-400 hover:text-green-600 dark:hover:text-green-400"
                           title="Unlock user"
                           onClick={() => handleToggleLock(user)}
                         >
@@ -502,7 +502,7 @@ const Users = () => {
                         </button>
                       )}
                       <button
-                        className="p-1 text-gray-400 hover:text-red-600 dark:hover:text-red-400"
+                        className="p-1 text-surface-400 hover:text-red-600 dark:hover:text-red-400"
                         title="Delete user"
                         onClick={() => handleDelete([user.id])}
                       >
@@ -521,3 +521,5 @@ const Users = () => {
 }
 
 export default Users
+
+

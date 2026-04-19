@@ -173,21 +173,21 @@ const Properties = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+        <h1 className="text-3xl font-bold text-surface-900 dark:text-white mb-2">
           Property Management
         </h1>
-        <p className="text-gray-600 dark:text-gray-400">
+        <p className="text-surface-500 dark:text-surface-400">
           Manage all property listings and their approval status
         </p>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <div className="bg-white dark:bg-surface-800 rounded-2xl shadow-sm border border-surface-200 dark:border-surface-700 p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Properties</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.total}</p>
+              <p className="text-sm font-medium text-surface-500 dark:text-surface-400">Total Properties</p>
+              <p className="text-2xl font-bold text-surface-900 dark:text-white">{stats.total}</p>
             </div>
             <div className="p-3 bg-blue-100 dark:bg-blue-900 rounded-lg">
               <Home className="w-6 h-6 text-blue-600 dark:text-blue-300" />
@@ -195,11 +195,11 @@ const Properties = () => {
           </div>
         </div>
         
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <div className="bg-white dark:bg-surface-800 rounded-2xl shadow-sm border border-surface-200 dark:border-surface-700 p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Active</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.active}</p>
+              <p className="text-sm font-medium text-surface-500 dark:text-surface-400">Active</p>
+              <p className="text-2xl font-bold text-surface-900 dark:text-white">{stats.active}</p>
             </div>
             <div className="p-3 bg-green-100 dark:bg-green-900 rounded-lg">
               <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-300" />
@@ -207,11 +207,11 @@ const Properties = () => {
           </div>
         </div>
         
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <div className="bg-white dark:bg-surface-800 rounded-2xl shadow-sm border border-surface-200 dark:border-surface-700 p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Pending Approval</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.pending}</p>
+              <p className="text-sm font-medium text-surface-500 dark:text-surface-400">Pending Approval</p>
+              <p className="text-2xl font-bold text-surface-900 dark:text-white">{stats.pending}</p>
             </div>
             <div className="p-3 bg-yellow-100 dark:bg-yellow-900 rounded-lg">
               <AlertCircle className="w-6 h-6 text-yellow-600 dark:text-yellow-300" />
@@ -219,11 +219,11 @@ const Properties = () => {
           </div>
         </div>
         
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <div className="bg-white dark:bg-surface-800 rounded-2xl shadow-sm border border-surface-200 dark:border-surface-700 p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Revenue</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">${(stats.totalRevenue / 1000).toFixed(1)}k</p>
+              <p className="text-sm font-medium text-surface-500 dark:text-surface-400">Total Revenue</p>
+              <p className="text-2xl font-bold text-surface-900 dark:text-white">${(stats.totalRevenue / 1000).toFixed(1)}k</p>
             </div>
             <div className="p-3 bg-purple-100 dark:bg-purple-900 rounded-lg">
               <DollarSign className="w-6 h-6 text-purple-600 dark:text-purple-300" />
@@ -233,15 +233,15 @@ const Properties = () => {
       </div>
 
       {/* Search and Filter */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6">
+      <div className="bg-white dark:bg-surface-800 rounded-2xl shadow-sm border border-surface-200 dark:border-surface-700 p-6 mb-6">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div className="flex-1 max-w-md">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-surface-400 w-4 h-4" />
               <input
                 type="text"
                 placeholder="Search properties..."
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                className="w-full pl-10 pr-4 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -252,7 +252,7 @@ const Properties = () => {
             <select
               value={filterType}
               onChange={(e) => setFilterType(e.target.value)}
-              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+              className="px-3 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white text-sm"
             >
               <option value="all">All Types</option>
               <option value="apartment">Apartments</option>
@@ -265,7 +265,7 @@ const Properties = () => {
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+              className="px-3 py-2 border border-surface-200 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-white text-sm"
             >
               <option value="all">All Status</option>
               <option value="active">Active</option>
@@ -274,7 +274,7 @@ const Properties = () => {
             </select>
             
             
-            <button className="flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+            <button className="flex items-center px-4 py-2 border border-surface-200 dark:border-surface-600 rounded-lg hover:bg-surface-50 dark:hover:bg-surface-700 transition-colors">
               <Download className="w-4 h-4 mr-2" />
               Export
             </button>
@@ -286,17 +286,17 @@ const Properties = () => {
       {loading ? (
         <div className="text-center py-12">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
-          <p className="mt-4 text-gray-600 dark:text-gray-400">Loading properties...</p>
+          <p className="mt-4 text-surface-500 dark:text-surface-400">Loading properties...</p>
         </div>
       ) : error ? (
         <div className="text-center py-12">
           <div className="text-red-500 mb-4">
             <AlertCircle className="w-16 h-16 mx-auto" />
           </div>
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+          <h3 className="text-lg font-medium text-surface-900 dark:text-white mb-2">
             Error Loading Properties
           </h3>
-          <p className="text-gray-600 dark:text-gray-400 mb-4">{error}</p>
+          <p className="text-surface-500 dark:text-surface-400 mb-4">{error}</p>
           <button 
             onClick={fetchProperties}
             className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-colors"
@@ -309,9 +309,9 @@ const Properties = () => {
         {filteredProperties.map((property) => {
           const CategoryIcon = categoryIcons[property.type] || Package
           return (
-            <div key={property.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-lg transition-all duration-200 group">
+            <div key={property.id} className="bg-white dark:bg-surface-800 rounded-lg shadow-sm border border-surface-200 dark:border-surface-700 overflow-hidden hover:shadow-soft dark:shadow-dark-soft transition-all duration-200 group">
               {/* Property Image */}
-              <div className="relative h-32 bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+              <div className="relative h-32 bg-surface-200 dark:bg-surface-700 flex items-center justify-center">
                 {property.images && property.images.length > 0 ? (
                   <img
                     src={property.images[0].startsWith('/') ? `http://localhost:8080${property.images[0]}` : property.images[0]}
@@ -319,7 +319,7 @@ const Properties = () => {
                     className="object-cover w-full h-full absolute top-0 left-0"
                   />
                 ) : (
-                  <CategoryIcon className="w-8 h-8 text-gray-400 z-10" />
+                  <CategoryIcon className="w-8 h-8 text-surface-400 z-10" />
                 )}
                 {/* Status & Category Badges */}
                 <div className="absolute top-2 left-2 flex gap-1 z-20">
@@ -347,26 +347,26 @@ const Properties = () => {
               <div className="p-3">
                 {/* Title & Price */}
                 <div className="mb-2">
-                  <h3 className="font-semibold text-gray-900 dark:text-white text-sm line-clamp-1 mb-1">
+                  <h3 className="font-semibold text-surface-900 dark:text-white text-sm line-clamp-1 mb-1">
                     {property.title}
                   </h3>
                   <div className="flex items-center justify-between">
                     <span className="text-lg font-bold text-primary-600 dark:text-primary-400">
                       ${property.price}
                     </span>
-                    <span className="text-xs text-gray-500 dark:text-gray-400">/night</span>
+                    <span className="text-xs text-surface-500 dark:text-surface-400">/night</span>
                   </div>
                 </div>
 
                 {/* Location */}
-                <div className="flex items-center text-xs text-gray-600 dark:text-gray-400 mb-2">
+                <div className="flex items-center text-xs text-surface-500 dark:text-surface-400 mb-2">
                   <MapPin className="w-3 h-3 mr-1 flex-shrink-0" />
                   <span className="line-clamp-1">{property.location}</span>
                 </div>
 
                 {/* Stats */}
                 <div className="flex items-center justify-between py-2 border-t border-gray-100 dark:border-gray-700">
-                  <div className="flex items-center text-xs text-gray-600 dark:text-gray-400">
+                  <div className="flex items-center text-xs text-surface-500 dark:text-surface-400">
                     <div className="flex items-center mr-3">
                       <div className="w-2 h-2 bg-green-500 rounded-full mr-1"></div>
                       <span>{property.bookings}</span>
@@ -376,7 +376,7 @@ const Properties = () => {
                       <span>{property.rating}</span>
                     </div>
                   </div>
-                  <span className="text-xs text-gray-500 dark:text-gray-400">
+                  <span className="text-xs text-surface-500 dark:text-surface-400">
                     {property.reviews} reviews
                   </span>
                 </div>
@@ -386,10 +386,10 @@ const Properties = () => {
                   <div className="flex items-center space-x-1">
                     <button 
                       onClick={() => toggleFeatured(property.id)}
-                      className={`p-1.5 transition-colors rounded hover:bg-gray-100 dark:hover:bg-gray-700 ${
+                      className={`p-1.5 transition-colors rounded hover:bg-surface-100 dark:hover:bg-surface-700 ${
                         property.featured 
                           ? 'text-yellow-500 hover:text-yellow-600 dark:hover:text-yellow-400' 
-                          : 'text-gray-400 hover:text-yellow-600 dark:hover:text-yellow-400'
+                          : 'text-surface-400 hover:text-yellow-600 dark:hover:text-yellow-400'
                       }`}
                       title={property.featured ? 'Unmark as Featured' : 'Mark as Featured'}
                     >
@@ -397,10 +397,10 @@ const Properties = () => {
                     </button>
                     <button 
                       onClick={() => toggleVerified(property.id)}
-                      className={`p-1.5 transition-colors rounded hover:bg-gray-100 dark:hover:bg-gray-700 ${
+                      className={`p-1.5 transition-colors rounded hover:bg-surface-100 dark:hover:bg-surface-700 ${
                         property.verified 
                           ? 'text-blue-500 hover:text-blue-600 dark:hover:text-blue-400' 
-                          : 'text-gray-400 hover:text-blue-600 dark:hover:text-blue-400'
+                          : 'text-surface-400 hover:text-blue-600 dark:hover:text-blue-400'
                       }`}
                       title={property.verified ? 'Unmark as Verified' : 'Mark as Verified'}
                     >
@@ -409,20 +409,20 @@ const Properties = () => {
                   </div>
                   <div className="flex items-center space-x-1">
                     <button 
-                      className="p-1.5 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors rounded hover:bg-gray-100 dark:hover:bg-gray-700" 
+                      className="p-1.5 text-surface-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors rounded hover:bg-surface-100 dark:hover:bg-surface-700" 
                       title="View"
                     >
                       <Eye className="w-3.5 h-3.5" />
                     </button>
                     <button 
-                      className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors rounded hover:bg-gray-100 dark:hover:bg-gray-700" 
+                      className="p-1.5 text-surface-400 hover:text-surface-600 dark:hover:text-surface-300 transition-colors rounded hover:bg-surface-100 dark:hover:bg-surface-700" 
                       title="Edit"
                     >
                       <Edit className="w-3.5 h-3.5" />
                     </button>
                     <button 
                       onClick={() => deleteProperty(property.id)}
-                      className="p-1.5 text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors rounded hover:bg-gray-100 dark:hover:bg-gray-700"
+                      className="p-1.5 text-surface-400 hover:text-red-600 dark:hover:text-red-400 transition-colors rounded hover:bg-surface-100 dark:hover:bg-surface-700"
                       title="Delete"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -440,3 +440,5 @@ const Properties = () => {
 }
 
 export default Properties
+
+
