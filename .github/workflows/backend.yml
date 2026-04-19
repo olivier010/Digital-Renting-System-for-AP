@@ -62,7 +62,7 @@ jobs:
 
       - name: Run tests
         env:
-          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/digital_renting_system
-          SPRING_DATASOURCE_USERNAME: postgres
-          SPRING_DATASOURCE_PASSWORD: postgres
+          DB_URL: jdbc:postgresql://localhost:5432/digital_renting_system
+          DB_USERNAME: postgres
+          DB_PASSWORD: postgres
         run: mvn test
