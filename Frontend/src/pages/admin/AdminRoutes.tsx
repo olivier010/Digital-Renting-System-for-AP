@@ -5,6 +5,7 @@ import Properties from './Properties'
 import Bookings from './Bookings'
 import Reports from './Reports'
 import Settings from './Settings'
+import Notifications from './Notifications'
 
 const AdminRoutes = () => {
   return (
@@ -16,6 +17,7 @@ const AdminRoutes = () => {
       <Route path="/properties" element={<Properties />} />
       <Route path="/bookings" element={<Bookings />} />
       <Route path="/reports" element={<Reports />} />
+      <Route path="/notifications" element={<Notifications />} />
       <Route path="/settings" element={<Settings />} />
       <Route path="*" element={<Navigate to="/admin" replace />} />
     </Routes>

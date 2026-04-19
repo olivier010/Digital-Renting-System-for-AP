@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { useState, useEffect } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { Shield, Settings as SettingsIcon, LogOut, Menu, X, Home, Users, Building, FileText, BarChart, Bell } from 'lucide-react'
+import { Shield, Settings as SettingsIcon, LogOut, Menu, X, Home, Users, Building, FileText, BarChart, Bell, Megaphone } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import Loading from './ui/Loading'
 import ThemeToggle from './ui/ThemeToggle'
@@ -62,6 +62,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     { name: 'Properties', href: '/admin/properties', icon: Building, current: location.pathname === '/admin/properties' },
     { name: 'Bookings', href: '/admin/bookings', icon: FileText, current: location.pathname === '/admin/bookings' },
     { name: 'Reports', href: '/admin/reports', icon: BarChart, current: location.pathname === '/admin/reports' },
+    { name: 'Notifications', href: '/admin/notifications', icon: Megaphone, current: location.pathname === '/admin/notifications' },
     { name: 'Settings', href: '/admin/settings', icon: SettingsIcon, current: location.pathname === '/admin/settings' },
   ]
 
