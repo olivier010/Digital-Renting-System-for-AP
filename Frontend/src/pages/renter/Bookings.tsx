@@ -30,7 +30,7 @@ const Bookings = () => {
       }
       try {
         // Use the correct endpoint as per backend: /api/renter/bookings
-        const res = await apiFetch('/renter/bookings')
+        const res = await apiFetch('/api/renter/bookings')
         console.log('Bookings API response:', res)
         if (Array.isArray(res.data?.content) && res.data.content.length > 0) {
           console.log('First booking object:', res.data.content[0])
@@ -139,7 +139,7 @@ const Bookings = () => {
     setCancellingBookingId(Number(selectedBookingForCancel.id))
 
     try {
-      const response = await apiFetch(`/renter/bookings/${selectedBookingForCancel.id}/cancel`, {
+      const response = await apiFetch(`/api/renter/bookings/${selectedBookingForCancel.id}/cancel`, {
         method: 'PATCH',
         body: JSON.stringify({ cancellationReason: reason })
       })
@@ -246,7 +246,7 @@ const Bookings = () => {
                         <img
                           src={
                             booking.property.image && !booking.property.image.startsWith('http')
-                              ? `http://localhost:8080${booking.property.image}`
+                              ? `${import.meta.env.VITE_API_URL}${booking.property.image}`
                               : booking.property.image
                           }
                           alt={booking.property.title}

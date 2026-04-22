@@ -76,11 +76,11 @@ const Earnings = () => {
       setError(null)
       try {
         const [earningsRes, monthlyStatsRes, propertiesRes, transactionsRes, bookingsRes] = await Promise.all([
-          apiFetch('/owner/earnings'),
-          apiFetch('/owner/dashboard/monthly-stats'),
-          apiFetch('/owner/earnings/properties'),
-          apiFetch('/owner/earnings/transactions?page=0&size=100'),
-          apiFetch('/owner/bookings?page=0&size=1000'),
+          apiFetch('/api/owner/earnings'),
+          apiFetch('/api/owner/dashboard/monthly-stats'),
+          apiFetch('/api/owner/earnings/properties'),
+          apiFetch('/api/owner/earnings/transactions?page=0&size=100'),
+          apiFetch('/api/owner/bookings?page=0&size=1000'),
         ])
 
         const earnings = earningsRes.data || {}

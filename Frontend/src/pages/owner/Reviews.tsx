@@ -76,7 +76,7 @@ const Reviews = () => {
       try {
         const token = localStorage.getItem('rentwise_token');
         if (!token) return;
-        const res = await fetch('http://localhost:8080/api/owner/reviews', {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/owner/reviews`, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',

@@ -88,7 +88,7 @@ const Settings = () => {
       setFeedback(null)
 
       try {
-        const response = await apiFetch('/auth/me')
+        const response = await apiFetch('/api/auth/me')
         const profile = response?.data ?? {}
 
         setProfileData({
@@ -120,7 +120,7 @@ const Settings = () => {
     const loadPaymentMethods = async () => {
       setIsLoadingPaymentMethods(true)
       try {
-        const response = await apiFetch('/payment-methods')
+        const response = await apiFetch('/api/payment-methods')
         const methods = (response?.data ?? []) as PaymentMethod[]
         setPaymentMethods(Array.isArray(methods) ? methods : [])
       } catch (error) {
@@ -142,7 +142,7 @@ const Settings = () => {
     setFeedback(null)
 
     try {
-      const response = await apiFetch('/auth/me', {
+      const response = await apiFetch('/api/auth/me', {
         method: 'PUT',
         body: JSON.stringify({
           firstName: profileData.firstName,
@@ -195,7 +195,7 @@ const Settings = () => {
 
     setIsChangingPassword(true)
     try {
-      await apiFetch('/auth/password', {
+      await apiFetch('/api/auth/password', {
         method: 'PUT',
         body: JSON.stringify(passwordData)
       })
@@ -230,7 +230,7 @@ const Settings = () => {
 
     setIsAddingCard(true)
     try {
-      const response = await apiFetch('/payment-methods', {
+      const response = await apiFetch('/api/payment-methods', {
         method: 'POST',
         body: JSON.stringify({
           brand: newCard.brand,
@@ -261,7 +261,7 @@ const Settings = () => {
 
   const handleDeleteCard = async (id: number) => {
     try {
-      await apiFetch(`/payment-methods/${id}`, { method: 'DELETE' })
+      await apiFetch(`/api/payment-methods/${id}`, { method: 'DELETE' })
       setPaymentMethods(prev => {
         const next = prev.filter(card => card.id !== id)
         if (next.length > 0 && !next.some(card => card.isDefault)) {
@@ -280,7 +280,7 @@ const Settings = () => {
 
   const handleSetDefaultCard = async (id: number) => {
     try {
-      await apiFetch(`/payment-methods/${id}/default`, { method: 'PATCH' })
+      await apiFetch(`/api/payment-methods/${id}/default`, { method: 'PATCH' })
       setPaymentMethods(prev =>
         prev.map(card => ({
           ...card,
@@ -320,7 +320,7 @@ const Settings = () => {
     setIsDeletingAccount(true)
     setFeedback(null)
     try {
-      await apiFetch('/auth/me', {
+      await apiFetch('/api/auth/me', {
         method: 'DELETE',
         body: JSON.stringify({ currentPassword: deletePassword })
       })

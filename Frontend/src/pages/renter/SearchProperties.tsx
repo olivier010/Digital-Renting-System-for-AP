@@ -37,7 +37,7 @@ const SearchProperties = () => {
   // Fetch favorites from backend
   const fetchFavorites = async () => {
     try {
-      const res = await apiFetch('/favorites');
+      const res = await apiFetch('/api/favorites');
       // API returns { data: { content: [ { property: { id, ... }, ... } ] } }
       const items = res.data?.content || [];
       const ids = items.map((fav: any) => fav.property?.id).filter((id: any) => typeof id === 'number');
@@ -55,14 +55,14 @@ const SearchProperties = () => {
     if (favoritePropertyIds.includes(propertyId)) {
       // Remove from favorites
       try {
-        await apiFetch(`/favorites/${propertyId}`, { method: 'DELETE' });
+        await apiFetch(`/api/favorites/${propertyId}`, { method: 'DELETE' });
         await fetchFavorites();
       } catch (err) {
         setFavoriteError('Failed to remove from favorites.');
       }
     } else {
       try {
-        await apiFetch('/favorites', {
+        await apiFetch('/api/favorites', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ propertyId })
@@ -91,7 +91,7 @@ const SearchProperties = () => {
         // Only show available by default
         params.append('available', 'true')
 
-        const res = await apiFetch(`/properties?${params.toString()}`)
+        const res = await apiFetch(`/api/properties?${params.toString()}`)
         // API returns { data: { content: [ ... ] } }
         const items = res.data?.content || []
         // Map backend fields to frontend Property type
@@ -105,7 +105,7 @@ const SearchProperties = () => {
             location: p.location,
             category: p.category,
             images: Array.isArray(p.images)
-              ? p.images.map((img: string) => img && !img.startsWith('http') ? `http://localhost:8080${img}` : img)
+              ? p.images.map((img: string) => img && !img.startsWith('http') ? `${import.meta.env.VITE_API_URL}${img}` : img)
               : [],
             available: p.isAvailable,
             bookings: p.bookingsCount,

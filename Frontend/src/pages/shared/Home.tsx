@@ -12,13 +12,13 @@ const Home = () => {
   useEffect(() => {
     const fetchFeatured = async () => {
       try {
-        const res = await apiFetch('/properties/featured?page=0&size=6')
+        const res = await apiFetch('/api/properties/featured?page=0&size=6')
         let apiProperties = res.data?.content || []
         apiProperties = apiProperties.map((p: any) => ({
           ...p,
           available: p.isAvailable,
           image: Array.isArray(p.images) && p.images.length > 0
-            ? (p.images[0].startsWith('http') ? p.images[0] : `http://localhost:8080${p.images[0]}`)
+            ? (p.images[0].startsWith('http') ? p.images[0] : `${import.meta.env.VITE_API_URL}${p.images[0]}`)
             : '',
         }))
         setFeaturedProperties(apiProperties)

@@ -130,7 +130,7 @@ const Properties = () => {
   // Toggle featured status
   const toggleFeatured = async (propertyId: number) => {
     try {
-      await apiFetch(`/properties/${propertyId}/featured`, { method: 'PATCH' })
+      await apiFetch(`/api/properties/${propertyId}/featured`, { method: 'PATCH' })
       // Update local state
       setProperties(prev => 
         prev.map(p => 
@@ -145,7 +145,7 @@ const Properties = () => {
   // Toggle verified status
   const toggleVerified = async (propertyId: number) => {
     try {
-      await apiFetch(`/properties/${propertyId}/verified`, { method: 'PATCH' })
+      await apiFetch(`/api/properties/${propertyId}/verified`, { method: 'PATCH' })
       // Update local state
       setProperties(prev => 
         prev.map(p => 
@@ -161,7 +161,7 @@ const Properties = () => {
   const deleteProperty = async (propertyId: number) => {
     if (!window.confirm('Are you sure you want to delete this property?')) return
     try {
-      await apiFetch(`/properties/${propertyId}`, { method: 'DELETE' })
+      await apiFetch(`/api/properties/${propertyId}`, { method: 'DELETE' })
       // Update local state
       setProperties(prev => prev.filter(p => p.id !== propertyId))
     } catch (err) {
@@ -314,7 +314,7 @@ const Properties = () => {
               <div className="relative h-32 bg-surface-200 dark:bg-surface-700 flex items-center justify-center">
                 {property.images && property.images.length > 0 ? (
                   <img
-                    src={property.images[0].startsWith('/') ? `http://localhost:8080${property.images[0]}` : property.images[0]}
+                    src={property.images[0].startsWith('/') ? `${import.meta.env.VITE_API_URL}${property.images[0]}` : property.images[0]}
                     alt={property.title}
                     className="object-cover w-full h-full absolute top-0 left-0"
                   />

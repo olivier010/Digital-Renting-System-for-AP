@@ -46,8 +46,8 @@ const Payments = () => {
   useEffect(() => {
     setLoading(true)
     Promise.all([
-      apiFetch('/payments?page=0&size=100'),
-      apiFetch('/renter/bookings')
+      apiFetch('/api/payments?page=0&size=100'),
+      apiFetch('/api/renter/bookings')
     ])
       .then(([paymentsRes, bookingsRes]) => {
         // Payments
@@ -116,7 +116,7 @@ const Payments = () => {
     const loadPaymentMethods = async () => {
       setIsLoadingPaymentMethods(true)
       try {
-        const response = await apiFetch('/payment-methods')
+        const response = await apiFetch('/api/payment-methods')
         const methods = (response?.data ?? []) as PaymentMethod[]
         setPaymentMethods(Array.isArray(methods) ? methods : [])
       } catch {
@@ -141,7 +141,7 @@ const Payments = () => {
 
     setIsAddingCard(true)
     try {
-      const response = await apiFetch('/payment-methods', {
+      const response = await apiFetch('/api/payment-methods', {
         method: 'POST',
         body: JSON.stringify({
           brand: newCard.brand,
@@ -165,7 +165,7 @@ const Payments = () => {
 
   const handleDeleteCard = async (id: number) => {
     try {
-      await apiFetch(`/payment-methods/${id}`, { method: 'DELETE' })
+      await apiFetch(`/api/payment-methods/${id}`, { method: 'DELETE' })
       setPaymentMethods(prev => {
         const next = prev.filter(card => card.id !== id)
         if (next.length > 0 && !next.some(card => card.isDefault)) {
@@ -180,7 +180,7 @@ const Payments = () => {
 
   const handleSetDefaultCard = async (id: number) => {
     try {
-      await apiFetch(`/payment-methods/${id}/default`, { method: 'PATCH' })
+      await apiFetch(`/api/payment-methods/${id}/default`, { method: 'PATCH' })
       setPaymentMethods(prev =>
         prev.map(card => ({
           ...card,
@@ -196,8 +196,8 @@ const Payments = () => {
     setLoading(true)
     try {
       const [paymentsRes, bookingsRes] = await Promise.all([
-        apiFetch('/payments?page=0&size=100'),
-        apiFetch('/renter/bookings')
+        apiFetch('/api/payments?page=0&size=100'),
+        apiFetch('/api/renter/bookings')
       ])
 
       const items = paymentsRes?.data?.content || []
@@ -274,7 +274,7 @@ const Payments = () => {
 
     setProcessingPaymentId(booking.id)
     try {
-      await apiFetch('/payments', {
+      await apiFetch('/api/payments', {
         method: 'POST',
         body: JSON.stringify({
           bookingId: booking.bookingId,

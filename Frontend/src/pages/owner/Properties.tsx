@@ -48,7 +48,7 @@ type Property = {
   isVerified?: boolean
 }
 
-const API_BASE_URL = 'http://localhost:8080/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL + '/api';
 
 const Properties = () => {
   const { user } = useAuth();
@@ -176,7 +176,7 @@ const Properties = () => {
           bookings: p.bookingsCount || 0,
           contact: p.owner?.phone || '',
           images: Array.isArray(p.images)
-            ? p.images.map((img: string) => img.startsWith('http') ? img : `http://localhost:8080${img}`)
+            ? p.images.map((img: string) => img.startsWith('http') ? img : `${import.meta.env.VITE_API_URL}${img}`)
             : [],
           createdAt: p.createdAt,
           isFeatured: p.isFeatured,

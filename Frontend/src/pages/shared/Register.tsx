@@ -34,7 +34,7 @@ const Register = () => {
     if (!formData.email) { newErrors.email = 'Email is required' }
     else if (!/\S+@\S+\.\S+/.test(formData.email)) { newErrors.email = 'Email is invalid' }
     if (!formData.phone) { newErrors.phone = 'Phone number is required' }
-    else if (!/^\+?\d{7,15}$/.test(formData.phone)) { newErrors.phone = 'Phone number is invalid' }
+    else if (!/^\+?\d{7,10}$/.test(formData.phone)) { newErrors.phone = 'Phone number is invalid' }
     if (!formData.password) { newErrors.password = 'Password is required' }
     else if (formData.password.length < 8) { newErrors.password = 'Password must be at least 8 characters' }
     else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) { newErrors.password = 'Password must contain uppercase, lowercase, and number' }
