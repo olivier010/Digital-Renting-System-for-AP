@@ -1,5 +1,3 @@
-// Central API config and utility for frontend
-
 export const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 interface ApiFetchOptions extends RequestInit {
@@ -7,30 +5,32 @@ interface ApiFetchOptions extends RequestInit {
 }
 
 export async function apiFetch(endpoint: string, options: ApiFetchOptions = {}) {
-  const normalizedEndpoint = endpoint.startsWith('/api/')
-    ? endpoint.slice('/api'.length)
-    : endpoint;
-  const requestPath = normalizedEndpoint.startsWith('/')
-    ? normalizedEndpoint
-    : `/${normalizedEndpoint}`;
+
+  // ✅ FIX: keep /api in the path
+  const requestPath = endpoint.startsWith('/')
+    ? endpoint
+    : `/${endpoint}`;
 
   const sessionToken = sessionStorage.getItem('rentwise_token');
   const localToken = localStorage.getItem('rentwise_token');
   const token = sessionToken || localToken;
+
   const headers = {
     'Content-Type': 'application/json',
-    ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...(options.headers || {}),
   };
+
   const res = await fetch(`${API_BASE_URL}${requestPath}`, {
     ...options,
     headers,
   });
+
   let data = await res.json().catch(() => ({}));
 
-  // If both stores have different tokens, retry once with the alternate token on auth failures.
   if (!res.ok && (res.status === 401 || res.status === 403) && sessionToken && localToken && sessionToken !== localToken) {
     const fallbackToken = token === sessionToken ? localToken : sessionToken;
+
     const retryHeaders = {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${fallbackToken}`,
@@ -41,13 +41,14 @@ export async function apiFetch(endpoint: string, options: ApiFetchOptions = {}) 
       ...options,
       headers: retryHeaders,
     });
+
     const retryData = await retryRes.json().catch(() => ({}));
     if (retryRes.ok) return retryData;
+
     data = retryData;
   }
 
   if (!res.ok) throw new Error(data.message || 'API request failed');
+
   return data;
 }
-
-

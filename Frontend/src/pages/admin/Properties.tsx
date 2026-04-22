@@ -66,7 +66,7 @@ const Properties = () => {
     setLoading(true)
     setError(null)
     try {
-      const res = await apiFetch('/properties?page=0&size=50')
+      const res = await apiFetch('/api/properties?page=0&size=50')
       // Map API property objects to expected frontend structure
       const apiProperties = Array.isArray(res.data?.content) ? res.data.content.map((p: any) => ({
         id: p.id,

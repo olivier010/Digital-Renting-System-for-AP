@@ -47,7 +47,7 @@ const Users = () => {
     setError(null)
     try {
       // The backend wraps data in a 'data' property (ApiResponse)
-      const res = await apiFetch('/users')
+      const res = await apiFetch('/api/users')
       // If paginated, users are in res.data.content, else adjust as needed
       const userList = (res.data?.content || []).map((u: any) => ({
         ...u,
@@ -68,7 +68,7 @@ const Users = () => {
   // Approve/reject handlers
   const handleApprove = async (userIds: number[]) => {
     try {
-      await Promise.all(userIds.map(id => apiFetch(`/users/${id}/status?isActive=true`, { method: 'PATCH' })))
+      await Promise.all(userIds.map(id => apiFetch(`/api/users/${id}/status?isActive=true`, { method: 'PATCH' })))
       setSelectedPending([])
       fetchUsers()
     } catch (err) {
@@ -78,7 +78,7 @@ const Users = () => {
 
   const handleReject = async (userIds: number[]) => {
     try {
-      await Promise.all(userIds.map(id => apiFetch(`/users/${id}`, { method: 'DELETE' })))
+      await Promise.all(userIds.map(id => apiFetch(`/api/users/${id}`, { method: 'DELETE' })))
       setSelectedPending([])
       fetchUsers()
     } catch (err) {
@@ -151,7 +151,7 @@ const Users = () => {
   const handleDelete = async (userIds: number[]) => {
     if (!window.confirm('Are you sure you want to delete the selected user(s)?')) return;
     try {
-      await Promise.all(userIds.map(id => apiFetch(`/users/${id}`, { method: 'DELETE' })));
+      await Promise.all(userIds.map(id => apiFetch(`/api/users/${id}`, { method: 'DELETE' })));
       setSelectedUsers([]);
       fetchUsers();
     } catch (err) {
@@ -163,7 +163,7 @@ const Users = () => {
   const handleToggleLock = async (user: User) => {
     try {
       const newStatus = user.status === 'active' ? 'suspended' : 'active';
-      await apiFetch(`/users/${user.id}/status?isActive=${newStatus === 'active'}`, { method: 'PATCH' });
+      await apiFetch(`/api/users/${user.id}/status?isActive=${newStatus === 'active'}`, { method: 'PATCH' });
       fetchUsers();
     } catch (err) {
       alert('Failed to update user status');

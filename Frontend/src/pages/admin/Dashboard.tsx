@@ -43,13 +43,13 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
-        const statsRes = await apiFetch('/admin/dashboard')
+        const statsRes = await apiFetch('/api/admin/dashboard')
         setStats(statsRes.data || {})
-        const statusRes = await apiFetch('/admin/system-status')
+        const statusRes = await apiFetch('/api/admin/system-status')
         setSystemStatus(statusRes.data || {})
-        const usersRes = await apiFetch('/users?page=0&size=5')
+        const usersRes = await apiFetch('/api/users?page=0&size=5')
         setRecentUsers(Array.isArray(usersRes.data?.content) ? usersRes.data.content : [])
-        const logsRes = await apiFetch('/admin/logs?page=0&size=5')
+        const logsRes = await apiFetch('/api/admin/logs?page=0&size=5')
         setSystemLogs(Array.isArray(logsRes.data) ? logsRes.data : [])
       } catch (err: any) {
         // Optionally handle error
