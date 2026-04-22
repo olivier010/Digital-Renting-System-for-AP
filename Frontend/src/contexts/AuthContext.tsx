@@ -106,7 +106,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           const parsedUser = JSON.parse(savedUser)
           const normalizedUser = normalizeUser(parsedUser)
 
-          const meRes = await fetch(`${API_URL}api/auth/me`, {
+          const meRes = await fetch(`${API_URL}/api/auth/me`, {
             headers: {
               'Content-Type': 'application/json',
               Authorization: `Bearer ${savedToken}`
