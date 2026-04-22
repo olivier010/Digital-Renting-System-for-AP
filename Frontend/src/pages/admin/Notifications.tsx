@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import {
   Send, Users, User, Building, Bell, Search,
-  Calendar, CreditCard, AlertCircle, Star, Trash2,
+  Calendar, CreditCard, AlertCircle, Star,
   ChevronLeft, ChevronRight, Filter, Plus, X, Check,
   Megaphone, Clock, Eye
 } from 'lucide-react'
