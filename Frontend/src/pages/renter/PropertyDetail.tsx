@@ -266,7 +266,7 @@ const PropertyDetail = () => {
                   setBookingSuccess(false);
                   setBookingLoading(true);
                   try {
-                    await apiFetch('/bookings', {
+                    await apiFetch('/api/bookings', {
                       method: 'POST',
                       body: JSON.stringify({
                         propertyId: property.id,
