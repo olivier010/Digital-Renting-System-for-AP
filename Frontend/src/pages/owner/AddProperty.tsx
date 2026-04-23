@@ -139,7 +139,7 @@ const AddProperty = () => {
         setIsSubmitting(false)
         return
       }
-      navigate('/api/owner/properties')
+      navigate('/owner/properties')
     } catch (err) {
       setErrors({ global: 'An unexpected error occurred.' })
       setIsSubmitting(false)
