@@ -28,7 +28,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 
   const refreshUnreadCount = async () => {
     try {
-      const res = await apiFetch('/notifications/unread-count')
+      const res = await apiFetch('/api/notifications/unread-count')
       setUnreadCount(res.data?.unreadCount || 0)
     } catch {
       setUnreadCount(0)

@@ -71,7 +71,7 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
     else setIsLoading(true)
 
     try {
-      const res = await apiFetch(`/notifications?page=${pageNumber}&size=${PAGE_SIZE}`)
+      const res = await apiFetch(`/api/notifications?page=${pageNumber}&size=${PAGE_SIZE}`)
       const items = res.data?.content || []
 
       setNotifications((prev) => {
@@ -108,7 +108,7 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
 
   const markNotificationAsRead = async (id: number) => {
     try {
-      await apiFetch(`/notifications/${id}/read`, { method: 'PATCH' })
+      await apiFetch(`/api/notifications/${id}/read`, { method: 'PATCH' })
       setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, isRead: true } : n)))
       onNotificationsUpdated?.()
     } catch { /* no-op */ }
@@ -116,7 +116,7 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
 
   const markAllAsRead = async () => {
     try {
-      await apiFetch('/notifications/read-all', { method: 'PATCH' })
+      await apiFetch('/api/notifications/read-all', { method: 'PATCH' })
       setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })))
       onNotificationsUpdated?.()
     } catch { /* no-op */ }
@@ -124,7 +124,7 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
 
   const deleteNotification = async (id: number) => {
     try {
-      await apiFetch(`/notifications/${id}`, { method: 'DELETE' })
+      await apiFetch(`/api/notifications/${id}`, { method: 'DELETE' })
       setNotifications((prev) => prev.filter((n) => n.id !== id))
       onNotificationsUpdated?.()
     } catch { /* no-op */ }
