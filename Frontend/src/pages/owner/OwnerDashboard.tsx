@@ -82,7 +82,7 @@ const OwnerDashboard = () => {
     }
 
     while (page < totalPages) {
-      const notificationRes = await apiFetch(`/notifications?page=${page}&size=${pageSize}`)
+      const notificationRes = await apiFetch(`/api/notifications?page=${page}&size=${pageSize}`)
       const pageItems = notificationRes.data?.content || []
       items = items.concat(pageItems)
       totalPages = notificationRes.data?.totalPages || 1
@@ -102,7 +102,7 @@ const OwnerDashboard = () => {
 
   const markAllNotificationsAsRead = async () => {
     try {
-      await apiFetch('/notifications/read-all', { method: 'PATCH' })
+      await apiFetch('/api/notifications/read-all', { method: 'PATCH' })
       setNotifications(prev => prev.map((n) => ({ ...n, read: true })))
     } catch {
       // no-op
@@ -111,7 +111,7 @@ const OwnerDashboard = () => {
 
   const markNotificationAsRead = async (id: number) => {
     try {
-      await apiFetch(`/notifications/${id}/read`, { method: 'PATCH' })
+      await apiFetch(`/api/notifications/${id}/read`, { method: 'PATCH' })
       setNotifications(prev => prev.map((n) => n.id === id ? { ...n, read: true } : n))
     } catch {
       // no-op
@@ -120,7 +120,7 @@ const OwnerDashboard = () => {
 
   const deleteNotification = async (id: number) => {
     try {
-      await apiFetch(`/notifications/${id}`, { method: 'DELETE' })
+      await apiFetch(`/api/notifications/${id}`, { method: 'DELETE' })
       setNotifications(prev => prev.filter((n) => n.id !== id))
       setOpenNotificationMenuId(null)
     } catch {
@@ -135,12 +135,12 @@ const OwnerDashboard = () => {
       // ...existing code...
       try {
         // Dashboard stats
-        const dashRes = await apiFetch('/owner/dashboard')
+        const dashRes = await apiFetch('/api/owner/dashboard')
         setStats(dashRes.data || null)
         // Revenue chart data (simulate from dashboard for now)
         setRevenueData((dashRes.data?.revenueChart || []))
         // Properties
-        const propRes = await apiFetch('/owner/properties?page=0&size=100')
+        const propRes = await apiFetch('/api/owner/properties?page=0&size=100')
         // Map API property objects to expected frontend structure
         const allApiProperties = Array.isArray(propRes.data?.content) ? propRes.data.content : []
         const apiProperties = allApiProperties.map((p: any) => ({
@@ -155,12 +155,12 @@ const OwnerDashboard = () => {
           reviews: p.reviewsCount || 0,
           contact: p.ownerName || '',
           images: Array.isArray(p.images)
-            ? p.images.map((img: string) => img.startsWith('http') ? img : `http://localhost:8080${img}`)
+            ? p.images.map((img: string) => img.startsWith('http') ? img : `${import.meta.env.VITE_API_URL}${img}`)
             : [],
         }));
         setProperties(apiProperties.slice(0, 3))
         // Fetch ALL bookings for accurate status counts
-        const allBookRes = await apiFetch('/owner/bookings?page=0&size=1000')
+        const allBookRes = await apiFetch('/api/owner/bookings?page=0&size=1000')
         const allApiBookings = Array.isArray(allBookRes.data?.content) ? allBookRes.data.content.map((b: any) => ({
           id: b.id,
           status: (b.status || '').toLowerCase(),
@@ -168,7 +168,7 @@ const OwnerDashboard = () => {
         setAllBookings(allApiBookings)
         
         // Also fetch recent 3 for display
-        const bookRes = await apiFetch('/owner/bookings?page=0&size=3')
+        const bookRes = await apiFetch('/api/owner/bookings?page=0&size=3')
         // Map API booking objects to expected frontend structure
         const apiBookings = Array.isArray(bookRes.data?.content) ? bookRes.data.content.map((b: any) => ({
           id: b.id,

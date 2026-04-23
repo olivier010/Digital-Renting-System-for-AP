@@ -102,7 +102,7 @@ const Reviews = () => {
   }, [])
 
   const fetchPendingReviews = useCallback(async () => {
-    const bookingsRes = await apiFetch('/renter/bookings?status=COMPLETED')
+    const bookingsRes = await apiFetch('/api/renter/bookings?status=COMPLETED')
     const bookings = bookingsRes.data?.content || []
     const completedBookings = bookings.filter((b: any) => {
       const status = (b.status?.toLowerCase?.() || b.status)
@@ -116,14 +116,14 @@ const Reviews = () => {
     let reviews: any[] = []
 
     try {
-      const reviewsRes = await apiFetch(`/reviews/my?page=0&size=100&t=${Date.now()}`)
+      const reviewsRes = await apiFetch(`/api/reviews/my?page=0&size=100&t=${Date.now()}`)
       reviews = reviewsRes.data?.content || reviewsRes.data || []
     } catch {
       try {
-        const userRes = await apiFetch('/user/reviews')
+        const userRes = await apiFetch('/api/user/reviews')
         reviews = userRes.data?.content || userRes.data || []
       } catch {
-        const allBookingsRes = await apiFetch('/renter/bookings')
+        const allBookingsRes = await apiFetch('/api/renter/bookings')
         const allBookings = allBookingsRes.data?.content || []
         reviews = allBookings
           .filter((b: any) => b.review || b.reviews)
@@ -316,7 +316,7 @@ const Reviews = () => {
                           <img
                             src={
                               review.property.image && !review.property.image.startsWith('http')
-                                ? `http://localhost:8080${review.property.image}?t=${Date.now()}`
+                                ? `${import.meta.env.VITE_API_URL}${review.property.image}?t=${Date.now()}`
                                 : `${review.property.image}?t=${Date.now()}`
                             }
                             alt={review.property.title || 'Property'}
@@ -524,7 +524,7 @@ const Reviews = () => {
                           <div className="w-12 h-12 bg-surface-200 dark:bg-surface-700 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
                             {review.propertyImage ? (
                               <img
-                                src={review.propertyImage.startsWith('http') ? review.propertyImage : `http://localhost:8080${review.propertyImage}`}
+                                src={review.propertyImage.startsWith('http') ? review.propertyImage : `${import.meta.env.VITE_API_URL}${review.propertyImage}`}
                                 alt={review.propertyTitle || 'Property'}
                                 className="object-cover w-full h-full"
                                 onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }}
@@ -595,7 +595,7 @@ const Reviews = () => {
                                       throw new Error('Unable to identify this review for deletion')
                                     }
 
-                                    await apiFetch(`/reviews/${deletedId}`, {
+                                    await apiFetch(`/api/reviews/${deletedId}`, {
                                       method: 'DELETE'
                                     })
 
@@ -699,7 +699,7 @@ const Reviews = () => {
                       overallRating: editForm.overallRating,
                       comment: editForm.comment
                     }
-                    await apiFetch(`/reviews/${editModal.review.id}`, {
+                    await apiFetch(`/api/reviews/${editModal.review.id}`, {
                       method: 'PUT',
                       body: JSON.stringify(payload)
                     })

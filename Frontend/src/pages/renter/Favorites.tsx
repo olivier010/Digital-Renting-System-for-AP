@@ -26,7 +26,7 @@ const Favorites = () => {
       setError(null)
       try {
         // Backend returns: { data: { content: [ ... ], ...pagination } }
-        const res = await apiFetch('/favorites')
+        const res = await apiFetch('/api/favorites')
         // Map backend FavoriteResponse to UI shape
         const mapped = (res?.data?.content || []).map((fav: any) => {
           const p = fav.property
@@ -260,7 +260,7 @@ const Favorites = () => {
                   <div className="relative h-32 bg-surface-200 dark:bg-surface-700 flex items-center justify-center">
                     {property.image ? (
                       <img
-                        src={property.image.startsWith('http') ? property.image : `http://localhost:8080${property.image}`}
+                        src={property.image.startsWith('http') ? property.image : `${import.meta.env.VITE_API_URL}${property.image}`}
                         alt={property.title}
                         className="w-full h-full object-cover"
                       />
@@ -383,7 +383,7 @@ const Favorites = () => {
                     <div className="relative h-32 bg-surface-200 dark:bg-surface-700 flex items-center justify-center">
                       {property.image ? (
                         <img
-                          src={property.image.startsWith('http') ? property.image : `http://localhost:8080${property.image}`}
+                          src={property.image.startsWith('http') ? property.image : `${import.meta.env.VITE_API_URL}${property.image}`}
                           alt={property.title}
                           className="w-full h-full object-cover"
                         />

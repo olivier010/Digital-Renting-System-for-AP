@@ -110,7 +110,7 @@ const RenterDashboard = () => {
       return date.toLocaleDateString()
     }
 
-    const notificationRes = await apiFetch('/notifications?page=0&size=5')
+    const notificationRes = await apiFetch('/api/notifications?page=0&size=5')
     const items = (notificationRes.data?.content || [])
       .sort((a: any, b: any) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime())
       .slice(0, 3)
@@ -127,7 +127,7 @@ const RenterDashboard = () => {
 
   const markAllNotificationsAsRead = async () => {
     try {
-      await apiFetch('/notifications/read-all', { method: 'PATCH' })
+      await apiFetch('/api/notifications/read-all', { method: 'PATCH' })
       setNotifications(prev => prev.map((n) => ({ ...n, read: true })))
     } catch {
       // no-op
@@ -136,7 +136,7 @@ const RenterDashboard = () => {
 
   const markNotificationAsRead = async (id: number) => {
     try {
-      await apiFetch(`/notifications/${id}/read`, { method: 'PATCH' })
+      await apiFetch(`/api/notifications/${id}/read`, { method: 'PATCH' })
       setNotifications(prev => prev.map((n) => n.id === id ? { ...n, read: true } : n))
     } catch {
       // no-op
@@ -161,7 +161,7 @@ const RenterDashboard = () => {
     async function fetchDashboard() {
       try {
         // Dashboard stats
-        const dashboardRes = await apiFetch('/renter/dashboard');
+        const dashboardRes = await apiFetch('/api/renter/dashboard');
         const dash = dashboardRes.data || {};
         setStats({
           totalBookings: dash.myTotalBookings || 0,
@@ -174,48 +174,48 @@ const RenterDashboard = () => {
           savedSearches: 0
         });
         // Upcoming trips (confirmed status)
-        const confirmedBookingsRes = await apiFetch('/renter/bookings?page=0&size=6&status=CONFIRMED');
+        const confirmedBookingsRes = await apiFetch('/api/renter/bookings?page=0&size=6&status=CONFIRMED');
         const confirmedBookings = confirmedBookingsRes.data?.content || [];
         setUpcomingTrips(confirmedBookings.map((b: any) => ({
           id: b.id,
           property: b.property?.title || '',
           location: b.property?.location || '',
-          image: b.property?.image ? (b.property.image.startsWith('http') ? b.property.image : `http://localhost:8080${b.property.image}`) : '',
+          image: b.property?.image ? (b.property.image.startsWith('http') ? b.property.image : `${import.meta.env.VITE_API_URL}${b.property.image}`) : '',
           checkIn: b.startDate,
           daysUntil: 0,
           status: b.status
         })));
 
         // Recent bookings (completed status)
-        const completedBookingsRes = await apiFetch('/renter/bookings?page=0&size=3&status=COMPLETED');
+        const completedBookingsRes = await apiFetch('/api/renter/bookings?page=0&size=3&status=COMPLETED');
         const completedBookings = completedBookingsRes.data?.content || [];
         setRecentBookings(completedBookings.map((b: any) => ({
           id: b.id,
           property: b.property?.title || '',
           location: b.property?.location || '',
-          image: b.property?.image ? (b.property.image.startsWith('http') ? b.property.image : `http://localhost:8080${b.property.image}`) : '',
+          image: b.property?.image ? (b.property.image.startsWith('http') ? b.property.image : `${import.meta.env.VITE_API_URL}${b.property.image}`) : '',
           checkIn: b.startDate,
           checkOut: b.endDate,
           amount: b.totalPrice,
           status: b.status,
           rating: b.reviewed ? 5 : null,
           host: b.property?.ownerName || '',
-          hostImage: b.property?.image ? (b.property.image.startsWith('http') ? b.property.image : `http://localhost:8080${b.property.image}`) : ''
+          hostImage: b.property?.image ? (b.property.image.startsWith('http') ? b.property.image : `${import.meta.env.VITE_API_URL}${b.property.image}`) : ''
         })));
 
         // Booking status chart data (all renter bookings)
-        const allBookingsRes = await apiFetch('/renter/bookings?page=0&size=200')
+        const allBookingsRes = await apiFetch('/api/renter/bookings?page=0&size=200')
         const allBookings = allBookingsRes.data?.content || []
         setBookingStatusCounts(getBookingStatusBreakdown(allBookings))
 
         // Favorites
-        const favRes = await apiFetch('/favorites');
+        const favRes = await apiFetch('/api/favorites');
         setFavoriteProperties((favRes.data?.content || []).map((f: any) => ({
           id: f.id,
           title: f.property?.title || '',
           location: f.property?.location || '',
           price: f.property?.price || 0,
-          image: f.property?.image ? (f.property.image.startsWith('http') ? f.property.image : `http://localhost:8080${f.property.image}`) : '',
+          image: f.property?.image ? (f.property.image.startsWith('http') ? f.property.image : `${import.meta.env.VITE_API_URL}${f.property.image}`) : '',
           rating: f.property?.rating || 0,
           savedDate: f.savedAt,
           category: f.property?.category || '',

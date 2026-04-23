@@ -40,10 +40,10 @@ const OwnerPropertyDetail = () => {
       setLoading(true)
       setError(null)
       try {
-        const res = await apiFetch(`/properties/${id}`)
+        const res = await apiFetch(`/api/properties/${id}`)
         let p = res.data || res
         p.images = Array.isArray(p.images)
-          ? p.images.map((img: string) => img && !img.startsWith('http') ? `http://localhost:8080${img}` : img)
+          ? p.images.map((img: string) => img && !img.startsWith('http') ? `${import.meta.env.VITE_API_URL}${img}` : img)
           : []
         setProperty(p)
       } catch (err: any) {

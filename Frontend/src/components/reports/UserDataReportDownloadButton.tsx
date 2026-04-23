@@ -19,7 +19,7 @@ const UserDataReportDownloadButton = ({
   const handleDownload = async () => {
     setIsDownloading(true)
     try {
-      const response = await apiFetch('/auth/me/export')
+      const response = await apiFetch('/api/auth/me/export')
       const payload = response?.data ?? response
       downloadUserDataPdfReport(payload)
       onSuccess?.('Your PDF report has been downloaded.')

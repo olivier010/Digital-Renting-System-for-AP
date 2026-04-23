@@ -40,7 +40,7 @@ const Settings = () => {
       setIsProfileLoading(true)
       setFeedback(null)
       try {
-        const response = await apiFetch('/auth/me')
+        const response = await apiFetch('/api/auth/me')
         const profile = response?.data ?? {}
 
         setProfileData({
@@ -73,7 +73,7 @@ const Settings = () => {
     setFeedback(null)
 
     try {
-      const response = await apiFetch('/auth/me', {
+      const response = await apiFetch('/api/auth/me', {
         method: 'PUT',
         body: JSON.stringify({
           firstName: profileData.firstName,
@@ -126,7 +126,7 @@ const Settings = () => {
 
     setIsChangingPassword(true)
     try {
-      await apiFetch('/auth/password', {
+      await apiFetch('/api/auth/password', {
         method: 'PUT',
         body: JSON.stringify(passwordData)
       })
@@ -169,7 +169,7 @@ const Settings = () => {
     setIsDeletingAccount(true)
     setFeedback(null)
     try {
-      await apiFetch('/auth/me', {
+      await apiFetch('/api/auth/me', {
         method: 'DELETE',
         body: JSON.stringify({ currentPassword: deletePassword })
       })

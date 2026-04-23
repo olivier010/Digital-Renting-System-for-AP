@@ -33,7 +33,7 @@ const Bookings = () => {
   useEffect(() => {
     setLoading(true)
     setError(null)
-    apiFetch(`/bookings?page=${currentPage - 1}&size=${bookingsPerPage}`)
+    apiFetch(`/api/bookings?page=${currentPage - 1}&size=${bookingsPerPage}`)
       .then((data) => {
         // The backend returns { success, message, data: { content, ... } }
         setBookings((data.data && data.data.content) ? data.data.content : [])

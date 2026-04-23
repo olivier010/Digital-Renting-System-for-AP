@@ -50,7 +50,7 @@ const Notifications = () => {
   const fetchNotifications = useCallback(async (pageNum: number) => {
     setIsLoading(true)
     try {
-      let endpoint = `/admin/notifications?page=${pageNum}&size=${PAGE_SIZE}`
+      let endpoint = `/api/admin/notifications?page=${pageNum}&size=${PAGE_SIZE}`
       if (searchQuery) endpoint += `&search=${encodeURIComponent(searchQuery)}`
       if (filterType) endpoint += `&type=${encodeURIComponent(filterType)}`
       const res = await apiFetch(endpoint)
@@ -82,7 +82,7 @@ const Notifications = () => {
     setSendSuccess(false)
 
     try {
-      await apiFetch('/admin/notifications/send', {
+      await apiFetch('/api/admin/notifications/send', {
         method: 'POST',
         body: JSON.stringify({
           title: compose.title,

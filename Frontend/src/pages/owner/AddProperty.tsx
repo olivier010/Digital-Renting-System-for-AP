@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Home, Building2, Car, Landmark, Store, Package, Upload, X, Camera, MapPin, DollarSign, FileText, ArrowLeft, Check } from 'lucide-react'
+import { API_BASE_URL } from '../../utils/api'
 
 const categories = [
   { value: 'house', label: 'House', icon: Home },
@@ -36,7 +37,7 @@ const AddProperty = () => {
         setLoading(false)
         return
       }
-      const res = await fetch(`http://localhost:8080/api/properties/${id}`, {
+      const res = await fetch(`${API_BASE_URL}/api/properties/${id}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -114,7 +115,7 @@ const AddProperty = () => {
 
       let res
       if (id) {
-        res = await fetch(`http://localhost:8080/api/properties/${id}`, {
+        res = await fetch(`${API_BASE_URL}/api/properties/${id}`, {
           method: 'PUT',
           headers: {
             'Authorization': `Bearer ${token}`
@@ -123,7 +124,7 @@ const AddProperty = () => {
           body: form,
         })
       } else {
-        res = await fetch(`http://localhost:8080/api/properties`, {
+        res = await fetch(`${API_BASE_URL}/api/properties`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`
@@ -138,7 +139,7 @@ const AddProperty = () => {
         setIsSubmitting(false)
         return
       }
-      navigate('/owner/properties')
+      navigate('/api/owner/properties')
     } catch (err) {
       setErrors({ global: 'An unexpected error occurred.' })
       setIsSubmitting(false)

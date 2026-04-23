@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Calendar, CheckCircle, XCircle, AlertCircle, Search, Filter, Clock, ChevronDown, ChevronUp, MapPin, Mail, Phone, DollarSign } from 'lucide-react';
 
-const API_BASE_URL = 'http://localhost:8080/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 type OwnerBooking = import('../../types').Booking & {
   propertyId?: string | number;
@@ -58,7 +58,7 @@ const Bookings = () => {
           setLoading(false);
           return;
         }
-        const res = await fetch(`${API_BASE_URL}/owner/bookings`, {
+        const res = await fetch(`${API_BASE_URL}/api/owner/bookings`, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
@@ -79,7 +79,7 @@ const Bookings = () => {
           propertyStatus: b.property?.status || '',
           propertyLocation: b.property?.location || '',
           propertyImages: b.property?.image
-            ? [b.property.image.startsWith('http') ? b.property.image : `http://localhost:8080${b.property.image}`]
+            ? [b.property.image.startsWith('http') ? b.property.image : `${import.meta.env.VITE_API_URL}${b.property.image}`]
             : [],
           tenantId: b.renter?.id || b.tenantId,
           tenantName: b.renter?.name || '',

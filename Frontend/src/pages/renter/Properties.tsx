@@ -21,7 +21,7 @@ const Properties = () => {
     const fetchProperties = async () => {
       setLoading(true)
       try {
-        const res = await apiFetch('/properties?page=0&size=100');
+        const res = await apiFetch('/api/properties?page=0&size=100');
         // API returns { success, data: { content: [...] } }
         let apiProperties = res.data?.content || [];
         // Fix image URLs: prefix with backend base if relative
@@ -29,7 +29,7 @@ const Properties = () => {
           ...p,
           available: p.isAvailable, // map backend isAvailable to frontend available
           images: Array.isArray(p.images)
-            ? p.images.map((img: string) => img && !img.startsWith('http') ? `http://localhost:8080${img}` : img)
+            ? p.images.map((img: string) => img && !img.startsWith('http') ? `${import.meta.env.VITE_API_URL}${img}` : img)
             : [],
         }));
         // Only show verified properties

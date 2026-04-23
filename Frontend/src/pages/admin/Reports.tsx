@@ -30,11 +30,11 @@ const Reports = () => {
 
   useEffect(() => {
     // Fetch dashboard stats
-    apiFetch('/admin/dashboard')
+    apiFetch('/api/admin/dashboard')
       .then(res => setOverviewStats(res.data))
       .catch(() => setOverviewStats(null))
     // Fetch logs
-    apiFetch('/admin/logs')
+    apiFetch('/api/admin/logs')
       .then(res => setSystemLogs(res.data))
       .catch(() => setSystemLogs([]))
     // TODO: Fetch revenueData from backend if available
