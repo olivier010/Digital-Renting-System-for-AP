@@ -391,7 +391,7 @@ const Bookings = () => {
                               try {
                                 const token = localStorage.getItem('rentwise_token');
                                 if (!token) return;
-                                const res = await fetch(`${API_BASE_URL}/bookings/${booking.id}`, {
+                                const res = await fetch(`${API_BASE_URL}/api/bookings/${booking.id}`, {
                                   method: 'PUT',
                                   headers: {
                                     'Authorization': `Bearer ${token}`,
