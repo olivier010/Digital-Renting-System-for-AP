@@ -28,11 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.math.BigDecimal;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
 @Service
@@ -44,6 +40,7 @@ public class PropertyService {
     private final CurrentUser currentUser;
     private final PropertyImageRepository propertyImageRepository;
     private final NotificationService notificationService;
+    private final FileUploadService fileUploadService;
 
     @Transactional(readOnly = true)
     public PageResponse<PropertyResponse> getAllProperties(PropertyCategory category, BigDecimal minPrice,
@@ -173,33 +170,15 @@ public class PropertyService {
 
         property = propertyRepository.save(property);
 
-        // Save images from MultipartFile if provided
+        // Save images from MultipartFile if provided (Cloudinary)
         if (images != null && !images.isEmpty()) {
-            String uploadDir = "uploads/property-images/" + property.getId();
-            Path uploadPath = Paths.get(uploadDir);
-            if (!Files.exists(uploadPath)) {
-                try {
-                    Files.createDirectories(uploadPath);
-                } catch (IOException e) {
-                    throw new RuntimeException("Could not create upload directory", e);
-                }
-            }
-            for (MultipartFile file : images) {
-                if (!file.isEmpty()) {
-                    String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
-                    Path filePath = uploadPath.resolve(fileName);
-                    try {
-                        file.transferTo(filePath);
-                    } catch (IOException e) {
-                        throw new RuntimeException("Failed to save image file", e);
-                    }
-                    String imageUrl = "/" + uploadDir.replace("\\", "/") + "/" + fileName;
-                    PropertyImage image = PropertyImage.builder()
-                            .property(property)
-                            .imageUrl(imageUrl)
-                            .build();
-                    propertyImageRepository.save(image);
-                }
+            List<String> imageUrls = fileUploadService.uploadImages(images);
+            for (String imageUrl : imageUrls) {
+                PropertyImage image = PropertyImage.builder()
+                        .property(property)
+                        .imageUrl(imageUrl)
+                        .build();
+                propertyImageRepository.save(image);
             }
         } else if (request.getImages() != null) {
             // Fallback: Save image URLs from request if present
@@ -278,7 +257,84 @@ public class PropertyService {
         if (request.getImages() != null) {
             // Remove old images
             propertyImageRepository.deleteByPropertyId(property.getId());
-            // Add new images
+            // Add new images from URLs
+            for (String imageUrl : request.getImages()) {
+                PropertyImage image = PropertyImage.builder()
+                        .property(property)
+                        .imageUrl(imageUrl)
+                        .build();
+                propertyImageRepository.save(image);
+            }
+        }
+        property = propertyRepository.save(property);
+        // Refresh property to include images
+        property = propertyRepository.findById(property.getId()).orElse(property);
+        return propertyMapper.toResponse(property);
+    }
+
+    @Transactional
+    public PropertyResponse updateProperty(Long id, UpdatePropertyRequest request, List<MultipartFile> images) {
+        Property property = propertyRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Property", "id", id));
+
+        // Check ownership
+        User currentUserEntity = currentUser.getUser();
+        if (currentUserEntity == null ||
+            (!property.getOwner().getId().equals(currentUserEntity.getId()) &&
+             !currentUserEntity.getRole().name().equals("ADMIN"))) {
+            throw new UnauthorizedException("You can only update your own properties");
+        }
+
+        if (request.getTitle() != null) {
+            property.setTitle(request.getTitle());
+        }
+        if (request.getDescription() != null) {
+            property.setDescription(request.getDescription());
+        }
+        if (request.getCategory() != null) {
+            try {
+                property.setCategory(PropertyCategory.valueOf(request.getCategory().toUpperCase()));
+            } catch (IllegalArgumentException e) {
+                throw new BadRequestException("Invalid category");
+            }
+        }
+        if (request.getLocation() != null) {
+            property.setLocation(request.getLocation());
+        }
+        if (request.getPrice() != null) {
+            property.setPrice(request.getPrice());
+        }
+        if (request.getIsAvailable() != null) {
+            property.setIsAvailable(request.getIsAvailable());
+        }
+        if (request.getStatus() != null) {
+            try {
+                property.setStatus(PropertyStatus.valueOf(request.getStatus().toUpperCase()));
+            } catch (IllegalArgumentException e) {
+                throw new BadRequestException("Invalid status");
+            }
+        }
+        // Update isVerified if provided
+        if (request.getIsVerified() != null) {
+            property.setIsVerified(request.getIsVerified());
+        }
+        // Update images if provided
+        if (images != null && !images.isEmpty()) {
+            // Remove old images
+            propertyImageRepository.deleteByPropertyId(property.getId());
+            // Upload new images to Cloudinary and save URLs
+            List<String> imageUrls = fileUploadService.uploadImages(images);
+            for (String imageUrl : imageUrls) {
+                PropertyImage image = PropertyImage.builder()
+                        .property(property)
+                        .imageUrl(imageUrl)
+                        .build();
+                propertyImageRepository.save(image);
+            }
+        } else if (request.getImages() != null) {
+            // Remove old images
+            propertyImageRepository.deleteByPropertyId(property.getId());
+            // Add new images from URLs
             for (String imageUrl : request.getImages()) {
                 PropertyImage image = PropertyImage.builder()
                         .property(property)
