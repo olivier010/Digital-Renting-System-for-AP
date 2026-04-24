@@ -448,7 +448,7 @@ const Reviews = () => {
                                 value: reviewForm.value
                               }
 
-                              await apiFetch('/reviews', {
+                              await apiFetch('/api/reviews', {
                                 method: 'POST',
                                 body: JSON.stringify(payload)
                               })
